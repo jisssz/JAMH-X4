@@ -5,6 +5,8 @@ import { ExtractedLabel } from '../models/ExtractedLabel';
 import { Verdict } from '../models/Verdict';
 import { submitReport, ReportCreatePayload } from '../services/api';
 import { saveLocalReport } from '../services/storage/localReports';
+import GlowBackground from '../components/ui/GlowBackground';
+import SectionLabel from '../components/ui/SectionLabel';
 
 export const Report: React.FC = () => {
   const location = useLocation();
@@ -28,18 +30,18 @@ export const Report: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-
   if (!extractedLabel || !verdict) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">No Report Data Available</h2>
-        <p className="text-xs text-slate-500 mb-6">
+      <div className="min-h-screen bg-[#05070b] text-white flex flex-col items-center justify-center p-6 text-center selection:bg-emerald-500">
+        <GlowBackground variant="subtle" />
+        <h2 className="relative z-10 text-2xl font-black text-white mb-2 tracking-tight">No Report Data Available</h2>
+        <p className="relative z-10 text-xs text-slate-400 mb-6 font-mono">
           Please complete a scan before submitting a compliance observation.
         </p>
         <button
           type="button"
           onClick={() => navigate('/scan')}
-          className="bg-gov-700 hover:bg-gov-800 text-white text-sm font-semibold px-6 py-3 rounded-xl transition"
+          className="relative z-10 bg-white text-slate-950 hover:bg-slate-100 text-xs font-bold px-6 py-3.5 rounded-full transition cursor-pointer"
         >
           Scan a Product
         </button>
@@ -86,7 +88,6 @@ export const Report: React.FC = () => {
     };
 
     try {
-      // If offline, directly queue report locally in IndexedDB
       if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         const local = await saveLocalReport(payload);
         setSubmittedReportId(local.localId);
@@ -95,13 +96,11 @@ export const Report: React.FC = () => {
         return;
       }
 
-      // Try online submission to backend
       const response = await submitReport(payload);
       setSubmittedReportId(response.id);
       setIsSavedLocally(false);
       setSubmitSuccess(true);
     } catch (err: unknown) {
-      // Graceful offline fallback: save to IndexedDB so observation is never lost
       try {
         const local = await saveLocalReport(payload);
         setSubmittedReportId(local.localId);
@@ -126,19 +125,22 @@ export const Report: React.FC = () => {
 
   if (submitSuccess) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-6">
-        <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center">
+      <div className="min-h-screen bg-[#05070b] text-white flex flex-col justify-center items-center p-6 selection:bg-emerald-500">
+        <GlowBackground variant="subtle" />
+        <div className="relative z-10 w-full max-w-md bg-slate-900/90 rounded-[2rem] p-8 border border-white/10 shadow-2xl backdrop-blur-2xl text-center">
           <div
-            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-              isSavedLocally ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border ${
+              isSavedLocally
+                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
             }`}
           >
-            <CheckCircle2 className="w-10 h-10" />
+            <CheckCircle2 className="w-9 h-9" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-1">
+          <h2 className="text-2xl font-black text-white mb-1 tracking-tight">
             {isSavedLocally ? 'Report Saved Locally' : 'Report Recorded'}
           </h2>
-          <p className="text-xs text-slate-600 mb-5 leading-relaxed">
+          <p className="text-xs text-slate-400 mb-6 leading-relaxed font-mono">
             {isSavedLocally
               ? 'Report saved on this device and will sync when you are online.'
               : 'Your observation has been registered in the compliance database for inspection and verification.'}
@@ -146,43 +148,42 @@ export const Report: React.FC = () => {
 
           {/* Reference ID card */}
           {submittedReportId && (
-            <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 mb-5 flex items-center justify-between">
+            <div className="bg-black/40 p-4 rounded-2xl border border-white/10 mb-6 flex items-center justify-between font-mono">
               <div className="text-left truncate mr-2">
-                <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider">
-                  {isSavedLocally ? 'Local Queue Reference ID' : 'Report Reference ID'}
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
+                  {isSavedLocally ? 'Local Reference ID' : 'Report Reference ID'}
                 </span>
-                <span className="text-xs font-mono font-bold text-gov-800 truncate block">
+                <span className="text-xs text-white truncate block font-bold mt-0.5">
                   {submittedReportId}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={copyReportId}
-                className="p-2 rounded-lg bg-white hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs flex items-center gap-1 transition"
+                className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 border border-white/10 text-xs flex items-center gap-1 transition cursor-pointer"
                 title="Copy ID"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                <span className="text-[10px] font-semibold">{copied ? 'Copied' : 'Copy'}</span>
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span className="text-[10px]">{copied ? 'Copied' : 'Copy'}</span>
               </button>
             </div>
           )}
 
-
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left text-xs space-y-2 mb-6 text-slate-600">
+          <div className="bg-white/[0.02] p-4 rounded-2xl border border-white/5 text-left text-xs space-y-2 mb-6 font-mono text-slate-400">
             <div>
-              <strong>Product: </strong> {productName || 'Packaged Commodity'}
+              <strong className="text-white">Product: </strong> {productName || 'Packaged Commodity'}
             </div>
             <div>
-              <strong>Screening Verdict: </strong>{' '}
-              <span className={`font-bold ${verdict.overallStatus === 'PASS' ? 'text-emerald-600' : 'text-amber-600'}`}>
+              <strong className="text-white">Screening Verdict: </strong>{' '}
+              <span className={`font-bold ${verdict.overallStatus === 'PASS' ? 'text-emerald-400' : 'text-amber-400'}`}>
                 {verdict.overallStatus}
               </span>
             </div>
             <div>
-              <strong>Flagged Issues: </strong> {verdict.potentialViolations.length} item(s)
+              <strong className="text-white">Flagged Issues: </strong> {verdict.potentialViolations.length} item(s)
             </div>
             <div>
-              <strong>Timestamp: </strong> {new Date().toLocaleString()}
+              <strong className="text-white">Timestamp: </strong> {new Date().toLocaleString()}
             </div>
           </div>
 
@@ -190,21 +191,21 @@ export const Report: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/history')}
-              className="w-full py-3.5 bg-gov-700 hover:bg-gov-800 text-white font-bold rounded-2xl shadow-lg shadow-gov-900/15 transition active:scale-[0.98]"
+              className="w-full py-3.5 bg-white text-slate-950 font-bold rounded-full shadow-[0_0_20px_rgba(255,255,255,0.25)] transition active:scale-[0.98] cursor-pointer"
             >
               View Report History
             </button>
             <button
               type="button"
               onClick={() => navigate('/scan')}
-              className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold rounded-2xl shadow-xs transition active:scale-[0.98]"
+              className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-full transition active:scale-[0.98] cursor-pointer"
             >
               Scan Another Product
             </button>
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-2xl transition text-xs"
+              className="w-full py-2.5 text-slate-400 hover:text-white font-mono rounded-full transition text-xs cursor-pointer"
             >
               Return to Home
             </button>
@@ -215,38 +216,41 @@ export const Report: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-between pb-12">
-      {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#05070b] text-slate-100 flex flex-col justify-between pb-12 selection:bg-emerald-500 selection:text-black">
+      <GlowBackground variant="subtle" />
+
+      {/* Top Floating Header */}
+      <header className="sticky top-3 sm:top-5 z-40 max-w-2xl w-full mx-auto px-4">
+        <div className="px-4 py-3 rounded-full bg-slate-950/80 border border-white/10 backdrop-blur-2xl shadow-xl flex items-center justify-between">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 text-sm font-medium"
+            className="flex items-center gap-1.5 text-slate-300 hover:text-white text-xs font-mono font-semibold py-1.5 px-3 rounded-full bg-white/5 border border-white/10 transition cursor-pointer"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Results</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>BACK</span>
           </button>
-          <h1 className="text-sm font-bold text-slate-800">Submit Observation</h1>
-          <div className="w-6" />
+          <h1 className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">Submit Observation</h1>
+          <div className="w-12" />
         </div>
       </header>
 
       {/* Main Form */}
-      <main className="max-w-2xl w-full mx-auto px-4 py-6">
+      <main className="relative z-10 max-w-2xl w-full mx-auto px-4 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Flagged Summary Box */}
-          <div className="bg-amber-50 rounded-2xl p-5 border border-amber-200">
-            <h3 className="text-sm font-bold text-amber-900 mb-1 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
+          <div className="bg-amber-950/20 rounded-3xl p-5 sm:p-6 border border-amber-500/30 backdrop-blur-xl">
+            <SectionLabel glow className="mb-2">/POTENTIAL ISSUES</SectionLabel>
+            <h3 className="text-base font-bold text-amber-300 mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-400" />
               Observed Non-Compliance ({verdict.potentialViolations.length})
             </h3>
-            <ul className="mt-2 space-y-1.5 text-xs text-amber-800">
+            <ul className="mt-3 space-y-2 text-xs text-slate-300 font-mono">
               {verdict.potentialViolations.map((v) => (
-                <li key={v.ruleId} className="flex items-start gap-1.5">
-                  <span className="font-bold">•</span>
+                <li key={v.ruleId} className="flex items-start gap-2 bg-black/40 p-2.5 rounded-xl border border-white/5">
+                  <span className="font-bold text-amber-400">•</span>
                   <span>
-                    <strong>{v.title}:</strong> {v.explanation}
+                    <strong className="text-white">{v.title}:</strong> {v.explanation}
                   </span>
                 </li>
               ))}
@@ -254,10 +258,10 @@ export const Report: React.FC = () => {
           </div>
 
           {/* Form Fields Card */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-slate-900/80 rounded-[2rem] p-6 sm:p-7 border border-white/10 shadow-2xl backdrop-blur-2xl space-y-5">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                <Building className="w-3.5 h-3.5 text-gov-600" />
+              <label className="block text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
+                <Building className="w-3.5 h-3.5 text-emerald-400" />
                 Product or Brand Name (Optional)
               </label>
               <input
@@ -265,13 +269,13 @@ export const Report: React.FC = () => {
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
                 placeholder="e.g. Parle-G Biscuit 100g or Brand Name"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gov-500"
+                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-white/30 font-sans"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-gov-600" />
+              <label className="block text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
                 Store / Location of Purchase (Optional)
               </label>
               <input
@@ -279,13 +283,13 @@ export const Report: React.FC = () => {
                 value={storeLocation}
                 onChange={(e) => setStoreLocation(e.target.value)}
                 placeholder="e.g. Supermarket, Sector 14, New Delhi"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gov-500"
+                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-white/30 font-sans"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                <FileText className="w-3.5 h-3.5 text-gov-600" />
+              <label className="block text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-emerald-400" />
                 Additional Remarks / Observations
               </label>
               <textarea
@@ -293,16 +297,16 @@ export const Report: React.FC = () => {
                 value={userNotes}
                 onChange={(e) => setUserNotes(e.target.value)}
                 placeholder="Detail any additional package defects, smudged dates, or retailer overcharging."
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gov-500"
+                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-white/30 font-sans"
               />
             </div>
           </div>
 
           {/* Error Message with Retry */}
           {errorMessage && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 space-y-2">
+            <div className="p-4 bg-red-950/30 border border-red-500/30 rounded-2xl text-xs text-red-300 space-y-2 font-mono">
               <div className="flex items-center gap-2 font-semibold">
-                <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
                 <span>Backend Connection Issue</span>
               </div>
               <p>{errorMessage}</p>
@@ -311,7 +315,7 @@ export const Report: React.FC = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold inline-flex items-center gap-1.5 text-xs transition"
+                  className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-full font-bold inline-flex items-center gap-1.5 text-xs transition cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSubmitting ? 'animate-spin' : ''}`} />
                   <span>Retry Submission</span>
@@ -323,16 +327,16 @@ export const Report: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-4 bg-gov-700 hover:bg-gov-800 disabled:bg-slate-400 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-gov-900/15 transition active:scale-[0.98]"
+            className="w-full py-4 bg-white hover:bg-slate-100 disabled:bg-slate-700 text-slate-950 font-bold rounded-full flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(255,255,255,0.3)] transition active:scale-[0.98] cursor-pointer"
           >
             {isSubmitting ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 font-mono text-sm">
                 <RefreshCw className="w-4 h-4 animate-spin" />
                 Submitting report...
               </span>
             ) : (
               <>
-                <Send className="w-5 h-5" />
+                <Send className="w-5 h-5 text-emerald-600" />
                 <span>Submit Compliance Observation</span>
               </>
             )}
@@ -343,3 +347,4 @@ export const Report: React.FC = () => {
   );
 };
 
+export default Report;

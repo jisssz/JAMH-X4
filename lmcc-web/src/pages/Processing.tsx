@@ -7,6 +7,7 @@ import { getSelectedLanguage } from '../services/ocr/ocrLanguages';
 import { parseLabel } from '../services/parser/fieldParser';
 import { defaultRulesEngine } from '../services/rules/rulesEngine';
 import { ProcessingIndicator } from '../components/ProcessingIndicator';
+import GlowBackground from '../components/ui/GlowBackground';
 
 export const Processing: React.FC = () => {
   const navigate = useNavigate();
@@ -51,10 +52,9 @@ export const Processing: React.FC = () => {
 
       // 3. Field Parsing (Rules 6 mandatory declarations)
       setStep('parsing');
-      setStatusMessage('Extracting mandatory label declarations...');
+      setStatusMessage('Detecting mandatory label declarations...');
       setProgress(0.92);
 
-      // Brief delay for smooth UI transition
       await new Promise((r) => setTimeout(r, 200));
       const extractedLabel = parseLabel(rawOcrText);
 
@@ -120,39 +120,41 @@ export const Processing: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-50 flex flex-col justify-between p-4">
+    <div className="min-h-screen bg-[#05070b] text-slate-100 flex flex-col justify-between p-4 selection:bg-emerald-500 selection:text-black">
+      <GlowBackground variant="subtle" />
+
       {/* Top App Bar */}
-      <header className="max-w-md mx-auto w-full pt-4 flex items-center justify-between">
+      <header className="relative z-10 max-w-md mx-auto w-full pt-4 flex items-center justify-between">
         <button
           type="button"
           onClick={handleRetake}
-          className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 text-sm font-medium transition"
+          className="flex items-center gap-1.5 text-slate-400 hover:text-white text-xs font-mono font-semibold py-1.5 px-3 rounded-full bg-white/5 border border-white/10 transition cursor-pointer"
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Cancel</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>CANCEL</span>
         </button>
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 uppercase">
           LMCC Automated Screening
         </span>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-center py-6">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center py-6">
         {/* 1. Empty OCR Result State */}
         {emptyOcr ? (
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-200 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
+          <div className="w-full max-w-md bg-slate-900/90 rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/10 text-center backdrop-blur-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
               <AlertCircle className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
+            <h3 className="text-xl font-bold text-white mb-2">
               No Readable Text Detected
             </h3>
-            <p className="text-xs text-slate-600 mb-6 leading-relaxed">
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed font-mono">
               Tesseract.js scanned the image but could not detect readable characters. This commonly occurs if the label is out of focus, has reflections/glare, or has text that is too distant.
             </p>
 
             {imagePreviewUrl && (
-              <div className="w-full h-32 rounded-xl overflow-hidden bg-slate-900 mb-6 border border-slate-200">
+              <div className="w-full h-36 rounded-2xl overflow-hidden bg-black mb-6 border border-white/10">
                 <img
                   src={imagePreviewUrl}
                   alt="Scanned image with no text detected"
@@ -165,56 +167,56 @@ export const Processing: React.FC = () => {
               <button
                 type="button"
                 onClick={runOcrPipeline}
-                className="w-full py-3.5 bg-gov-700 hover:bg-gov-800 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md transition active:scale-95"
+                className="w-full py-3.5 bg-white text-slate-950 hover:bg-slate-100 text-xs font-bold rounded-full flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition active:scale-95 cursor-pointer font-mono"
               >
                 <RefreshCw className="w-4 h-4" />
-                Try Again
+                TRY AGAIN
               </button>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handleRetake}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition"
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold rounded-full flex items-center justify-center gap-1.5 transition border border-white/10 cursor-pointer font-mono"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  Retake Photo
+                  RETAKE
                 </button>
                 <button
                   type="button"
                   onClick={handleUploadAnother}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition"
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold rounded-full flex items-center justify-center gap-1.5 transition border border-white/10 cursor-pointer font-mono"
                 >
                   <UploadCloud className="w-3.5 h-3.5" />
-                  Upload Image
+                  UPLOAD
                 </button>
               </div>
             </div>
           </div>
         ) : error ? (
           /* 2. Error State */
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-red-100 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+          <div className="w-full max-w-md bg-slate-900/90 rounded-3xl p-6 sm:p-8 shadow-2xl border border-red-500/30 text-center backdrop-blur-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-400 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
               <AlertCircle className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Recognition Interrupted</h3>
-            <p className="text-xs text-slate-600 mb-6 bg-red-50 p-3 rounded-xl border border-red-100">
+            <h3 className="text-xl font-bold text-white mb-2">Recognition Interrupted</h3>
+            <p className="text-xs text-slate-400 mb-6 bg-red-950/30 p-3 rounded-xl border border-red-500/20 font-mono">
               {error}
             </p>
             <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={runOcrPipeline}
-                className="w-full py-3.5 bg-gov-700 hover:bg-gov-800 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition active:scale-95"
+                className="w-full py-3.5 bg-white text-slate-950 hover:bg-slate-100 text-xs font-bold rounded-full flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer font-mono"
               >
                 <RefreshCw className="w-4 h-4" />
-                Retry Recognition
+                RETRY RECOGNITION
               </button>
               <button
                 type="button"
                 onClick={handleRetake}
-                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
+                className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-full transition border border-white/10 cursor-pointer font-mono"
               >
-                Capture Another Image
+                CAPTURE ANOTHER IMAGE
               </button>
             </div>
           </div>
@@ -229,17 +231,17 @@ export const Processing: React.FC = () => {
 
             {/* Thumbnail Preview below progress */}
             {imagePreviewUrl && (
-              <div className="mt-4 flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-slate-200/80 px-4 py-2.5 rounded-2xl shadow-sm">
-                <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-900 flex-shrink-0">
+              <div className="mt-5 flex items-center gap-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 px-4 py-2.5 rounded-2xl shadow-lg">
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/10">
                   <img
                     src={imagePreviewUrl}
                     alt="Packaging thumbnail"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="text-left text-xs">
-                  <span className="font-semibold text-slate-800 block">Processing label photo</span>
-                  <span className="text-slate-400">Local browser Web Worker</span>
+                <div className="text-left text-xs font-mono">
+                  <span className="font-semibold text-white block">Processing label photo</span>
+                  <span className="text-slate-400 text-[11px]">Local browser Web Worker</span>
                 </div>
               </div>
             )}
@@ -248,10 +250,12 @@ export const Processing: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-3 text-xs text-slate-400 flex items-center justify-center gap-1.5">
-        <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+      <footer className="relative z-10 text-center py-3 text-xs text-slate-500 flex items-center justify-center gap-1.5 font-mono">
+        <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
         <span>Tesseract.js runs 100% locally in your browser • Zero cloud upload</span>
       </footer>
     </div>
   );
 };
+
+export default Processing;

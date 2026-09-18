@@ -17,9 +17,12 @@ import {
   ShieldCheck,
   ExternalLink,
   Clock,
+  Camera,
 } from 'lucide-react';
 import { getReport, ReportRead } from '../services/api';
-import { getLocalReport, getLocalReports } from '../services/storage/localReports';
+import { getLocalReport } from '../services/storage/localReports';
+import GlowBackground from '../components/ui/GlowBackground';
+import SectionLabel from '../components/ui/SectionLabel';
 
 export const ReportDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -75,53 +78,55 @@ export const ReportDetail: React.FC = () => {
           return;
         }
       } catch (e) {
-        console.warn('Error fetching local report:', e);
+        console.warn('Failed to read local report details:', e);
       }
     }
 
     try {
       const data = await getReport(id);
       setReport(data);
-      setLocalInfo({ isLocal: false, syncStatus: 'synced', serverId: data.id });
+      setLocalInfo({
+        isLocal: false,
+        syncStatus: 'synced',
+        serverId: data.id,
+      });
     } catch (err: unknown) {
-      // Fallback: check if report exists in local IndexedDB (matching either localId or serverId)
       try {
-        const locals = await getLocalReports();
-        const matching = locals.find((l) => l.localId === id || l.serverId === id);
-        if (matching) {
+        const local = await getLocalReport(id);
+        if (local) {
           setReport({
-            id: matching.localId,
-            createdAt: matching.createdAt,
-            verdict: matching.payload.verdict,
-            productName: matching.payload.productName,
-            mrp: matching.payload.mrp,
-            netQuantity: matching.payload.netQuantity,
-            manufacturer: matching.payload.manufacturer,
-            dateDeclaration: matching.payload.dateDeclaration,
-            consumerCare: matching.payload.consumerCare,
-            issueCount: matching.payload.issueCount || (matching.payload.issues ? matching.payload.issues.length : 0),
-            issues: matching.payload.issues || [],
-            rawOcr: matching.payload.rawOcr,
-            userRemarks: matching.payload.userRemarks,
+            id: local.localId,
+            createdAt: local.createdAt,
+            verdict: local.payload.verdict,
+            productName: local.payload.productName,
+            mrp: local.payload.mrp,
+            netQuantity: local.payload.netQuantity,
+            manufacturer: local.payload.manufacturer,
+            dateDeclaration: local.payload.dateDeclaration,
+            consumerCare: local.payload.consumerCare,
+            issueCount: local.payload.issueCount || (local.payload.issues ? local.payload.issues.length : 0),
+            issues: local.payload.issues || [],
+            rawOcr: local.payload.rawOcr,
+            userRemarks: local.payload.userRemarks,
           });
           setLocalInfo({
             isLocal: true,
-            syncStatus: matching.syncStatus,
-            serverId: matching.serverId || null,
+            syncStatus: local.syncStatus,
+            serverId: local.serverId || null,
           });
           setLoading(false);
           return;
         }
       } catch {
-        // Fallback to reporting server error
+        // continue to error handler
       }
-      const msg = err instanceof Error ? err.message : 'Report not found.';
+
+      const msg = err instanceof Error ? err.message : 'Unable to load report.';
       setError(msg);
     } finally {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchDetail();
@@ -159,59 +164,60 @@ export const ReportDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-between pb-12">
-      {/* Top Navigation Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#05070b] text-slate-100 flex flex-col justify-between pb-12 selection:bg-emerald-500 selection:text-black">
+      <GlowBackground variant="subtle" />
+
+      {/* Top Floating Header */}
+      <header className="sticky top-3 sm:top-5 z-40 max-w-2xl w-full mx-auto px-4">
+        <div className="px-4 py-3 rounded-full bg-slate-950/80 border border-white/10 backdrop-blur-2xl shadow-xl flex items-center justify-between">
           <button
             type="button"
             onClick={() => navigate('/history')}
-            className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 text-sm font-medium"
+            className="flex items-center gap-1.5 text-slate-300 hover:text-white text-xs font-mono font-semibold py-1.5 px-3 rounded-full bg-white/5 border border-white/10 transition cursor-pointer"
             aria-label="Back to History"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>History</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>HISTORY</span>
           </button>
           <div className="text-center">
-            <h1 className="text-sm font-bold text-slate-800">Report Details</h1>
-            <span className="text-[10px] text-slate-500 font-medium">Historical Screening Record</span>
+            <h1 className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">Report Details</h1>
+            <span className="text-[10px] text-slate-400 font-mono hidden sm:block">Historical Record</span>
           </div>
           <button
             type="button"
             onClick={() => navigate('/scan')}
-            className="text-xs font-bold text-gov-700 hover:text-gov-800 py-1.5 px-3 bg-gov-50 hover:bg-gov-100 rounded-lg border border-gov-200 transition"
+            className="flex items-center gap-1.5 text-slate-950 bg-white hover:bg-slate-100 text-xs font-bold py-1.5 px-3 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.3)] transition cursor-pointer"
           >
-            Scan
+            <Camera className="w-3.5 h-3.5" />
+            <span>Scan</span>
           </button>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-2xl w-full mx-auto px-4 py-6 flex-1 space-y-5">
+      <main className="relative z-10 max-w-2xl w-full mx-auto px-4 py-8 flex-1 space-y-6">
         {loading ? (
-          /* Loading State */
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-gov-50 text-gov-600 flex items-center justify-center mb-4 border border-gov-100 shadow-sm">
-              <RefreshCw className="w-6 h-6 animate-spin text-gov-700" />
+          <div className="flex flex-col items-center justify-center py-20 text-center font-mono">
+            <div className="w-12 h-12 rounded-2xl bg-white/5 text-emerald-400 flex items-center justify-center mb-4 border border-white/10 shadow-lg">
+              <RefreshCw className="w-6 h-6 animate-spin" />
             </div>
-            <h3 className="text-base font-bold text-slate-800">Loading report...</h3>
-            <p className="text-xs text-slate-500 mt-1">Retrieving report details from registry</p>
+            <h3 className="text-base font-bold text-white uppercase">Loading report...</h3>
+            <p className="text-xs text-slate-400 mt-1">Retrieving report details from registry</p>
           </div>
         ) : error || !report ? (
-          /* Error State */
-          <div className="bg-white rounded-3xl p-8 border border-red-200 shadow-sm text-center max-w-md mx-auto my-8">
-            <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4 border border-red-100">
+          <div className="bg-slate-900/80 rounded-3xl p-8 border border-red-500/30 text-center max-w-md mx-auto my-8 backdrop-blur-xl">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-400 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
               <AlertTriangle className="w-7 h-7" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Report not found.</h3>
-            <p className="text-xs text-slate-600 mb-6 leading-relaxed">
-              {error || 'The requested screening report could not be found or the server is unavailable.'}
+            <h3 className="text-lg font-bold text-white mb-1">Report not found</h3>
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed font-mono">
+              {error || 'The requested screening report could not be found or the service is unavailable.'}
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2 font-mono">
               <button
                 type="button"
                 onClick={fetchDetail}
-                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition"
+                className="w-full py-3 bg-white text-slate-950 hover:bg-slate-100 text-xs font-bold rounded-full flex items-center justify-center gap-2 transition cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>Retry</span>
@@ -219,23 +225,22 @@ export const ReportDetail: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/history')}
-                className="w-full py-3 bg-gov-700 hover:bg-gov-800 text-white text-xs font-bold rounded-xl flex items-center justify-center transition"
+                className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold rounded-full flex items-center justify-center transition border border-white/10 cursor-pointer"
               >
                 Back to History
               </button>
             </div>
           </div>
         ) : (
-          /* Loaded Report View */
           <>
             {/* 1. Historical Disclaimer Banner */}
-            <div className="bg-slate-800 text-slate-200 p-4 rounded-2xl flex items-start gap-3 text-xs shadow-sm">
-              <Scale className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="bg-slate-900/80 border border-white/10 p-4 rounded-2xl flex items-start gap-3 text-xs backdrop-blur-xl font-mono text-slate-300">
+              <Scale className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div className="leading-relaxed">
                 <span className="font-bold text-white uppercase tracking-wider text-[11px] block mb-0.5">
-                  Historical screening report
+                  Historical Screening Report
                 </span>
-                <p className="text-slate-300 text-[11px]">
+                <p className="text-slate-400 text-[11px]">
                   Archived automated screening observation under Rule 6 of the Legal Metrology (Packaged Commodities) Rules, 2011. This record does not constitute an official legal determination or regulatory certification.
                 </p>
               </div>
@@ -243,42 +248,34 @@ export const ReportDetail: React.FC = () => {
 
             {/* 2. Verdict Banner Card */}
             <div
-              className={`p-6 rounded-3xl border shadow-sm ${
+              className={`p-6 sm:p-7 rounded-[2rem] border backdrop-blur-2xl shadow-2xl relative overflow-hidden ${
                 report.verdict === 'PASS'
-                  ? 'bg-emerald-50 border-emerald-200'
-                  : 'bg-amber-50 border-amber-200'
+                  ? 'bg-gradient-to-b from-slate-900/90 to-emerald-950/40 border-emerald-500/40 shadow-[0_0_40px_-15px_rgba(16,185,129,0.3)]'
+                  : 'bg-gradient-to-b from-slate-900/90 to-amber-950/40 border-amber-500/40 shadow-[0_0_40px_-15px_rgba(245,158,11,0.3)]'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {report.verdict === 'PASS' ? (
-                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
                   ) : (
-                    <ShieldAlert className="w-6 h-6 text-amber-600" />
+                    <ShieldAlert className="w-6 h-6 text-amber-400" />
                   )}
-                  <h2
-                    className={`text-xl font-black ${
-                      report.verdict === 'PASS' ? 'text-emerald-900' : 'text-amber-900'
-                    }`}
-                  >
+                  <h2 className="text-xl font-black text-white tracking-tight">
                     SCREENING VERDICT: {report.verdict}
                   </h2>
                 </div>
                 <span
-                  className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
+                  className={`text-[10px] font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${
                     report.verdict === 'PASS'
-                      ? 'bg-emerald-200 text-emerald-900'
-                      : 'bg-amber-200 text-amber-900'
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                   }`}
                 >
                   {report.issueCount === 0 ? 'No Issues Flagged' : `${report.issueCount} Flagged Item(s)`}
                 </span>
               </div>
-              <p
-                className={`text-xs leading-relaxed ${
-                  report.verdict === 'PASS' ? 'text-emerald-800' : 'text-amber-800'
-                }`}
-              >
+              <p className="text-xs text-slate-300 leading-relaxed font-sans mt-2">
                 {report.verdict === 'PASS'
                   ? 'All mandatory packaging declarations (MRP, Net Qty, Dates, Manufacturer & Consumer Care) were identified on the label during this screening.'
                   : `${report.issueCount} statutory declaration(s) required manual verification or were missing from the scanned text per Rule 6.`}
@@ -286,77 +283,69 @@ export const ReportDetail: React.FC = () => {
             </div>
 
             {/* 3. Report Metadata & Copyable ID */}
-            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+            <div className="bg-slate-900/80 p-6 rounded-[2rem] border border-white/10 shadow-2xl backdrop-blur-xl space-y-4 font-mono">
               {/* Local Pending Notice Badge if unsynced */}
               {localInfo?.isLocal && localInfo?.syncStatus !== 'synced' && (
-                <div className="bg-amber-50 border border-amber-200 p-3 rounded-2xl flex items-center gap-2 text-xs text-amber-800">
-                  <Clock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <div className="bg-amber-950/30 border border-amber-500/30 p-3.5 rounded-2xl flex items-center gap-2.5 text-xs text-amber-300">
+                  <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />
                   <div>
-                    <span className="font-bold block">Saved locally — waiting for connection</span>
-                    <span className="text-[11px] text-amber-700">This observation will sync automatically when online.</span>
+                    <span className="font-bold block">Saved locally — queued for sync</span>
+                    <span className="text-[11px] text-amber-200/80">This observation will sync automatically when online.</span>
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+              <div className="flex items-center justify-between bg-black/40 p-3.5 rounded-2xl border border-white/10">
                 <div className="min-w-0 mr-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[10px] uppercase text-slate-400 block tracking-wider">
                     {localInfo?.isLocal && localInfo?.syncStatus !== 'synced'
                       ? 'Local Queue Reference ID'
                       : 'Report Reference ID'}
                   </span>
-                  <span className="text-xs font-mono font-bold text-gov-900 truncate block">
+                  <span className="text-xs font-bold text-white truncate block mt-0.5">
                     {localInfo?.serverId || report.id}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCopyId}
-                  className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition flex-shrink-0"
+                  className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition flex-shrink-0 cursor-pointer"
                   aria-label="Copy Report ID"
                   title="Copy Report ID"
                 >
                   {copiedId ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-700">Copied</span>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-300 text-[10px]">Copied</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5" />
-                      <span>Copy ID</span>
+                      <span className="text-[10px]">Copy ID</span>
                     </>
                   )}
                 </button>
               </div>
 
-              {localInfo?.serverId && localInfo?.isLocal && (
-                <div className="text-[11px] text-slate-500 flex items-center gap-1 px-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Synchronized with server (Server ID: {localInfo.serverId})</span>
-                </div>
-              )}
-
-
-              <div className="grid grid-cols-2 gap-3 text-xs text-slate-600 pt-1">
+              <div className="grid grid-cols-2 gap-3 text-xs pt-1">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recorded At</span>
-                  <span className="font-medium text-slate-800">{formatDate(report.createdAt)}</span>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Recorded At</span>
+                  <span className="font-medium text-white">{formatDate(report.createdAt)}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Product Name</span>
-                  <span className="font-medium text-slate-800 truncate block">
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Product Name</span>
+                  <span className="font-medium text-white truncate block">
                     {report.productName || 'Unspecified'}
                   </span>
                 </div>
               </div>
 
               {report.userRemarks && (
-                <div className="pt-2 border-t border-slate-100 text-xs">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
+                <div className="pt-3 border-t border-white/5 text-xs">
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">
                     User Remarks / Location
                   </span>
-                  <p className="text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 italic">
+                  <p className="text-slate-300 bg-black/40 p-3 rounded-xl border border-white/5 italic">
                     "{report.userRemarks}"
                   </p>
                 </div>
@@ -364,45 +353,47 @@ export const ReportDetail: React.FC = () => {
             </div>
 
             {/* 4. Product Declarations Summary Grid */}
-            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Package className="w-4 h-4 text-gov-600" />
-                Mandatory Declarations Recorded
-              </h3>
+            <div className="bg-slate-900/80 p-6 rounded-[2rem] border border-white/10 shadow-2xl backdrop-blur-xl space-y-4">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-mono font-bold text-white uppercase tracking-wider">
+                  Mandatory Declarations Recorded
+                </h3>
+              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                <div className="p-3.5 bg-black/40 rounded-2xl border border-white/5">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Maximum Retail Price</span>
-                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">
-                    {report.mrp || <span className="text-slate-400 font-normal italic">Not detected</span>}
+                  <span className="font-bold text-white text-sm mt-0.5 block">
+                    {report.mrp || <span className="text-slate-500 font-normal italic">Not detected</span>}
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="p-3.5 bg-black/40 rounded-2xl border border-white/5">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Net Quantity</span>
-                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">
-                    {report.netQuantity || <span className="text-slate-400 font-normal italic">Not detected</span>}
+                  <span className="font-bold text-white text-sm mt-0.5 block">
+                    {report.netQuantity || <span className="text-slate-500 font-normal italic">Not detected</span>}
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="p-3.5 bg-black/40 rounded-2xl border border-white/5">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Mfg / Packing Date</span>
-                  <span className="font-bold text-slate-800 text-sm mt-0.5 block">
-                    {report.dateDeclaration || <span className="text-slate-400 font-normal italic">Not detected</span>}
+                  <span className="font-bold text-white text-sm mt-0.5 block">
+                    {report.dateDeclaration || <span className="text-slate-500 font-normal italic">Not detected</span>}
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="p-3.5 bg-black/40 rounded-2xl border border-white/5">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Consumer Care Cell</span>
-                  <span className="font-medium text-slate-800 mt-0.5 block break-words">
-                    {report.consumerCare || <span className="text-slate-400 font-normal italic">Not detected</span>}
+                  <span className="font-medium text-white mt-0.5 block break-words">
+                    {report.consumerCare || <span className="text-slate-500 font-normal italic">Not detected</span>}
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 sm:col-span-2">
+                <div className="p-3.5 bg-black/40 rounded-2xl border border-white/5 sm:col-span-2">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Manufacturer / Packer / Importer</span>
-                  <span className="font-medium text-slate-800 mt-0.5 block break-words">
-                    {report.manufacturer || <span className="text-slate-400 font-normal italic">Not detected</span>}
+                  <span className="font-medium text-white mt-0.5 block break-words">
+                    {report.manufacturer || <span className="text-slate-500 font-normal italic">Not detected</span>}
                   </span>
                 </div>
               </div>
@@ -411,66 +402,61 @@ export const ReportDetail: React.FC = () => {
             {/* 5. Flagged Review Items / Issues */}
             <div className="space-y-3">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  Detailed Review Items ({report.issueCount})
-                </h3>
+                <SectionLabel glow className="mb-1">/RECORDED ISSUES</SectionLabel>
               </div>
 
               {report.issues && report.issues.length > 0 ? (
                 report.issues.map((issue, idx) => (
                   <div
                     key={`${issue.ruleId}-${idx}`}
-                    className="bg-white rounded-3xl p-5 border border-amber-200 shadow-sm space-y-3"
+                    className="bg-slate-900/80 rounded-3xl p-5 sm:p-6 border border-amber-500/30 shadow-xl backdrop-blur-xl space-y-3 font-mono"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/10">
                             {issue.ruleId}
                           </span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-amber-100 text-amber-800">
+                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30">
                             {issue.severity}
                           </span>
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900">{issue.title}</h4>
+                        <h4 className="text-sm font-bold text-white font-sans">{issue.title}</h4>
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-700 leading-relaxed bg-amber-50/70 p-3 rounded-xl border border-amber-100">
+                    <p className="text-xs text-slate-300 leading-relaxed bg-black/40 p-3.5 rounded-xl border border-white/5 font-sans">
                       {issue.explanation}
                     </p>
 
                     {issue.evidence && (
                       <div className="text-xs space-y-1">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                           Recorded Evidence Snippet:
                         </span>
-                        <div className="font-mono text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-slate-800 break-words">
+                        <div className="text-[11px] bg-black/60 p-3 rounded-xl border border-white/10 text-amber-200 break-words">
                           {issue.evidence}
                         </div>
                       </div>
                     )}
 
                     {issue.recommendation && (
-                      <div className="text-xs text-slate-600">
-                        <strong>Recommendation:</strong> {issue.recommendation}
+                      <div className="text-xs text-slate-300 font-sans">
+                        <strong className="text-white">Recommendation: </strong> {issue.recommendation}
                       </div>
                     )}
 
                     {issue.gazetteReference && (
-                      <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center gap-1">
-                        <ExternalLink className="w-3 h-3 text-gov-600" />
-                        <span>
-                          <strong>Statutory Citation:</strong> {issue.gazetteReference}
-                        </span>
+                      <div className="pt-2 border-t border-white/5 text-[11px] text-emerald-400 flex items-center gap-1.5">
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Statutory Citation: {issue.gazetteReference}</span>
                       </div>
                     )}
                   </div>
                 ))
               ) : (
-                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-xs text-emerald-800 flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <div className="bg-emerald-950/20 border border-emerald-500/30 p-5 rounded-3xl text-xs text-emerald-300 flex items-center gap-2.5 font-mono">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                   <span>Zero compliance issues were flagged for this package during automated screening.</span>
                 </div>
               )}
@@ -478,50 +464,50 @@ export const ReportDetail: React.FC = () => {
 
             {/* 6. Raw OCR Text Accordion (Collapsible) */}
             {report.rawOcr && (
-              <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="bg-slate-900/80 rounded-[2rem] border border-white/10 overflow-hidden shadow-xl backdrop-blur-xl">
                 <button
                   type="button"
                   onClick={() => setShowRawOcr(!showRawOcr)}
-                  className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50 transition"
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition cursor-pointer"
                 >
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-gov-600" />
-                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  <div className="flex items-center gap-2 font-mono">
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                       Stored Raw OCR Text
                     </span>
                   </div>
                   {showRawOcr ? (
-                    <ChevronUp className="w-4 h-4 text-slate-500" />
+                    <ChevronUp className="w-4 h-4 text-slate-400" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
                   )}
                 </button>
 
                 {showRawOcr && (
-                  <div className="p-4 pt-0 border-t border-slate-100 space-y-3">
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="text-[11px] text-slate-500">
+                  <div className="p-5 pt-0 border-t border-white/5 space-y-3 font-mono">
+                    <div className="flex justify-between items-center pt-3">
+                      <span className="text-[11px] text-slate-400">
                         {report.rawOcr.length} characters recognized
                       </span>
                       <button
                         type="button"
                         onClick={handleCopyOcr}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg flex items-center gap-1 transition"
+                        className="px-3 py-1 bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-medium rounded-full flex items-center gap-1.5 transition border border-white/10 cursor-pointer"
                       >
                         {copiedOcr ? (
                           <>
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                            <span className="text-emerald-700">Copied</span>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-300 text-[10px]">Copied</span>
                           </>
                         ) : (
                           <>
                             <Copy className="w-3.5 h-3.5" />
-                            <span>Copy Raw Text</span>
+                            <span className="text-[10px]">Copy Text</span>
                           </>
                         )}
                       </button>
                     </div>
-                    <pre className="text-[11px] font-mono bg-slate-900 text-slate-100 p-4 rounded-2xl overflow-x-auto max-h-60 leading-relaxed whitespace-pre-wrap">
+                    <pre className="text-xs font-mono bg-black/80 text-slate-200 p-4 rounded-2xl overflow-x-auto max-h-60 leading-relaxed whitespace-pre-wrap border border-white/5">
                       {report.rawOcr}
                     </pre>
                   </div>
@@ -530,22 +516,22 @@ export const ReportDetail: React.FC = () => {
             )}
 
             {/* 7. Action Buttons */}
-            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <div className="pt-3 flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={() => navigate('/history')}
-                className="flex-1 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-2xl flex items-center justify-center gap-2 transition"
+                className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-slate-200 font-bold rounded-full flex items-center justify-center gap-2 transition border border-white/10 cursor-pointer text-xs font-mono"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back to History</span>
+                <span>BACK TO HISTORY</span>
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/scan')}
-                className="flex-1 py-3.5 bg-gov-700 hover:bg-gov-800 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-gov-900/15 transition active:scale-[0.98]"
+                className="flex-1 py-3.5 bg-white hover:bg-slate-100 text-slate-950 font-bold rounded-full flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition active:scale-[0.98] cursor-pointer text-xs font-mono"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>Scan Another Product</span>
+                <span>SCAN ANOTHER PRODUCT</span>
               </button>
             </div>
           </>
@@ -554,3 +540,5 @@ export const ReportDetail: React.FC = () => {
     </div>
   );
 };
+
+export default ReportDetail;

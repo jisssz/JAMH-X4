@@ -1,0 +1,18 @@
+{
+  "id": "fixture_05_household",
+  "name": "Sparkle Clean Detergent Powder",
+  "category": "Household Product",
+  "rawOcrText": "SPARKLE CLEAN DETERGENT POWDER\nMANUFACTURED BY: HINDUSTAN HYGIENE CHEMICALS LTD\nPLOT NO 42, GIDC ESTATE, ANKLESHWAR 393002, GUJARAT\nNET WT: 1 kg\nMFD: 07/2024\nMRP: ₹ 140.00 (INCL. OF ALL TAXES)\nCUSTOMER CARE EXECUTIVE: 1800209209, customercare@sparkleclean.co.in",
+  "expected": {
+    "mrp": "₹140.00",
+    "netQuantity": "1 kg",
+    "manufactureDate": "07/2024",
+    "manufacturer": "HINDUSTAN HYGIENE CHEMICALS LTD",
+    "address": "PLOT NO 42, GIDC ESTATE, ANKLESHWAR 393002, GUJARAT",
+    "consumerCare": "1800209209, customercare@sparkleclean.co.in",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

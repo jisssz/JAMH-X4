@@ -1,0 +1,45 @@
+# =============================================================================
+# Render Blueprint Specification (render.yaml)
+# Legal Metrology Compliance Checker (LMCC) - Problem Statement: SIH26034
+# Team: JAMH X4
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Primary Backend Web Service (FastAPI + SQLite)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: lmcc-backend
+    runtime: python
+    rootDir: lmcc-backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: DATABASE_URL
+        value: sqlite:///./reports.db
+      - key: FRONTEND_ORIGINS
+        value: http://localhost:5173,http://localhost:4173
+        # After deploying Vercel and Render frontends, append their domains:
+        # e.g.: https://your-lmcc.vercel.app,https://lmcc-web.onrender.com
+
+  # ---------------------------------------------------------------------------
+  # 2. Backup Frontend Static Site (React + Vite PWA)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: lmcc-web
+    runtime: static
+    rootDir: lmcc-web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        # Set to your deployed Render backend URL, e.g. https://lmcc-backend.onrender.com
+        sync: false

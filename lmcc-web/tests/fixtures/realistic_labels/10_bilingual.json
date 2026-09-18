@@ -1,0 +1,18 @@
+{
+  "id": "fixture_10_bilingual",
+  "name": "Bikaji Bhujia Sev (Bilingual English + Hindi)",
+  "category": "Bilingual Packaging",
+  "rawOcrText": "BIKAJI BHUJIA SEV / भुजिया सेव\nMFD BY / निर्माता: BIKAJI FOODS INTERNATIONAL LTD\nF-198, BICHHWAL IND AREA, BIKANER 334006, RAJASTHAN\nNET WT / शुद्ध वजन: 400 g\nPKD / पैकिंग: 07/2024\nMRP / अधिकतम खुदरा मूल्य: ₹ 115.00 (INCL OF ALL TAXES / सभी कर सहित)\nCUSTOMER CARE / ग्राहक सेवा: 18001804242, customercare@bikaji.com",
+  "expected": {
+    "mrp": "₹115.00",
+    "netQuantity": "400 g",
+    "packingDate": "07/2024",
+    "manufacturer": "BIKAJI FOODS INTERNATIONAL LTD",
+    "address": "F-198, BICHHWAL IND AREA, BIKANER 334006, RAJASTHAN",
+    "consumerCare": "18001804242, customercare@bikaji.com",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

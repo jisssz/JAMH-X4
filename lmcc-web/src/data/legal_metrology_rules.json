@@ -1,0 +1,74 @@
+[
+  {
+    "id": "LM-PCR-2011-R6-1-DA",
+    "field": "mrp",
+    "title": "Maximum Retail Price (MRP)",
+    "description": "Retail sale price of the package shall be clearly indicated as 'Maximum or Max. Retail Price inclusive of all taxes' or 'MRP Rs./₹ ... incl. of all taxes'.",
+    "severity": "critical",
+    "source": "Rule 6(1)(da), Legal Metrology (Packaged Commodities) Rules, 2011",
+    "gazetteReference": "Notified vide G.S.R. 629(E) dated 23-06-2017 & G.S.R. 779(E) dated 02-11-2021",
+    "whatCanBeDetected": "Presence of declared price, currency identifier (₹ or Rs.), and tax-inclusive designation.",
+    "legalLimitations": "Screening verifies label printing; overcharging above MRP at point-of-sale is an in-person enforcement check.",
+    "enabled": true
+  },
+  {
+    "id": "LM-PCR-2011-R6-1-C",
+    "field": "netQuantity",
+    "title": "Net Quantity Declaration",
+    "description": "Net quantity in terms of standard unit of weight or measure (g, kg, ml, l) or number (N / units) shall be clearly declared.",
+    "severity": "critical",
+    "source": "Rule 6(1)(c), Legal Metrology (Packaged Commodities) Rules, 2011",
+    "gazetteReference": "Principal Notification G.S.R. 202(E) dated 07-03-2011 read with Second Schedule",
+    "whatCanBeDetected": "Declared quantity with standard metric units or piece count.",
+    "legalLimitations": "Screening verifies declaration presence and standard units; physical weight/volume verification requires calibrated scales.",
+    "enabled": true
+  },
+  {
+    "id": "LM-PCR-2011-R6-1-A-NAME",
+    "field": "manufacturer",
+    "title": "Manufacturer / Packer / Importer Name",
+    "description": "Name of the manufacturer, or where manufacturer is not the packer, name of manufacturer and packer; or for imported packages, name of importer.",
+    "severity": "high",
+    "source": "Rule 6(1)(a), Legal Metrology (Packaged Commodities) Rules, 2011",
+    "gazetteReference": "Principal Notification G.S.R. 202(E) dated 07-03-2011",
+    "whatCanBeDetected": "Presence of manufacturer, packer, or importer business entity declaration and statutory prefix.",
+    "legalLimitations": "Screening checks for declared entity name; legal corporate status requires registrar verification.",
+    "enabled": true
+  },
+  {
+    "id": "LM-PCR-2011-R6-1-A-ADDR",
+    "field": "address",
+    "title": "Premises / Factory / Registered Address",
+    "description": "Complete postal address of premises or factory of the manufacturer, packer, or importer must be clearly indicated.",
+    "severity": "high",
+    "source": "Rule 6(1)(a), Legal Metrology (Packaged Commodities) Rules, 2011",
+    "gazetteReference": "Principal Notification G.S.R. 202(E) dated 07-03-2011",
+    "whatCanBeDetected": "Presence of postal address cues, locality, state, or 6-digit postal PIN code.",
+    "legalLimitations": "OCR cannot verify full legal adequacy of postal address; physical inspection is recommended if address appears truncated.",
+    "enabled": true
+  },
+  {
+    "id": "LM-PCR-2011-R6-1-D",
+    "field": "packingDate",
+    "title": "Month & Year of Manufacture / Packing",
+    "description": "Month and year in which the commodity is manufactured or pre-packed or imported must be clearly indicated.",
+    "severity": "high",
+    "source": "Rule 6(1)(d), Legal Metrology (Packaged Commodities) Rules, 2011",
+    "gazetteReference": "Substituted vide G.S.R. 779(E) dated 02-11-2021 (effective 01-12-2022)",
+    "whatCanBeDetected": "Month & Year format (MM/YYYY, MM/YY, or Month Year) with contextual prefix (MFD/PKD).",
+    "legalLimitations": "Screening flags missing dates, ambiguous dates lacking statutory prefix, and post-dated / future manufacturing dates.",
+    "enabled": true
+  },
+  {
+    "id": "LM-PCR-2011-R6-1-E",
+    "field": "consumerCare",
+    "title": "Consumer Care Redressal Details",
+    "description": "Name, address, telephone number, and email address of consumer contact cell must be declared for grievance redressal.",
+    "severity": "medium",
+    "source": "Rule 6(1)(e), Legal Metrology (Packaged Commodities) Rules, 2011",
+    "gazetteReference": "Inserted vide G.S.R. 359(E) dated 06-06-2013 and amended by G.S.R. 629(E)",
+    "whatCanBeDetected": "Presence of telephone helpline, toll-free contact number, or consumer complaint email.",
+    "legalLimitations": "Screening verifies contact declaration presence; operational status of consumer helpline requires physical testing.",
+    "enabled": true
+  }
+]

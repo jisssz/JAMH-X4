@@ -1,0 +1,18 @@
+{
+  "id": "fixture_04_packaged_food",
+  "name": "Sharbati Whole Wheat Atta",
+  "category": "Packaged Food",
+  "rawOcrText": "SHARBATI WHOLE WHEAT ATTA\nMANUFACTURED & PACKED BY: AGRO FOODS INDIA LTD\nTALUKA HAVELI, PUNE, MAHARASHTRA 411028\nNET QUANTITY: 5 kg\nPKD: 05/2024\nMRP Rs. 245.00 /- (INCLUSIVE OF ALL TAXES)\nHELPLINE: 1800345678, feedback@agrofoods.com",
+  "expected": {
+    "mrp": "₹245.00",
+    "netQuantity": "5 kg",
+    "packingDate": "05/2024",
+    "manufacturer": "AGRO FOODS INDIA LTD",
+    "address": "TALUKA HAVELI, PUNE, MAHARASHTRA 411028",
+    "consumerCare": "1800345678, feedback@agrofoods.com",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

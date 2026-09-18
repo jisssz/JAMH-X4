@@ -1,0 +1,51 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Node.js / Frontend dependencies & build artifacts
+node_modules/
+dist/
+dist-ssr/
+lmcc-web/node_modules/
+lmcc-web/dist/
+lmcc-web/dist-ssr/
+lmcc-web/*.tsbuildinfo
+lmcc-web/*.traineddata
+
+# Python / Backend virtual environments & bytecode
+.venv/
+venv/
+ENV/
+lmcc-backend/.venv/
+lmcc-backend/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+lmcc-backend/__pycache__/
+lmcc-backend/**/__pycache__/
+.pytest_cache/
+lmcc-backend/.pytest_cache/
+
+# Local SQLite databases (keep SQLite schema, do not commit local runtime databases)
+*.db
+*.sqlite
+*.sqlite3
+lmcc-backend/*.db
+lmcc-backend/*.sqlite3
+
+# Environment and secrets (NEVER commit real secrets)
+.env
+.env.*
+!.env.example
+lmcc-web/.env
+lmcc-web/.env.*
+!lmcc-web/.env.example
+lmcc-backend/.env
+lmcc-backend/.env.*
+!lmcc-backend/.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

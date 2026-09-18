@@ -1,0 +1,19 @@
+{
+  "id": "fixture_07_imported",
+  "name": "Alpen Alpine Dark Chocolate (Imported)",
+  "category": "Imported Product",
+  "rawOcrText": "ALPEN ALPINE 70% DARK CHOCOLATE\nPRODUCED BY: CHOCOLAT ALPEN SUISSE SA, GENEVA, SWITZERLAND\nIMPORTED BY: GLOBAL CONFECTIONERY IMPORTS INDIA PVT LTD\nREGD OFFICE: NARIMAN POINT, MUMBAI, MAHARASHTRA 400021\nNET WT: 100 g\nPKD: 04/2024\nMRP: ₹ 325.00 (INCL. OF ALL TAXES)\nCONSUMER CARE: 1800223344, care@globalimports.in",
+  "expected": {
+    "mrp": "₹325.00",
+    "netQuantity": "100 g",
+    "packingDate": "04/2024",
+    "manufacturer": "CHOCOLAT ALPEN SUISSE SA, GENEVA, SWITZERLAND",
+    "importer": "GLOBAL CONFECTIONERY IMPORTS INDIA PVT LTD",
+    "address": "REGD OFFICE: NARIMAN POINT, MUMBAI, MAHARASHTRA 400021",
+    "consumerCare": "1800223344, care@globalimports.in",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "fixture_01_biscuit",
+  "name": "Parle-G Original Glucose Biscuits",
+  "category": "Biscuit / Snack",
+  "rawOcrText": "PARLE-G ORIGINAL GLUCOSE BISCUITS\nMFD BY: PARLE PRODUCTS PVT LTD\nPLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057\nNET WEIGHT: 250 g\nMFD: 08/2024\nMRP: ₹ 35.00 (INCL. OF ALL TAXES)\nCONSUMER CARE: 1800222211, care@parle.biz",
+  "expected": {
+    "mrp": "₹35.00",
+    "netQuantity": "250 g",
+    "manufactureDate": "08/2024",
+    "manufacturer": "PARLE PRODUCTS PVT LTD",
+    "address": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057",
+    "consumerCare": "1800222211, care@parle.biz",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

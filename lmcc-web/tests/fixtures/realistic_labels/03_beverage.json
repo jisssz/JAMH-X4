@@ -1,0 +1,18 @@
+{
+  "id": "fixture_03_beverage",
+  "name": "Nature Fresh 100% Apple Juice",
+  "category": "Beverage",
+  "rawOcrText": "NATURE FRESH 100% APPLE JUICE\nPACKED BY: HIMALAYAN ORCHARDS LTD\nPLOT 5, BEAS INDUSTRIAL ESTATE, MANDI 175001\nNET QUANTITY: 1 L\nMFD: 06/2024\nMRP: ₹ 110.00 INCL. OF ALL TAXES\nCUSTOMER HELPLINE: 1800180180, helpline@naturefresh.in",
+  "expected": {
+    "mrp": "₹110.00",
+    "netQuantity": "1 l",
+    "manufactureDate": "06/2024",
+    "manufacturer": "HIMALAYAN ORCHARDS LTD",
+    "address": "PLOT 5, BEAS INDUSTRIAL ESTATE, MANDI 175001",
+    "consumerCare": "1800180180, helpline@naturefresh.in",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

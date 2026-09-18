@@ -1,0 +1,18 @@
+{
+  "id": "fixture_08_multi_block",
+  "name": "Crunchy Corn Flakes Breakfast Cereal",
+  "category": "Multiple Declaration Blocks",
+  "rawOcrText": "CRUNCHY CORN FLAKES\nINGREDIENTS: CORN GRITS, SUGAR, MALT EXTRACT, IODIZED SALT, VITAMINS & MINERALS\nNUTRITIONAL INFO PER 100g: ENERGY 380kcal, PROTEIN 7g, CARBS 84g\nBATCH NO: CF202408B1\nBARCODE: 8901234567890\nMANUFACTURED BY: GOLDEN GRAINS BREAKFAST FOODS LTD\nWORKS: PLOT 88, KIADB INDUSTRIAL AREA, BENGALURU 560066, KARNATAKA\nNET WEIGHT: 475 g\nMFG DATE: 08/2024\nEXPIRY: 9 MONTHS FROM MANUFACTURE\nMAX RETAIL PRICE: ₹ 195.00 (INCL OF ALL TAXES)\nFOR CONSUMER FEEDBACK CONTACT MANAGER AT: 1800425999, feedback@goldengrains.in",
+  "expected": {
+    "mrp": "₹195.00",
+    "netQuantity": "475 g",
+    "manufactureDate": "08/2024",
+    "manufacturer": "GOLDEN GRAINS BREAKFAST FOODS LTD",
+    "address": "WORKS: PLOT 88, KIADB INDUSTRIAL AREA, BENGALURU 560066, KARNATAKA",
+    "consumerCare": "1800425999, feedback@goldengrains.in",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

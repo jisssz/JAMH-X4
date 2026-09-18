@@ -1,0 +1,18 @@
+{
+  "id": "fixture_09_noisy_print",
+  "name": "Roasted Masala Peanuts (Dot Matrix Stamped Pouch)",
+  "category": "Noisy / Dot-Matrix Print",
+  "rawOcrText": "ROASTED MASALA PEANUTS\nM . R . P : R5 30 . 00 ( INCL OF ALL TAXES )\nN E T  W T : 70 g\nM F D : 06/2024\nM F D  B Y : DESI CRUNCH AGRO FOODS\nUNIT 3, INDUSTRIAL ESTATE, JAIPUR 302013, RAJASTHAN\nCARE CELL : 1800233445 , support@desicrunch.com",
+  "expected": {
+    "mrp": "₹30.00",
+    "netQuantity": "70 g",
+    "manufactureDate": "06/2024",
+    "manufacturer": "DESI CRUNCH AGRO FOODS",
+    "address": "UNIT 3, INDUSTRIAL ESTATE, JAIPUR 302013, RAJASTHAN",
+    "consumerCare": "1800233445, support@desicrunch.com",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

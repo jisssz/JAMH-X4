@@ -1,0 +1,18 @@
+{
+  "id": "fixture_06_personal_care",
+  "name": "Derma Shield SPF 50 Sunscreen",
+  "category": "Personal Care",
+  "rawOcrText": "DERMA SHIELD ULTRA MATTE SUNSCREEN GEL\nMFD BY: DERMA LABS PRIVATE LIMITED\nKHASRA NO 122, INDUSTRIAL AREA, BADDI 173205, HP\nNET WEIGHT: 50 g\nMFD: 09/2024\nMRP: ₹ 499.00 (INCL. OF ALL TAXES)\nFOR FEEDBACK CONTACT: care@dermashield.com, 1800112233",
+  "expected": {
+    "mrp": "₹499.00",
+    "netQuantity": "50 g",
+    "manufactureDate": "09/2024",
+    "manufacturer": "DERMA LABS PRIVATE LIMITED",
+    "address": "KHASRA NO 122, INDUSTRIAL AREA, BADDI 173205, HP",
+    "consumerCare": "1800112233, care@dermashield.com",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

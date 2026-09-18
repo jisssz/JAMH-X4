@@ -1,0 +1,18 @@
+{
+  "id": "fixture_02_shampoo",
+  "name": "Silk Shine Nourishing Shampoo",
+  "category": "Shampoo / Cosmetic",
+  "rawOcrText": "SILK SHINE NOURISHING SHAMPOO\nMANUFACTURED BY: COSMO CARE LABS LTD\nREGD OFFICE: SECTOR 62, NOIDA, UP 201301\nNET VOL: 650 ml\nPKD: 10/2024\nM.R.P. ₹ 420.00 INCL OF ALL TAXES\nFOR CONSUMER COMPLAINTS WRITE TO CARE CELL AT: 1800108108, support@cosmocare.in",
+  "expected": {
+    "mrp": "₹420.00",
+    "netQuantity": "650 ml",
+    "packingDate": "10/2024",
+    "manufacturer": "COSMO CARE LABS LTD",
+    "address": "REGD OFFICE: SECTOR 62, NOIDA, UP 201301",
+    "consumerCare": "1800108108, support@cosmocare.in",
+    "isDateAmbiguous": false,
+    "isFutureDate": false,
+    "expectedVerdict": "PASS",
+    "flaggedCount": 0
+  }
+}

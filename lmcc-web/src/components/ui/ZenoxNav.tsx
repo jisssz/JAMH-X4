@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, Scale, History, Menu, X, ChevronRight } from 'lucide-react';
 
-export const ZenoxNav: React.FC = () => {
+interface ZenoxNavProps {
+  onOpenHowItWorks?: () => void;
+}
+
+export const ZenoxNav: React.FC<ZenoxNavProps> = ({ onOpenHowItWorks }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -49,7 +53,13 @@ export const ZenoxNav: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => scrollToSection('how-it-works')}
+            onClick={() => {
+              if (onOpenHowItWorks) {
+                onOpenHowItWorks();
+              } else {
+                scrollToSection('how-it-works');
+              }
+            }}
             className="hover:text-white transition cursor-pointer"
           >
             How It Works
@@ -121,7 +131,14 @@ export const ZenoxNav: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => scrollToSection('how-it-works')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              if (onOpenHowItWorks) {
+                onOpenHowItWorks();
+              } else {
+                scrollToSection('how-it-works');
+              }
+            }}
             className="w-full text-left py-2 px-3 rounded-xl hover:bg-white/5 text-slate-200 flex items-center justify-between"
           >
             <span>HOW IT WORKS</span>

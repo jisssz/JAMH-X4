@@ -22,9 +22,11 @@ import SectionLabel from '../components/ui/SectionLabel';
 import BentoCard from '../components/ui/BentoCard';
 import FloatingScanCard from '../components/ui/FloatingScanCard';
 import RippleDistortion from '../components/motion/RippleDistortion';
+import HowItWorksModal from '../components/ui/HowItWorksModal';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-[#05070b] text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
@@ -32,7 +34,7 @@ export const Home: React.FC = () => {
       <GlowBackground variant="hero" />
 
       {/* Floating Zenox Navigation Bar */}
-      <ZenoxNav />
+      <ZenoxNav onOpenHowItWorks={() => setIsHowItWorksOpen(true)} />
 
       {/* Main Container */}
       <main className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-24 sm:space-y-32">
@@ -408,6 +410,12 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* How It Works Video Tutorial Modal */}
+      <HowItWorksModal
+        isOpen={isHowItWorksOpen}
+        onClose={() => setIsHowItWorksOpen(false)}
+      />
     </div>
   );
 };

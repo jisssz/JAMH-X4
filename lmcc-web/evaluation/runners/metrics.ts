@@ -88,11 +88,18 @@ export interface BenchmarkReport {
 }
 
 /**
- * Normalizes strings for tolerant comparison (case, trim, whitespace collapse).
+ * Normalizes strings for tolerant comparison (case, trim, whitespace collapse, Devanagari digits).
  */
+const DEVANAGARI_DIGITS: Record<string, string> = {
+  '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+  '५': '5', '६': '6', '७': '7', '८': '8', '९': '9',
+};
+
 function normalizeVal(val?: string | null): string {
   if (!val) return '';
-  return val.toLowerCase().replace(/[\s\r\n\t]+/g, ' ').trim();
+  let str = val.toLowerCase().replace(/[\s\r\n\t]+/g, ' ').trim();
+  str = str.replace(/[०-९]/gu, (d) => DEVANAGARI_DIGITS[d] || d);
+  return str;
 }
 
 /**

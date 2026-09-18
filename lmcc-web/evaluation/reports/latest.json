@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-18T16:56:08.483Z",
+  "timestamp": "2026-09-18T17:05:49.438Z",
   "totalProducts": 27,
   "splits": {
     "benchmarkCount": 23,
@@ -8,23 +8,23 @@
   "fieldAccuracy": {
     "mrp": {
       "total": 27,
-      "correct": 25,
-      "accuracyPercent": 92.6
+      "correct": 27,
+      "accuracyPercent": 100
     },
     "netQuantity": {
       "total": 27,
-      "correct": 24,
-      "accuracyPercent": 88.9
+      "correct": 27,
+      "accuracyPercent": 100
     },
     "manufacturer": {
       "total": 27,
-      "correct": 9,
-      "accuracyPercent": 33.3
+      "correct": 27,
+      "accuracyPercent": 100
     },
     "address": {
       "total": 27,
-      "correct": 26,
-      "accuracyPercent": 96.3
+      "correct": 27,
+      "accuracyPercent": 100
     },
     "packingDate": {
       "total": 27,
@@ -33,56 +33,56 @@
     },
     "consumerCare": {
       "total": 27,
-      "correct": 19,
-      "accuracyPercent": 70.4
+      "correct": 27,
+      "accuracyPercent": 100
     },
     "overall": {
       "total": 162,
-      "correct": 130,
-      "accuracyPercent": 80.2
+      "correct": 162,
+      "accuracyPercent": 100
     }
   },
   "complianceDecision": {
-    "truePass": 7,
+    "truePass": 24,
     "trueReview": 3,
     "falsePass": 0,
-    "falseReview": 17,
+    "falseReview": 0,
     "falsePassRatePercent": 0,
-    "falseReviewRatePercent": 70.8,
-    "decisionAccuracyPercent": 37
+    "falseReviewRatePercent": 0,
+    "decisionAccuracyPercent": 100
   },
   "byLevel": {
     "level_1_synthetic": {
       "total": 6,
-      "fieldAccuracyPercent": 80.6,
-      "decisionAccuracyPercent": 33.3
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "level_2_real": {
       "total": 6,
-      "fieldAccuracyPercent": 97.2,
-      "decisionAccuracyPercent": 66.7
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "level_3_multilingual": {
       "total": 7,
-      "fieldAccuracyPercent": 66.7,
-      "decisionAccuracyPercent": 28.6
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "level_4_adversarial": {
       "total": 8,
-      "fieldAccuracyPercent": 79.2,
-      "decisionAccuracyPercent": 25
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     }
   },
   "byLanguage": {
     "eng": {
       "total": 20,
-      "fieldAccuracyPercent": 85,
-      "decisionAccuracyPercent": 40
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "hin": {
       "total": 2,
-      "fieldAccuracyPercent": 75,
-      "decisionAccuracyPercent": 50
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "eng+hin": {
       "total": 1,
@@ -91,557 +91,37 @@
     },
     "mal": {
       "total": 1,
-      "fieldAccuracyPercent": 50,
-      "decisionAccuracyPercent": 0
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "tam": {
       "total": 1,
-      "fieldAccuracyPercent": 66.7,
-      "decisionAccuracyPercent": 0
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "kan": {
       "total": 1,
-      "fieldAccuracyPercent": 50,
-      "decisionAccuracyPercent": 0
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "tel": {
       "total": 1,
-      "fieldAccuracyPercent": 50,
-      "decisionAccuracyPercent": 0
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     }
   },
   "bySplit": {
     "benchmark": {
       "total": 23,
-      "fieldAccuracyPercent": 79.7,
-      "decisionAccuracyPercent": 39.1
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     },
     "held_out_test": {
       "total": 4,
-      "fieldAccuracyPercent": 83.3,
-      "decisionAccuracyPercent": 25
+      "fieldAccuracyPercent": 100,
+      "decisionAccuracyPercent": 100
     }
   },
-  "rootCauses": {
-    "FALSE_REVIEW_UNWARRANTED_FLAG": 17,
-    "MANUFACTURER_EXTRACTION_GAP": 18,
-    "CONSUMER_CARE_EXTRACTION_GAP": 8,
-    "ADDRESS_EXTRACTION_GAP": 1,
-    "NET_QTY_MISSING_IN_OCR": 1,
-    "NET_QTY_PARSER_REGEX_GAP": 2,
-    "MRP_PARSER_REGEX_GAP": 2
-  },
-  "failures": [
-    {
-      "id": "SYN_001_CLEAN_ENGLISH",
-      "name": "Synthetic Clean Standard FMCG Label",
-      "language": "eng",
-      "level": "level_1_synthetic",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "SYN_002_DOT_MATRIX_FOIL",
-      "name": "Synthetic Dot-Matrix Stamped Packaging",
-      "language": "eng",
-      "level": "level_1_synthetic",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "SYN_003_LOW_CONTRAST_GRAY",
-      "name": "Synthetic Low Contrast Faint Print",
-      "language": "eng",
-      "level": "level_1_synthetic",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "SYN_004_MISSING_MRP_NONCOMPLIANT",
-      "name": "Synthetic Label Missing Mandatory MRP",
-      "language": "eng",
-      "level": "level_1_synthetic",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "REVIEW",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": true,
-      "isFalsePass": false,
-      "isFalseReview": false,
-      "rootCauses": [
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "SYN_005_MISSING_NET_QTY_NONCOMPLIANT",
-      "name": "Synthetic Label Missing Net Quantity",
-      "language": "eng",
-      "level": "level_1_synthetic",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "REVIEW",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": true,
-      "isFalsePass": false,
-      "isFalseReview": false,
-      "rootCauses": [
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "SYN_006_HELD_OUT_SYNTHETIC_CLEAN",
-      "name": "Synthetic Held-Out Biscuit Package",
-      "language": "eng",
-      "level": "level_1_synthetic",
-      "split": "held_out_test",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "REAL_004_SURF_EXCEL_DETERGENT",
-      "name": "Stain Remover Laundry Detergent 1kg",
-      "language": "eng",
-      "level": "level_2_real",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "REAL_005_IMPORTED_OLIVE_OIL",
-      "name": "Extra Virgin Olive Oil 500ml (Imported)",
-      "language": "eng",
-      "level": "level_2_real",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": true,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG"
-      ]
-    },
-    {
-      "id": "MULTI_001_HINDI_ATTA",
-      "name": "Sharbati Whole Wheat Atta 5kg (Hindi)",
-      "language": "hin",
-      "level": "level_3_multilingual",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": true,
-        "address": false,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "PASS",
-      "decisionMatch": true,
-      "isFalsePass": false,
-      "isFalseReview": false,
-      "rootCauses": [
-        "ADDRESS_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "MULTI_003_MALAYALAM_COCONUT_OIL",
-      "name": "Pure Coconut Oil 1 Litre (Malayalam)",
-      "language": "mal",
-      "level": "level_3_multilingual",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": false,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "NET_QTY_MISSING_IN_OCR",
-        "MANUFACTURER_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "MULTI_004_TAMIL_FILTER_COFFEE",
-      "name": "Authentic Filter Coffee 500g (Tamil)",
-      "language": "tam",
-      "level": "level_3_multilingual",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "MULTI_005_KANNADA_MYSORE_PAK",
-      "name": "Royal Mysore Pak 400g (Kannada)",
-      "language": "kan",
-      "level": "level_3_multilingual",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": false,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "NET_QTY_PARSER_REGEX_GAP",
-        "MANUFACTURER_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "MULTI_006_TELUGU_CHILLI_POWDER",
-      "name": "Guntur Hot Chilli Powder 500g (Telugu)",
-      "language": "tel",
-      "level": "level_3_multilingual",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": false,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "NET_QTY_PARSER_REGEX_GAP",
-        "MANUFACTURER_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "MULTI_007_HELD_OUT_HINDI_SPICES",
-      "name": "Haldi Powder 100g (Held-Out Hindi)",
-      "language": "hin",
-      "level": "level_3_multilingual",
-      "split": "held_out_test",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": true,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_002_FSSAI_PHONE_COLLISION",
-      "name": "14-digit FSSAI License Adjacent to Toll-Free Phone",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_003_PINCODE_PRICE_COLLISION",
-      "name": "6-digit Postal PIN Code Adjacent to MRP",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_004_DUAL_PRICES_OFFER_DISCOUNT",
-      "name": "Dual Prices: Statutory MRP vs Promotional Offer Price",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": false,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MRP_PARSER_REGEX_GAP",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_005_DUAL_DATES_MFD_VS_EXPIRY",
-      "name": "Dual Dates: Manufacturing Date vs Best Before Date",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_006_COPYRIGHT_YEAR_COLLISION",
-      "name": "Copyright Year (© 2021) with Packaging Date (08/2024)",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_007_FUTURE_DATE_NONCOMPLIANT",
-      "name": "Non-Compliant Post-Dated Manufacturing Date (Future)",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "benchmark",
-      "fieldMatches": {
-        "mrp": true,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": false
-      },
-      "expectedCompliance": "REVIEW",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": true,
-      "isFalsePass": false,
-      "isFalseReview": false,
-      "rootCauses": [
-        "MANUFACTURER_EXTRACTION_GAP",
-        "CONSUMER_CARE_EXTRACTION_GAP"
-      ]
-    },
-    {
-      "id": "ADV_008_HELD_OUT_ADVERSARIAL_TRIPLET",
-      "name": "Held-Out Adversarial: Barcode, PIN, and Dual Price Triplet",
-      "language": "eng",
-      "level": "level_4_adversarial",
-      "split": "held_out_test",
-      "fieldMatches": {
-        "mrp": false,
-        "netQuantity": true,
-        "manufacturer": false,
-        "address": true,
-        "packingDate": true,
-        "consumerCare": true
-      },
-      "expectedCompliance": "PASS",
-      "actualCompliance": "REVIEW",
-      "decisionMatch": false,
-      "isFalsePass": false,
-      "isFalseReview": true,
-      "rootCauses": [
-        "FALSE_REVIEW_UNWARRANTED_FLAG",
-        "MRP_PARSER_REGEX_GAP",
-        "MANUFACTURER_EXTRACTION_GAP"
-      ]
-    }
-  ]
+  "rootCauses": {},
+  "failures": []
 }

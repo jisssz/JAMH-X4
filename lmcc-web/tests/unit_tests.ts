@@ -1276,4 +1276,99 @@ test('Phase 12 Deployment: API_BASE_URL sanitizes trailing slashes and prevents 
   assert.strictEqual(sanitize('https://lmcc-backend.onrender.com/api/'), 'https://lmcc-backend.onrender.com');
 });
 
+// ----------------------------------------------------
+// Phase 13 Accuracy Lab Regression Tests
+// ----------------------------------------------------
+test('Phase 13 Accuracy Lab: MRP with inclusive of taxes phrase preceding price', () => {
+  const ocrText = `
+    SPECIAL PROMO OFFER!
+    OFFER PRICE: ₹ 200.00
+    MRP (INCL. OF ALL TAXES): ₹ 250.00
+    NET QTY: 1 kg
+    MFD: 04/2024
+    MFD BY: GRAIN SUPERIOR CO, DELHI 110001
+    CARE: 1800102030
+  `;
+  const label = parseLabel(ocrText);
+  assert.strictEqual(label.mrp, '₹250.00');
+});
+
+test('Phase 13 Accuracy Lab: Regional Indian Net Quantity extraction', () => {
+  const malayalam = parseLabel('കേരള വെളിച്ചെണ്ണ\nഉല്പാദകർ: കേരള കോക്കനട്ട്, കൊച്ചി 682001\nഅളവ്: 1 L\nMFD: 06/2024\nMRP: ₹260\nCARE: 0484-2345678');
+  assert.strictEqual(malayalam.netQuantity, '1 l');
+
+  const kannada = parseLabel('ಮೈಸೂರು ಪಾಕ್\nತಯಾರಕರು: ಮೈಸೂರು ಸ್ವೀಟ್ಸ್, ಮೈಸೂರು 570001\nನಿವ್ವಳ ತೂಕ: 400 g\nMFD: 09/2024\nMRP: ₹180\nCARE: 1800-425-8899');
+  assert.strictEqual(kannada.netQuantity, '400 g');
+
+  const telugu = parseLabel('కారం పొడి\nతయారీదారులు: గుంటూరు మసాలాలు, గుంటూరు 522001\nనికర పరిమాణం: 500 g\nMFD: 05/2024\nMRP: ₹160\nCARE: 0863-2233445');
+  assert.strictEqual(telugu.netQuantity, '500 g');
+});
+
+test('Phase 13 Accuracy Lab: Statutory Month & Year of Import and Date of Packing without ambiguity', () => {
+  const imported = parseLabel(`
+    MEDITERRANEAN GOLD EXTRA VIRGIN OLIVE OIL
+    PRODUCED BY: MEDITERRANEAN OILS S.A., SPAIN
+    IMPORTED BY: INDO GLOBAL IMPORTS PVT LTD, MUMBAI 400069
+    NET CONTENT: 500 ml
+    MONTH & YEAR OF IMPORT: 04/2024
+    MRP: ₹ 750.00
+    CARE: customercare@indoglobal.com
+  `);
+  assert.strictEqual(imported.packingDate, '04/2024');
+  assert.strictEqual(imported.isDateAmbiguous, false);
+
+  const packing = parseLabel(`
+    ACTIVE WASH DETERGENT
+    CLEANTECH CONSUMER PRODUCTS LTD, GUJARAT 393002
+    NET MASS: 1 kg
+    DATE OF PACKING: 05/2024
+    MRP: ₹ 140.00
+    HELPLINE: 1800-102-2224
+  `);
+  assert.strictEqual(packing.packingDate, '05/2024');
+  assert.strictEqual(packing.isDateAmbiguous, false);
+});
+
+test('Phase 13 Accuracy Lab: Consumer Care supports Indian landlines with STD codes and CALL prefix', () => {
+  const landline = parseLabel(`
+    ORGANIC VIBES LLP, GURGAON 122001
+    NET: 200 ml
+    MFD: 05/2024
+    MRP: ₹ 299.00
+    CUSTOMER CARE: 0124-4998800
+  `);
+  assert.strictEqual(landline.consumerCare, '0124-4998800');
+
+  const callPrefix = parseLabel(`
+    TIME WARP SNACKS, JAIPUR 302001
+    NET QTY: 100 g
+    MFD: 02/2024
+    MRP: ₹ 40.00
+    CALL: 1800334455
+  `);
+  assert.strictEqual(callPrefix.consumerCare, '1800334455');
+});
+
+test('Phase 13 Accuracy Lab: Corporate entity headers without explicit MFD prefix extract safely', () => {
+  const pvtLtd = parseLabel(`
+    ABC FOODS PVT LTD
+    PLOT 42, ELECTRONIC CITY, BANGALORE 560100
+    NET WEIGHT: 500 g
+    PKD: 06/2024
+    MRP: ₹ 120.00
+    CARE: 1800-425-0000
+  `);
+  assert.strictEqual(pvtLtd.manufacturer, 'ABC FOODS PVT LTD');
+
+  const inlineComma = parseLabel(`
+    SHINE WELL CHEMICALS, KOLKATA 700019
+    NET VOLUME: 500 ml
+    MFD: 05/2024
+    MRP: ₹ 150.00
+    CARE: care@shinewell.in
+  `);
+  assert.strictEqual(inlineComma.manufacturer, 'SHINE WELL CHEMICALS');
+});
+
+
 

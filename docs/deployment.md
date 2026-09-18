@@ -89,8 +89,9 @@ Vercel provides edge CDN delivery, instant cache invalidation, and native Vite P
 
 ### Step-by-Step Vercel Setup:
 1. Sign in to [Vercel](https://vercel.com) and click **"Add New Project"**.
-2. Select your connected GitHub repository: `JAMH X4` (or your repository name).
+2. Select your connected GitHub repository: **`jisssz/JAMH-X4`**.
 3. In **Project Configuration**, configure the following settings:
+
    - **Framework Preset:** `Vite`
    - **Root Directory:** Click *Edit* and select **`lmcc-web`**
    - **Build Command:** `npm run build`

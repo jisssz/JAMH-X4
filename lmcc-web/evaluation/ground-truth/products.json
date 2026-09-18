@@ -1,0 +1,623 @@
+[
+  {
+    "id": "SYN_001_CLEAN_ENGLISH",
+    "name": "Synthetic Clean Standard FMCG Label",
+    "category": "synthetic_standard",
+    "language": "eng",
+    "level": "level_1_synthetic",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹120.00",
+      "netQuantity": "500 g",
+      "manufacturer": "ABC FOODS PVT LTD",
+      "address": "PLOT 42, PHASE 1, ELECTRONIC CITY, BANGALORE 560100",
+      "packingDate": "06/2024",
+      "consumerCare": "1800-425-0000"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "ABC FOODS PVT LTD\nPLOT 42, PHASE 1, ELECTRONIC CITY, BANGALORE 560100\nNET WEIGHT: 500 g\nPKD: 06/2024\nMRP: ₹ 120.00 (INCL. OF ALL TAXES)\nCONSUMER CARE HELPLINE: 1800-425-0000, care@abcfoods.com",
+    "notes": "Standard clean synthetic baseline"
+  },
+  {
+    "id": "SYN_002_DOT_MATRIX_FOIL",
+    "name": "Synthetic Dot-Matrix Stamped Packaging",
+    "category": "synthetic_degraded",
+    "language": "eng",
+    "level": "level_1_synthetic",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹45.00",
+      "netQuantity": "100 g",
+      "manufacturer": "ZENITH BAKERS LTD",
+      "address": "INDUSTRIAL ESTATE, CHENNAI 600032",
+      "packingDate": "04/2024",
+      "consumerCare": "feedback@zenith.in"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "ZENITH BAKERS LTD\nINDUSTRIAL ESTATE, CHENNAI 600032\nNET QTY : 100 g\nMFD . 04/2024\nMRP Rs. 45.00 INCL ALL TAXES\nCONSUMER CELL: feedback@zenith.in",
+    "notes": "Dot-matrix style spacing and Rs. notation"
+  },
+  {
+    "id": "SYN_003_LOW_CONTRAST_GRAY",
+    "name": "Synthetic Low Contrast Faint Print",
+    "category": "synthetic_degraded",
+    "language": "eng",
+    "level": "level_1_synthetic",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹299.00",
+      "netQuantity": "200 ml",
+      "manufacturer": "ORGANIC VIBES LLP",
+      "address": "SECTOR 18, GURGAON 122001",
+      "packingDate": "05/2024",
+      "consumerCare": "0124-4998800"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "ORGANIC VIBES LLP\nSECTOR 18, GURGAON 122001\nNET CONTENT : 200 ml\nBATCH NO : B-402\nMFG DATE : 05/2024\nMAX RETAIL PRICE ₹ 299.00 INCLUSIVE OF ALL TAXES\nCUSTOMER CARE : 0124-4998800",
+    "notes": "Low contrast beverage bottle label"
+  },
+  {
+    "id": "SYN_004_MISSING_MRP_NONCOMPLIANT",
+    "name": "Synthetic Label Missing Mandatory MRP",
+    "category": "synthetic_violation",
+    "language": "eng",
+    "level": "level_1_synthetic",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": null,
+      "netQuantity": "1 kg",
+      "manufacturer": "GRAIN KING ENTERPRISES",
+      "address": "GRAIN MARKET, KARNAL, HARYANA 132001",
+      "packingDate": "02/2024",
+      "consumerCare": "1800112233"
+    },
+    "expectedCompliance": {
+      "status": "REVIEW",
+      "flaggedCount": 1,
+      "violations": ["Rule 6(1)(da)"]
+    },
+    "ocrText": "GRAIN KING ENTERPRISES\nGRAIN MARKET, KARNAL, HARYANA 132001\nPREMIUM BASMATI RICE\nNET QUANTITY: 1 kg\nPKD: 02/2024\nFOR FEEDBACK CALL 1800112233",
+    "notes": "Deliberately omitted MRP declaration"
+  },
+  {
+    "id": "SYN_005_MISSING_NET_QTY_NONCOMPLIANT",
+    "name": "Synthetic Label Missing Net Quantity",
+    "category": "synthetic_violation",
+    "language": "eng",
+    "level": "level_1_synthetic",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹80.00",
+      "netQuantity": null,
+      "manufacturer": "CRUNCHY BITES CO",
+      "address": "MIDC AREA, PUNE 411018",
+      "packingDate": "03/2024",
+      "consumerCare": "care@crunchy.com"
+    },
+    "expectedCompliance": {
+      "status": "REVIEW",
+      "flaggedCount": 1,
+      "violations": ["Rule 6(1)(c)"]
+    },
+    "ocrText": "CRUNCHY BITES CO\nMIDC AREA, PUNE 411018\nROASTED ALMONDS\nMFD DATE: 03/2024\nMRP: ₹ 80.00 INCL TAXES\nCONTACT: care@crunchy.com",
+    "notes": "Missing weight/volume declaration"
+  },
+  {
+    "id": "SYN_006_HELD_OUT_SYNTHETIC_CLEAN",
+    "name": "Synthetic Held-Out Biscuit Package",
+    "category": "synthetic_standard",
+    "language": "eng",
+    "level": "level_1_synthetic",
+    "split": "held_out_test",
+    "expectedFields": {
+      "mrp": "₹25.00",
+      "netQuantity": "150 g",
+      "manufacturer": "SUNSHINE BISCUITS PVT LTD",
+      "address": "KOLKATA INDUSTRIAL ZONE 700088",
+      "packingDate": "07/2024",
+      "consumerCare": "1800345678"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "SUNSHINE BISCUITS PVT LTD\nKOLKATA INDUSTRIAL ZONE 700088\nGLUCOSE TREAT\nNET WT 150 g\nPKD 07/2024\nMRP RS 25.00 INCL ALL TAXES\nHELPLINE NO: 1800345678",
+    "notes": "Held-out test verification item"
+  },
+  {
+    "id": "REAL_001_PARLE_G_BISCUITS",
+    "name": "Parle-G Glucose Biscuits 250g",
+    "category": "food_biscuits",
+    "language": "eng",
+    "level": "level_2_real",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹35.00",
+      "netQuantity": "250 g",
+      "manufacturer": "PARLE PRODUCTS PVT LTD",
+      "address": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057",
+      "packingDate": "08/2024",
+      "consumerCare": "1800222211"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "PARLE-G ORIGINAL GLUCOSE BISCUITS\nMFD BY: PARLE PRODUCTS PVT LTD\nPLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057\nNET WEIGHT: 250 g\nMFD: 08/2024\nMRP: ₹ 35.00 (INCL. OF ALL TAXES)\nCONSUMER CARE: 1800222211, care@parle.biz",
+    "notes": "Real biscuit packaging standard layout"
+  },
+  {
+    "id": "REAL_002_COSMO_SHAMPOO",
+    "name": "Silk Shine Nourishing Shampoo 650ml",
+    "category": "personal_care",
+    "language": "eng",
+    "level": "level_2_real",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹420.00",
+      "netQuantity": "650 ml",
+      "manufacturer": "COSMO CARE LABS LTD",
+      "address": "SECTOR 62, NOIDA, UP 201301",
+      "packingDate": "10/2024",
+      "consumerCare": "1800108108"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "SILK SHINE NOURISHING SHAMPOO\nMANUFACTURED BY: COSMO CARE LABS LTD\nREGD OFFICE: SECTOR 62, NOIDA, UP 201301\nNET VOL: 650 ml\nPKD: 10/2024\nM.R.P. ₹ 420.00 INCL OF ALL TAXES\nFOR CONSUMER COMPLAINTS WRITE TO CARE CELL AT: 1800108108, support@cosmocare.in",
+    "notes": "Personal care cosmetic volume declaration"
+  },
+  {
+    "id": "REAL_003_HIMALAYAN_MINERAL_WATER",
+    "name": "Natural Mineral Water 1 Litre",
+    "category": "beverages",
+    "language": "eng",
+    "level": "level_2_real",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹60.00",
+      "netQuantity": "1 l",
+      "manufacturer": "HIMALAYAN SPRINGS BEVERAGES PVT LTD",
+      "address": "VILLAGE DHARAMPUR, SOLAN, HIMACHAL PRADESH 173209",
+      "packingDate": "09/2024",
+      "consumerCare": "customercare@himalayansprings.co.in"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "HIMALAYAN SPRINGS NATURAL MINERAL WATER\nPACKED BY: HIMALAYAN SPRINGS BEVERAGES PVT LTD\nVILLAGE DHARAMPUR, SOLAN, HIMACHAL PRADESH 173209\nNET QUANTITY: 1 L\nMFD: 09/2024\nMRP Rs. 60.00 (INCLUSIVE OF ALL TAXES)\nCONSUMER QUERIES: customercare@himalayansprings.co.in, 01792-234567",
+    "notes": "Beverage bottle with Litre unit"
+  },
+  {
+    "id": "REAL_004_SURF_EXCEL_DETERGENT",
+    "name": "Stain Remover Laundry Detergent 1kg",
+    "category": "household_care",
+    "language": "eng",
+    "level": "level_2_real",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹140.00",
+      "netQuantity": "1 kg",
+      "manufacturer": "CLEANTECH CONSUMER PRODUCTS LTD",
+      "address": "B-12 GIDC ESTATE, ANKLESHWAR, GUJARAT 393002",
+      "packingDate": "05/2024",
+      "consumerCare": "1800-102-2224"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "CLEANTECH ACTIVE WASH DETERGENT\nMFD & PKG BY: CLEANTECH CONSUMER PRODUCTS LTD\nB-12 GIDC ESTATE, ANKLESHWAR, GUJARAT 393002\nNET MASS: 1 kg\nDATE OF PACKING: 05/2024\nMRP ₹ 140.00 (INCL OF ALL TAXES)\nCONSUMER HELPLINE: 1800-102-2224",
+    "notes": "Detergent carton with NET MASS phrasing"
+  },
+  {
+    "id": "REAL_005_IMPORTED_OLIVE_OIL",
+    "name": "Extra Virgin Olive Oil 500ml (Imported)",
+    "category": "imported_goods",
+    "language": "eng",
+    "level": "level_2_real",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹750.00",
+      "netQuantity": "500 ml",
+      "manufacturer": "MEDITERRANEAN OILS S.A., SEVILLE, SPAIN",
+      "address": "ANDHERI EAST, MUMBAI 400069",
+      "packingDate": "04/2024",
+      "consumerCare": "customercare@indoglobalimports.com"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "MEDITERRANEAN GOLD EXTRA VIRGIN OLIVE OIL\nPRODUCED BY: MEDITERRANEAN OILS S.A., SEVILLE, SPAIN\nIMPORTED & MARKETED IN INDIA BY: INDO GLOBAL IMPORTS PVT LTD\nSUITE 501, COMMERCIAL TOWERS, ANDHERI EAST, MUMBAI 400069\nNET CONTENT: 500 ml\nMONTH & YEAR OF IMPORT: 04/2024\nMAX. RETAIL PRICE: ₹ 750.00 (INCL. OF ALL TAXES)\nFEEDBACK / COMPLAINTS: customercare@indoglobalimports.com, TEL: 022-66778899",
+    "notes": "Imported goods with overseas producer and domestic importer"
+  },
+  {
+    "id": "REAL_006_HELD_OUT_REAL_SNACKS",
+    "name": "Namkeen Spiced Peanuts 200g",
+    "category": "food_snacks",
+    "language": "eng",
+    "level": "level_2_real",
+    "split": "held_out_test",
+    "expectedFields": {
+      "mrp": "₹50.00",
+      "netQuantity": "200 g",
+      "manufacturer": "RAJASTHAN SNACKS CO",
+      "address": "INDUSTRIAL AREA, JAIPUR 302013",
+      "packingDate": "08/2024",
+      "consumerCare": "1800200300"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "CRISPY SPICED PEANUTS\nMFD BY: RAJASTHAN SNACKS CO\nINDUSTRIAL AREA, JAIPUR 302013\nNET QTY: 200 g\nPKD: 08/2024\nMRP RS. 50.00 (INCL OF TAXES)\nCUSTOMER HELPLINE: 1800200300",
+    "notes": "Held-out real snack packaging item"
+  },
+  {
+    "id": "MULTI_001_HINDI_ATTA",
+    "name": "Sharbati Whole Wheat Atta 5kg (Hindi)",
+    "category": "staples_hindi",
+    "language": "hin",
+    "level": "level_3_multilingual",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹280.00",
+      "netQuantity": "5 kg",
+      "manufacturer": "किसान एग्रो फूड्स प्राइवेट लिमिटेड",
+      "address": "प्लॉट 12, रीको औद्योगिक क्षेत्र, कोटा, राजस्थान ३२४००५",
+      "packingDate": "07/2024",
+      "consumerCare": "१८००-१११-२२२"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "किसान शुद्ध शरबती गेहूं का आटा\nउत्पादक: किसान एग्रो फूड्स प्राइवेट लिमिटेड\nपता: प्लॉट 12, रीको औद्योगिक क्षेत्र, कोटा, राजस्थान ३२४००५\nशुद्ध मात्रा: ५ किग्रा (5 kg)\nपैकिंग तिथि: ०७/२०२४\nअधिकतम खुदरा मूल्य: ₹ २८०.०० (सभी करों सहित)\nउपभोक्ता सेवा केंद्र: १८००-१११-२२२",
+    "notes": "Hindi label with Devanagari numerals"
+  },
+  {
+    "id": "MULTI_002_BILINGUAL_CHIPS",
+    "name": "Spicy Masala Potato Wafers (Bilingual Eng+Hin)",
+    "category": "food_snacks",
+    "language": "eng+hin",
+    "level": "level_3_multilingual",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹20.00",
+      "netQuantity": "65 g",
+      "manufacturer": "BHARAT NAMKEEN UDYOG",
+      "address": "SECTOR 4, FARIDABAD 121004",
+      "packingDate": "09/2024",
+      "consumerCare": "1800-233-4455"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "SPICY MASALA CHIPS / चटपटे मसालेदार चिप्स\nMFD BY / उत्पादक: BHARAT NAMKEEN UDYOG\nPLOT 55, SECTOR 4, FARIDABAD 121004 (HARYANA)\nNET WEIGHT / शुद्ध वजन: 65 g\nMFD / निर्माण तिथि: 09/2024\nMRP / अधिकतम खुदरा मूल्य: ₹ 20.00 (सभी कर सहित)\nCONSUMER CELL / ग्राहक सेवा: 1800-233-4455, care@bharatnamkeen.in",
+    "notes": "Bilingual packaging common on pan-India snacks"
+  },
+  {
+    "id": "MULTI_003_MALAYALAM_COCONUT_OIL",
+    "name": "Pure Coconut Oil 1 Litre (Malayalam)",
+    "category": "cooking_oil_malayalam",
+    "language": "mal",
+    "level": "level_3_multilingual",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹260.00",
+      "netQuantity": "1 l",
+      "manufacturer": "കേരള കോക്കനട്ട് പ്രൊഡക്ട്സ്",
+      "address": "കൊച്ചി, കേരളം 682001",
+      "packingDate": "06/2024",
+      "consumerCare": "0484-2345678"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "കേര നാച്ചുറൽ വെളിച്ചെണ്ണ\nഉല്പാദകർ: കേരള കോക്കനട്ട് പ്രൊഡക്ട്സ്, കൊച്ചി, കേരളം 682001\nഅളവ്: 1 L\nപാക്ക് ചെയ്ത തീയതി: 06/2024\nപരമാവധി വില MRP: ₹ 260.00 (എല്ലാ നികുതികളും ഉൾപ്പെടെ)\nകൺസ്യൂമർ കെയർ: 0484-2345678, care@keracoconut.com",
+    "notes": "Malayalam script packaging"
+  },
+  {
+    "id": "MULTI_004_TAMIL_FILTER_COFFEE",
+    "name": "Authentic Filter Coffee 500g (Tamil)",
+    "category": "beverages_tamil",
+    "language": "tam",
+    "level": "level_3_multilingual",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹210.00",
+      "netQuantity": "500 g",
+      "manufacturer": "தமிழ்நாடு காபி நிறுவனம்",
+      "address": "மதுரை 625001",
+      "packingDate": "08/2024",
+      "consumerCare": "0452-2554433"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "பாரம்பரிய பில்டர் காபி\nதயாரிப்பாளர்: தமிழ்நாடு காபி நிறுவனம், மதுரை 625001\nநிகர எடை Net Weight: 500 g\nதயாரிப்பு தேதி MFD: 08/2024\nஅதிகபட்ச சில்லறை விலை MRP: ₹ 210.00 வரிகள் உட்பட\nவாடிக்கையாளர் சேவை: 0452-2554433",
+    "notes": "Tamil regional script label"
+  },
+  {
+    "id": "MULTI_005_KANNADA_MYSORE_PAK",
+    "name": "Royal Mysore Pak 400g (Kannada)",
+    "category": "sweets_kannada",
+    "language": "kan",
+    "level": "level_3_multilingual",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹180.00",
+      "netQuantity": "400 g",
+      "manufacturer": "ಮೈಸೂರು ಸ್ವೀಟ್ಸ್ ಪ್ರೈವೇಟ್ ಲಿಮಿಟೆಡ್",
+      "address": "ಮೈಸೂರು 570001",
+      "packingDate": "09/2024",
+      "consumerCare": "1800-425-8899"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "ಮೈಸೂರು ಪಾಕ್\nತಯಾರಕರು: ಮೈಸೂರು ಸ್ವೀಟ್ಸ್ ಪ್ರೈವೇಟ್ ಲಿಮಿಟೆಡ್, ಮೈಸೂರು 570001\nನಿವ್ವಳ ತೂಕ: 400 g\nಪ್ಯಾಕಿಂಗ್ ದಿನಾಂಕ: 09/2024\nಗರಿಷ್ಠ ಚಿಲ್ಲರೆ ಬೆಲೆ MRP: ₹ 180.00 ಎಲ್ಲಾ ತೆರಿಗೆಗಳು ಸೇರಿವೆ\nಗ್ರಾಹಕರ ಸೇವೆ: 1800-425-8899",
+    "notes": "Kannada packaging item"
+  },
+  {
+    "id": "MULTI_006_TELUGU_CHILLI_POWDER",
+    "name": "Guntur Hot Chilli Powder 500g (Telugu)",
+    "category": "spices_telugu",
+    "language": "tel",
+    "level": "level_3_multilingual",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹160.00",
+      "netQuantity": "500 g",
+      "manufacturer": "గుంటూరు మసాలాలు లిమిటెడ్",
+      "address": "గుంటూరు 522001",
+      "packingDate": "05/2024",
+      "consumerCare": "0863-2233445"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "గుంటూరు కారం పొడి\nతయారీదారులు: గుంటూరు మసాలాలు లిమిటెడ్, గుంటూరు 522001\nనికర పరిమాణం: 500 g\nప్యాకింగ్ తేదీ: 05/2024\nగరిష్ట రిటైల్ ధర MRP: ₹ 160.00 అన్ని పన్నులతో కలిపి\nకస్టమర్ కేర్: 0863-2233445",
+    "notes": "Telugu spice label"
+  },
+  {
+    "id": "MULTI_007_HELD_OUT_HINDI_SPICES",
+    "name": "Haldi Powder 100g (Held-Out Hindi)",
+    "category": "spices_hindi",
+    "language": "hin",
+    "level": "level_3_multilingual",
+    "split": "held_out_test",
+    "expectedFields": {
+      "mrp": "₹38.00",
+      "netQuantity": "100 g",
+      "manufacturer": "शुद्ध मसाले भंडार",
+      "address": "कानपुर 208001",
+      "packingDate": "07/2024",
+      "consumerCare": "1800123999"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "शुद्ध हल्दी पाउडर\nउत्पादक: शुद्ध मसाले भंडार, कानपुर 208001\nमात्रा: १०० ग्राम (100 g)\nपैकिंग: ०७/२०२४\nमूल्य: ₹ ३८.००\nसंपर्क: 1800123999",
+    "notes": "Held-out Hindi packaging test"
+  },
+  {
+    "id": "ADV_001_EAN_BARCODE_COLLISION",
+    "name": "Package with 13-digit EAN Barcode Near MRP",
+    "category": "adversarial_numbers",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹75.00",
+      "netQuantity": "200 g",
+      "manufacturer": "NUTRIDELIGHT FOODS",
+      "address": "MUMBAI 400001",
+      "packingDate": "08/2024",
+      "consumerCare": "care@nutri.com"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "NUTRIDELIGHT CRACKERS\nMFD BY: NUTRIDELIGHT FOODS, MUMBAI 400001\nBARCODE: 8901030829145\nNET WEIGHT: 200 g\nMFD: 08/2024\nMRP: ₹ 75.00 INCL TAXES\nEMAIL: care@nutri.com",
+    "notes": "Barcode must not be captured as MRP, Net Qty, or Phone"
+  },
+  {
+    "id": "ADV_002_FSSAI_PHONE_COLLISION",
+    "name": "14-digit FSSAI License Adjacent to Toll-Free Phone",
+    "category": "adversarial_numbers",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹99.00",
+      "netQuantity": "300 g",
+      "manufacturer": "ORGANIC SPICE CO",
+      "address": "COCHIN 682001",
+      "packingDate": "06/2024",
+      "consumerCare": "1800-425-9988"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "ORGANIC SPICE CO, COCHIN 682001\nFSSAI LIC NO: 10019042004581\nNET QTY: 300 g\nPKD: 06/2024\nMRP: ₹ 99.00\nCONSUMER CARE CELL: 1800-425-9988",
+    "notes": "FSSAI license must not be confused with helpline or price"
+  },
+  {
+    "id": "ADV_003_PINCODE_PRICE_COLLISION",
+    "name": "6-digit Postal PIN Code Adjacent to MRP",
+    "category": "adversarial_numbers",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹150.00",
+      "netQuantity": "500 ml",
+      "manufacturer": "SHINE WELL CHEMICALS",
+      "address": "KOLKATA 700019",
+      "packingDate": "05/2024",
+      "consumerCare": "care@shinewell.in"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "SHINE WELL CHEMICALS, KOLKATA 700019\nMRP ₹ 150.00 INCL TAXES\nNET VOLUME: 500 ml\nMFD: 05/2024\nFEEDBACK: care@shinewell.in",
+    "notes": "Postal PIN code 700019 must not override MRP 150.00"
+  },
+  {
+    "id": "ADV_004_DUAL_PRICES_OFFER_DISCOUNT",
+    "name": "Dual Prices: Statutory MRP vs Promotional Offer Price",
+    "category": "adversarial_pricing",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹250.00",
+      "netQuantity": "1 kg",
+      "manufacturer": "GRAIN SUPERIOR CO",
+      "address": "DELHI 110001",
+      "packingDate": "04/2024",
+      "consumerCare": "1800102030"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "GRAIN SUPERIOR CO, DELHI 110001\nSPECIAL OFFER! GET ₹50 OFF\nOFFER PRICE: ₹ 200.00\nMRP (INCL. OF ALL TAXES): ₹ 250.00\nNET WEIGHT: 1 kg\nPKD: 04/2024\nTOLL FREE: 1800102030",
+    "notes": "Statutory MRP must be extracted rather than offer discount"
+  },
+  {
+    "id": "ADV_005_DUAL_DATES_MFD_VS_EXPIRY",
+    "name": "Dual Dates: Manufacturing Date vs Best Before Date",
+    "category": "adversarial_dates",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹110.00",
+      "netQuantity": "250 ml",
+      "manufacturer": "PURE JUICE CO",
+      "address": "PUNE 411001",
+      "packingDate": "06/2024",
+      "consumerCare": "care@purejuice.in"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "PURE JUICE CO, PUNE 411001\nMFD: 06/2024\nBEST BEFORE / EXP: 12/2025\nNET VOL: 250 ml\nMRP: ₹ 110.00\nEMAIL: care@purejuice.in",
+    "notes": "Under Rule 6(1)(d), MFD/PKD must be captured, not future expiry"
+  },
+  {
+    "id": "ADV_006_COPYRIGHT_YEAR_COLLISION",
+    "name": "Copyright Year (© 2021) with Packaging Date (08/2024)",
+    "category": "adversarial_dates",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹85.00",
+      "netQuantity": "150 g",
+      "manufacturer": "BRAND CRAFT CONSUMER",
+      "address": "HYDERABAD 500081",
+      "packingDate": "08/2024",
+      "consumerCare": "1800-456-7890"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "BRAND CRAFT CONSUMER, HYDERABAD 500081\nCOPYRIGHT © 2021 BRAND CRAFT ALL RIGHTS RESERVED\nNET WEIGHT: 150 g\nDATE OF PACKING: 08/2024\nMRP ₹ 85.00\nHELPLINE: 1800-456-7890",
+    "notes": "© 2021 copyright notice must not be parsed as packing date"
+  },
+  {
+    "id": "ADV_007_FUTURE_DATE_NONCOMPLIANT",
+    "name": "Non-Compliant Post-Dated Manufacturing Date (Future)",
+    "category": "adversarial_compliance",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "benchmark",
+    "expectedFields": {
+      "mrp": "₹40.00",
+      "netQuantity": "100 g",
+      "manufacturer": "TIME WARP SNACKS",
+      "address": "JAIPUR 302001",
+      "packingDate": "12/2030",
+      "consumerCare": "1800334455"
+    },
+    "expectedCompliance": {
+      "status": "REVIEW",
+      "flaggedCount": 1,
+      "violations": ["Rule 6(1)(d)"]
+    },
+    "ocrText": "TIME WARP SNACKS, JAIPUR 302001\nNET QTY: 100 g\nMFD: 12/2030\nMRP: ₹ 40.00 INCL TAXES\nCALL: 1800334455",
+    "notes": "Post-dated future month must trigger Rule 6(1)(d) REVIEW"
+  },
+  {
+    "id": "ADV_008_HELD_OUT_ADVERSARIAL_TRIPLET",
+    "name": "Held-Out Adversarial: Barcode, PIN, and Dual Price Triplet",
+    "category": "adversarial_combined",
+    "language": "eng",
+    "level": "level_4_adversarial",
+    "split": "held_out_test",
+    "expectedFields": {
+      "mrp": "₹320.00",
+      "netQuantity": "750 ml",
+      "manufacturer": "ELITE HERBALS",
+      "address": "BENGALURU 560001",
+      "packingDate": "05/2024",
+      "consumerCare": "1800-500-600"
+    },
+    "expectedCompliance": {
+      "status": "PASS",
+      "flaggedCount": 0,
+      "violations": []
+    },
+    "ocrText": "ELITE HERBALS, BENGALURU 560001\nBARCODE: 8901234567890\nPROMO PRICE: ₹ 280.00\nMRP INCL ALL TAXES: ₹ 320.00\nNET CONTENT: 750 ml\nMFD: 05/2024\nCARE: 1800-500-600",
+    "notes": "Tri-factor adversarial scenario on held-out test split"
+  }
+]

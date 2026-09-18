@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LMCC Ground Truth Product Label Schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "category",
+      "language",
+      "level",
+      "split",
+      "expectedFields",
+      "expectedCompliance",
+      "ocrText"
+    ],
+    "properties": {
+      "id": { "type": "string" },
+      "name": { "type": "string" },
+      "category": { "type": "string" },
+      "language": {
+        "type": "string",
+        "enum": ["eng", "hin", "eng+hin", "mal", "tam", "kan", "tel"]
+      },
+      "level": {
+        "type": "string",
+        "enum": ["level_1_synthetic", "level_2_real", "level_3_multilingual", "level_4_adversarial"]
+      },
+      "split": {
+        "type": "string",
+        "enum": ["benchmark", "held_out_test"]
+      },
+      "imagePath": { "type": "string" },
+      "expectedFields": {
+        "type": "object",
+        "properties": {
+          "mrp": { "type": ["string", "null"] },
+          "netQuantity": { "type": ["string", "null"] },
+          "manufacturer": { "type": ["string", "null"] },
+          "address": { "type": ["string", "null"] },
+          "packingDate": { "type": ["string", "null"] },
+          "consumerCare": { "type": ["string", "null"] }
+        }
+      },
+      "expectedCompliance": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "type": "string", "enum": ["PASS", "REVIEW"] },
+          "flaggedCount": { "type": "integer" },
+          "violations": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "ocrText": { "type": "string" },
+      "notes": { "type": "string" }
+    }
+  }
+}

@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "tsx --test tests/unit_tests.ts"
+    "test": "tsx --test tests/unit_tests.ts",
+    "benchmark:parser": "tsx evaluation/runners/parserBenchmark.ts",
+    "benchmark:rules": "tsx evaluation/runners/rulesBenchmark.ts",
+    "benchmark:generate": "tsx evaluation/runners/generateSynthetic.ts",
+    "benchmark:ocr": "tsx evaluation/runners/ocrBenchmark.ts",
+    "benchmark:all": "tsx evaluation/runners/parserBenchmark.ts && tsx evaluation/runners/rulesBenchmark.ts"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",

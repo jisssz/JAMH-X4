@@ -1,0 +1,52 @@
+
+════════════════════════════════════════════════════════════════════
+                 LMCC ACCURACY LAB EVALUATION REPORT                
+════════════════════════════════════════════════════════════════════
+Timestamp:              2026-09-18T16:56:08.483Z
+Total Products Tested:  27 (Benchmark: 23 | Held-Out: 4)
+
+── FIELD EXTRACTION ACCURACY ───────────────────────────────────────
+  MRP:                    92.6% (25/27)
+  Net Quantity:           88.9% (24/27)
+  Manufacturer:           33.3% (9/27)
+  Address:                96.3% (26/27)
+  Date (MFD/PKD):         100% (27/27)
+  Consumer Care:          70.4% (19/27)
+  ──────────────────────────────────────────────────────────────────
+  OVERALL FIELD ACCURACY: 80.2% (130/162)
+
+── COMPLIANCE DECISION ACCURACY ────────────────────────────────────
+  Decision Accuracy:      37%
+  True PASS:              7
+  True REVIEW:            3
+  False PASS (Critical):  0 (Rate: 0%)
+  False REVIEW:           17 (Rate: 70.8%)
+
+── ACCURACY BY TESTING LEVEL ───────────────────────────────────────
+  level_1_synthetic       : Fields:  80.6% | Decisions:  33.3% (N=6)
+  level_2_real            : Fields:  97.2% | Decisions:  66.7% (N=6)
+  level_3_multilingual    : Fields:  66.7% | Decisions:  28.6% (N=7)
+  level_4_adversarial     : Fields:  79.2% | Decisions:    25% (N=8)
+
+── ACCURACY BY LANGUAGE ────────────────────────────────────────────
+  eng                     : Fields:    85% | Decisions:    40% (N=20)
+  hin                     : Fields:    75% | Decisions:    50% (N=2)
+  eng+hin                 : Fields:   100% | Decisions:   100% (N=1)
+  mal                     : Fields:    50% | Decisions:     0% (N=1)
+  tam                     : Fields:  66.7% | Decisions:     0% (N=1)
+  kan                     : Fields:    50% | Decisions:     0% (N=1)
+  tel                     : Fields:    50% | Decisions:     0% (N=1)
+
+── ACCURACY BY SPLIT ───────────────────────────────────────────────
+  benchmark               : Fields:  79.7% | Decisions:  39.1% (N=23)
+  held_out_test           : Fields:  83.3% | Decisions:    25% (N=4)
+
+── ROOT CAUSE BREAKDOWN ────────────────────────────────────────────
+  FALSE_REVIEW_UNWARRANTED_FLAG      : 17 occurrence(s)
+  MANUFACTURER_EXTRACTION_GAP        : 18 occurrence(s)
+  CONSUMER_CARE_EXTRACTION_GAP       : 8 occurrence(s)
+  ADDRESS_EXTRACTION_GAP             : 1 occurrence(s)
+  NET_QTY_MISSING_IN_OCR             : 1 occurrence(s)
+  NET_QTY_PARSER_REGEX_GAP           : 2 occurrence(s)
+  MRP_PARSER_REGEX_GAP               : 2 occurrence(s)
+════════════════════════════════════════════════════════════════════

@@ -16,6 +16,10 @@ const listeners = new Set<SyncListener>();
 
 let isSyncing = false;
 
+export function isReportSyncing(): boolean {
+  return isSyncing;
+}
+
 export function registerSyncListener(listener: SyncListener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
@@ -34,6 +38,7 @@ function notifyListeners(pendingCount: number) {
 /**
  * Synchronizes all pending locally queued reports with the FastAPI backend.
  * Avoids duplicate submissions and retains failed items in queue.
+ * Transmits client-assigned localReportId to backend for strict idempotency.
  */
 export async function syncPendingReports(): Promise<ReportSyncResult> {
   if (isSyncing) {
@@ -44,7 +49,6 @@ export async function syncPendingReports(): Promise<ReportSyncResult> {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return { total: 0, synced: 0, failed: 0, errors: ['Device is offline'] };
   }
-
 
   const pending = await getPendingLocalReports();
   if (pending.length === 0) {
@@ -63,7 +67,11 @@ export async function syncPendingReports(): Promise<ReportSyncResult> {
 
   for (const report of pending) {
     try {
-      const response = await submitReport(report.payload);
+      const payloadWithId = {
+        ...report.payload,
+        localReportId: report.payload.localReportId || report.localId,
+      };
+      const response = await submitReport(payloadWithId);
       if (response && response.id) {
         await updateLocalReportStatus(report.localId, 'synced', response.id);
         result.synced += 1;
@@ -86,28 +94,58 @@ export async function syncPendingReports(): Promise<ReportSyncResult> {
 }
 
 /**
- * Initializes automatic background synchronization on network connection restoration.
+ * Initializes automatic background synchronization on network connection restoration
+ * and throttled window focus / visibility events.
  */
 export function initAutoSync(): () => void {
   if (typeof window === 'undefined') return () => {};
 
+  let lastTriggerTime = 0;
+  const THROTTLE_MS = 25000; // Minimum 25 seconds between automatic status sync checks
+
+  const triggerThrottledSync = () => {
+    const now = Date.now();
+    if (now - lastTriggerTime < THROTTLE_MS) {
+      return;
+    }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      return;
+    }
+    lastTriggerTime = now;
+    syncPendingReports().catch((err) => {
+      console.warn('Auto-sync check error:', err);
+    });
+  };
+
   const handleOnline = () => {
-    // Brief delay to allow network routing to stabilize
+    // Brief delay to allow mobile network routing to stabilize
     setTimeout(() => {
-      syncPendingReports().catch((err) => {
-        console.warn('Auto-sync execution error:', err);
-      });
-    }, 1500);
+      triggerThrottledSync();
+    }, 1200);
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      triggerThrottledSync();
+    }
+  };
+
+  const handleFocus = () => {
+    triggerThrottledSync();
   };
 
   window.addEventListener('online', handleOnline);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('focus', handleFocus);
 
   // Trigger initial check on app startup if online
-  if (navigator.onLine) {
-    syncPendingReports().catch(() => {});
+  if (typeof navigator !== 'undefined' && navigator.onLine) {
+    triggerThrottledSync();
   }
 
   return () => {
     window.removeEventListener('online', handleOnline);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    window.removeEventListener('focus', handleFocus);
   };
 }

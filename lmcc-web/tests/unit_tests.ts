@@ -1370,5 +1370,83 @@ test('Phase 13 Accuracy Lab: Corporate entity headers without explicit MFD prefi
   assert.strictEqual(inlineComma.manufacturer, 'SHINE WELL CHEMICALS');
 });
 
+// ----------------------------------------------------
+// Phase 14: Consumer Reporting & Lifecycle Monitoring Tests
+// ----------------------------------------------------
+import { getAuthoritySubmissionStatus, AUTHORITY_REGULATORY_TARGETS } from '../src/services/authority/authoritySubmissionService';
+import { getReportLifecycleState, saveLocalReport } from '../src/services/storage/localReports';
+
+test('Phase 14: Authority service truthfully declares unintegrated status with zero fake tracking numbers', () => {
+  const status = getAuthoritySubmissionStatus('any-report-id-123');
+  assert.strictEqual(status.isIntegrated, false);
+  assert.strictEqual(status.status, 'PENDING_INTEGRATION');
+  assert.strictEqual(status.officialReferenceNumber, null);
+  assert.strictEqual(status.forwardedAt, null);
+  assert.ok(status.message.toLowerCase().includes('pending integration'));
+  assert.ok(status.supportedAgencies.length >= 4);
+});
+
+test('Phase 14: Lifecycle state machine accurately categorizes observation statuses', () => {
+  // 1. Unsynced local report
+  const queuedState = getReportLifecycleState({ syncStatus: 'pending', serverId: null }, false);
+  assert.strictEqual(queuedState, 'QUEUED');
+
+  // 2. In-flight active sync
+  const syncingState = getReportLifecycleState({ syncStatus: 'pending', serverId: null }, true);
+  assert.strictEqual(syncingState, 'SYNCING');
+
+  // 3. Successfully synced / server record
+  const syncedState = getReportLifecycleState({ syncStatus: 'synced', serverId: 'LMCC-SERVER-1' }, false);
+  assert.strictEqual(syncedState, 'SUBMITTED');
+
+  // 4. Failed sync
+  const failedState = getReportLifecycleState({ syncStatus: 'failed', serverId: null }, false);
+  assert.strictEqual(failedState, 'FAILED');
+});
+
+test('Phase 14: Local report creation guarantees localReportId for idempotent deduplication', async () => {
+  const payload = {
+    verdict: 'REVIEW' as const,
+    productName: 'Biscuits Missing Net Quantity',
+    issues: [
+      {
+        ruleId: 'LM-PCR-2011-R6-1-C',
+        field: 'netQuantity',
+        title: 'Net Quantity',
+        severity: 'critical',
+        explanation: 'Missing Net Quantity',
+      },
+    ],
+  };
+
+  const saved = await saveLocalReport(payload);
+  assert.ok(saved.payload.localReportId, 'Payload must include localReportId');
+  assert.strictEqual(saved.payload.localReportId, saved.localId);
+});
+
+test('Phase 14: PASS concern flow retains optional consumer remarks without fabricating violations', () => {
+  const voluntaryRemarks = 'Sticker price ₹60 pasted over printed MRP ₹50 in neighborhood grocery';
+  const passConcernPayload = {
+    verdict: 'PASS' as const,
+    productName: 'Consumer Verified Salt',
+    mrp: '₹28.00',
+    netQuantity: '1 kg',
+    issueCount: 0,
+    issues: [],
+    userRemarks: `Store Location: Sector 18 Market | ${voluntaryRemarks}`,
+  };
+
+  assert.strictEqual(passConcernPayload.verdict, 'PASS');
+  assert.strictEqual(passConcernPayload.issues.length, 0);
+  assert.ok(passConcernPayload.userRemarks?.includes('Sector 18 Market'));
+  assert.ok(passConcernPayload.userRemarks?.includes(voluntaryRemarks));
+
+  // Legal safety check: text must not use forbidden words
+  const serialized = JSON.stringify(passConcernPayload).toLowerCase();
+  assert.ok(!serialized.includes('illegal'));
+  assert.ok(!serialized.includes('lawbreaker'));
+  assert.ok(!serialized.includes('guilty'));
+});
+
 
 

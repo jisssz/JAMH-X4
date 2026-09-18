@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -16,14 +16,17 @@ import {
   CloudUpload,
   CheckCheck,
   Search,
+  RotateCw,
 } from 'lucide-react';
 import { getReports } from '../services/api';
-import { getLocalReports, LocalReport } from '../services/storage/localReports';
+import { getLocalReports, LocalReport, getReportLifecycleState, ReportLifecycleState } from '../services/storage/localReports';
+import { syncPendingReports, registerSyncListener, isReportSyncing } from '../services/sync/reportSync';
 import GlowBackground from '../components/ui/GlowBackground';
 
 interface HistoryItem {
   id: string; // server ID or localId
-  origin: 'server' | 'local_pending' | 'local_synced';
+  origin: 'server' | 'local_pending' | 'local_synced' | 'local_failed';
+  lifecycleState: ReportLifecycleState;
   createdAt: string;
   verdict: 'PASS' | 'REVIEW';
   productName?: string;
@@ -43,10 +46,15 @@ export const History: React.FC = () => {
   const [isOfflineView, setIsOfflineView] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterVerdict, setFilterVerdict] = useState<'ALL' | 'PASS' | 'REVIEW'>('ALL');
+  const [filterVerdict, setFilterVerdict] = useState<'ALL' | 'PASS' | 'REVIEW' | 'UNSYNCED'>('ALL');
+  const [isSyncing, setIsSyncing] = useState(isReportSyncing());
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+  const lastFocusFetchRef = useRef(0);
 
-  const fetchHistory = async () => {
-    setLoading(true);
+  const fetchHistory = useCallback(async (showLoadingSpinner: boolean = true) => {
+    if (showLoadingSpinner) {
+      setLoading(true);
+    }
     setError(null);
     setIsOfflineView(false);
 
@@ -57,13 +65,17 @@ export const History: React.FC = () => {
       console.warn('Failed to read local reports:', e);
     }
 
+    const pendingCount = localList.filter((l) => l.syncStatus === 'pending' || l.syncStatus === 'failed').length;
+    setPendingSyncCount(pendingCount);
+
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
     if (!isOnline) {
       setIsOfflineView(true);
       const mappedLocal: HistoryItem[] = localList.map((r) => ({
         id: r.localId,
-        origin: r.syncStatus === 'synced' ? 'local_synced' : 'local_pending',
+        origin: r.syncStatus === 'synced' ? 'local_synced' : r.syncStatus === 'failed' ? 'local_failed' : 'local_pending',
+        lifecycleState: getReportLifecycleState(r, isReportSyncing()),
         createdAt: r.createdAt,
         verdict: r.payload.verdict,
         productName: r.payload.productName,
@@ -84,10 +96,11 @@ export const History: React.FC = () => {
       const serverIds = new Set(serverReports.map((s) => s.id));
 
       const pendingLocal: HistoryItem[] = localList
-        .filter((l) => l.syncStatus === 'pending' || (l.serverId && !serverIds.has(l.serverId)))
+        .filter((l) => l.syncStatus === 'pending' || l.syncStatus === 'failed' || (l.serverId && !serverIds.has(l.serverId)))
         .map((r) => ({
           id: r.localId,
-          origin: 'local_pending',
+          origin: r.syncStatus === 'failed' ? 'local_failed' : 'local_pending',
+          lifecycleState: getReportLifecycleState(r, isReportSyncing()),
           createdAt: r.createdAt,
           verdict: r.payload.verdict,
           productName: r.payload.productName,
@@ -102,6 +115,7 @@ export const History: React.FC = () => {
       const mappedServer: HistoryItem[] = serverReports.map((s) => ({
         id: s.id,
         origin: 'server',
+        lifecycleState: 'SUBMITTED',
         createdAt: s.createdAt,
         verdict: s.verdict as 'PASS' | 'REVIEW',
         productName: s.productName,
@@ -118,7 +132,8 @@ export const History: React.FC = () => {
       if (localList.length > 0) {
         const mappedLocal: HistoryItem[] = localList.map((r) => ({
           id: r.localId,
-          origin: r.syncStatus === 'synced' ? 'local_synced' : 'local_pending',
+          origin: r.syncStatus === 'synced' ? 'local_synced' : r.syncStatus === 'failed' ? 'local_failed' : 'local_pending',
+          lifecycleState: getReportLifecycleState(r, isReportSyncing()),
           createdAt: r.createdAt,
           verdict: r.payload.verdict,
           productName: r.payload.productName,
@@ -137,11 +152,51 @@ export const History: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
+  // Sync listener and lifecycle monitoring
   useEffect(() => {
     fetchHistory();
-  }, []);
+
+    const unsubscribe = registerSyncListener((syncing, count) => {
+      setIsSyncing(syncing);
+      setPendingSyncCount(count);
+      if (!syncing) {
+        fetchHistory(false);
+      }
+    });
+
+    // Throttled window focus & visibility auto-refresh (min 20s between calls)
+    const handleFocusOrVisible = () => {
+      const now = Date.now();
+      if (now - lastFocusFetchRef.current > 20000) {
+        lastFocusFetchRef.current = now;
+        fetchHistory(false);
+      }
+    };
+
+    window.addEventListener('focus', handleFocusOrVisible);
+    document.addEventListener('visibilitychange', handleFocusOrVisible);
+    window.addEventListener('online', handleFocusOrVisible);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('focus', handleFocusOrVisible);
+      document.removeEventListener('visibilitychange', handleFocusOrVisible);
+      window.removeEventListener('online', handleFocusOrVisible);
+    };
+  }, [fetchHistory]);
+
+  const handleManualSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    try {
+      await syncPendingReports();
+    } finally {
+      setIsSyncing(false);
+      fetchHistory(false);
+    }
+  };
 
   const handleCopyId = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -168,7 +223,11 @@ export const History: React.FC = () => {
   // Filter items
   const filteredItems = items.filter((item) => {
     const matchesVerdict =
-      filterVerdict === 'ALL' || item.verdict === filterVerdict;
+      filterVerdict === 'ALL'
+        ? true
+        : filterVerdict === 'UNSYNCED'
+        ? item.origin === 'local_pending' || item.origin === 'local_failed'
+        : item.verdict === filterVerdict;
     const matchesSearch =
       !searchQuery.trim() ||
       (item.productName && item.productName.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -221,6 +280,61 @@ export const History: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="relative z-10 max-w-4xl w-full mx-auto px-4 py-8 flex-1 space-y-6">
+        {/* Continuous Report Lifecycle Monitoring Banner */}
+        <div className="rounded-2xl border p-4 backdrop-blur-xl transition font-mono text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 border-white/10">
+          <div className="flex items-center gap-2.5">
+            {isSyncing ? (
+              <>
+                <RefreshCw className="w-4 h-4 text-sky-400 animate-spin flex-shrink-0" />
+                <span className="text-sky-300 font-semibold">
+                  Synchronizing pending observations with JAMH X4 backend...
+                </span>
+              </>
+            ) : pendingSyncCount > 0 ? (
+              <>
+                <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <div>
+                  <span className="text-amber-300 font-bold block">
+                    {pendingSyncCount} observation(s) queued for sync
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Saved locally on device; will sync automatically when network stabilizes.
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                <span className="text-emerald-300 font-semibold">
+                  All observations synchronized with JAMH X4 backend
+                </span>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {pendingSyncCount > 0 && (
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncing}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold rounded-full text-xs transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <RotateCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>Sync Now</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => fetchHistory(true)}
+              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-full text-xs border border-white/10 transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh Status</span>
+            </button>
+          </div>
+        </div>
+
         {/* Analytics Summary Bar */}
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-2xl bg-slate-900/80 p-4 border border-white/10 backdrop-blur-xl text-center font-mono">
@@ -250,7 +364,7 @@ export const History: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-1.5 font-mono text-[11px]">
+          <div className="flex items-center gap-1.5 font-mono text-[11px] overflow-x-auto pb-1 sm:pb-0">
             <button
               type="button"
               onClick={() => setFilterVerdict('ALL')}
@@ -284,6 +398,19 @@ export const History: React.FC = () => {
             >
               REVIEW
             </button>
+            {pendingSyncCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setFilterVerdict('UNSYNCED')}
+                className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+                  filterVerdict === 'UNSYNCED'
+                    ? 'bg-sky-500 text-slate-950 font-bold border-sky-400'
+                    : 'bg-sky-500/10 text-sky-400 border-sky-500/30 hover:bg-sky-500/20'
+                }`}
+              >
+                QUEUED ({pendingSyncCount})
+              </button>
+            )}
           </div>
         </div>
 
@@ -315,7 +442,7 @@ export const History: React.FC = () => {
             </p>
             <button
               type="button"
-              onClick={fetchHistory}
+              onClick={() => fetchHistory(true)}
               className="w-full py-3 bg-white text-slate-950 hover:bg-slate-100 text-xs font-bold rounded-full flex items-center justify-center gap-2 transition cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" />
@@ -350,7 +477,7 @@ export const History: React.FC = () => {
               </span>
               <button
                 type="button"
-                onClick={fetchHistory}
+                onClick={() => fetchHistory(true)}
                 className="text-[11px] font-mono text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
                 title="Refresh history"
               >
@@ -394,11 +521,17 @@ export const History: React.FC = () => {
                           )}
                         </span>
 
-                        {/* 2. Storage Origin Badge */}
+                        {/* 2. Storage Origin & Lifecycle Badge */}
                         {report.origin === 'local_pending' && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/20">
                             <Clock className="w-3 h-3 text-amber-400" />
-                            Pending Sync
+                            Waiting to Sync
+                          </span>
+                        )}
+                        {report.origin === 'local_failed' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-red-500/15 text-red-300 border border-red-500/30">
+                            <AlertTriangle className="w-3 h-3 text-red-400" />
+                            Sync Failed
                           </span>
                         )}
                         {report.origin === 'local_synced' && (
@@ -410,7 +543,7 @@ export const History: React.FC = () => {
                         {report.origin === 'server' && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-white/5 text-slate-300 border border-white/10">
                             <CloudUpload className="w-3 h-3 text-slate-400" />
-                            Server Record
+                            JAMH X4 Registry
                           </span>
                         )}
 

@@ -20,3 +20,4 @@ class Report(Base):
     issues = Column(JSON, nullable=False, default=list)  # Structured issues list
     raw_ocr = Column(Text, nullable=True)
     user_remarks = Column(Text, nullable=True)
+    local_report_id = Column(String(100), nullable=True, unique=True, index=True)

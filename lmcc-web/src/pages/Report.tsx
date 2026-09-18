@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, CheckCircle2, AlertTriangle, Building, MapPin, FileText, RefreshCw, Copy, Check } from 'lucide-react';
+import {
+  ArrowLeft,
+  Send,
+  CheckCircle2,
+  AlertTriangle,
+  Building,
+  MapPin,
+  FileText,
+  RefreshCw,
+  Copy,
+  Check,
+  CheckSquare,
+  Square,
+} from 'lucide-react';
 import { ExtractedLabel } from '../models/ExtractedLabel';
 import { Verdict } from '../models/Verdict';
 import { submitReport, ReportCreatePayload } from '../services/api';
@@ -15,14 +28,17 @@ export const Report: React.FC = () => {
   const state = location.state as {
     extractedLabel?: ExtractedLabel;
     verdict?: Verdict;
+    isPassConcern?: boolean;
   } | null;
 
   const extractedLabel = state?.extractedLabel;
   const verdict = state?.verdict;
+  const isPassConcern = state?.isPassConcern ?? (verdict?.overallStatus === 'PASS');
 
   const [productName, setProductName] = useState('');
   const [storeLocation, setStoreLocation] = useState('');
   const [userNotes, setUserNotes] = useState('');
+  const [confirmedVoluntary, setConfirmedVoluntary] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isSavedLocally, setIsSavedLocally] = useState(false);
@@ -51,6 +67,11 @@ export const Report: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!confirmedVoluntary) {
+      setErrorMessage('Please confirm voluntary submission of this observation before proceeding.');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -138,12 +159,12 @@ export const Report: React.FC = () => {
             <CheckCircle2 className="w-9 h-9" />
           </div>
           <h2 className="text-2xl font-black text-white mb-1 tracking-tight">
-            {isSavedLocally ? 'Report Saved Locally' : 'Report Recorded'}
+            {isSavedLocally ? 'Observation Saved Locally' : 'Observation Recorded'}
           </h2>
           <p className="text-xs text-slate-400 mb-6 leading-relaxed font-mono">
             {isSavedLocally
-              ? 'Report saved on this device and will sync when you are online.'
-              : 'Your observation has been registered in the compliance database for inspection and verification.'}
+              ? 'Saved on this device. Queued for background synchronization when connectivity is restored.'
+              : 'Registered in the JAMH X4 compliance registry for verification. (Official Department submission channel pending integration).'}
           </p>
 
           {/* Reference ID card */}
@@ -151,7 +172,7 @@ export const Report: React.FC = () => {
             <div className="bg-black/40 p-4 rounded-2xl border border-white/10 mb-6 flex items-center justify-between font-mono">
               <div className="text-left truncate mr-2">
                 <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
-                  {isSavedLocally ? 'Local Reference ID' : 'Report Reference ID'}
+                  {isSavedLocally ? 'Local Queue Reference ID' : 'Server Reference ID'}
                 </span>
                 <span className="text-xs text-white truncate block font-bold mt-0.5">
                   {submittedReportId}
@@ -230,7 +251,9 @@ export const Report: React.FC = () => {
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>BACK</span>
           </button>
-          <h1 className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">Submit Observation</h1>
+          <h1 className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">
+            {isPassConcern ? 'Record Concern' : 'Flag Observation'}
+          </h1>
           <div className="w-12" />
         </div>
       </header>
@@ -238,24 +261,40 @@ export const Report: React.FC = () => {
       {/* Main Form */}
       <main className="relative z-10 max-w-2xl w-full mx-auto px-4 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Flagged Summary Box */}
-          <div className="bg-amber-950/20 rounded-3xl p-5 sm:p-6 border border-amber-500/30 backdrop-blur-xl">
-            <SectionLabel glow className="mb-2">/POTENTIAL ISSUES</SectionLabel>
-            <h3 className="text-base font-bold text-amber-300 mb-2 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
-              Observed Non-Compliance ({verdict.potentialViolations.length})
-            </h3>
-            <ul className="mt-3 space-y-2 text-xs text-slate-300 font-mono">
-              {verdict.potentialViolations.map((v) => (
-                <li key={v.ruleId} className="flex items-start gap-2 bg-black/40 p-2.5 rounded-xl border border-white/5">
-                  <span className="font-bold text-amber-400">•</span>
-                  <span>
-                    <strong className="text-white">{v.title}:</strong> {v.explanation}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Summary Box: REVIEW issues vs PASS concern */}
+          {verdict.potentialViolations.length > 0 ? (
+            <div className="bg-amber-950/20 rounded-3xl p-5 sm:p-6 border border-amber-500/30 backdrop-blur-xl">
+              <SectionLabel glow className="mb-2">/POTENTIAL COMPLIANCE ISSUES</SectionLabel>
+              <h3 className="text-base font-bold text-amber-300 mb-2 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+                Screening Observations ({verdict.potentialViolations.length})
+              </h3>
+              <p className="text-xs text-slate-400 font-mono mb-3">
+                The automated screener flagged the following potential declaration issues under Rule 6. Please review before voluntary submission.
+              </p>
+              <ul className="space-y-2 text-xs text-slate-300 font-mono">
+                {verdict.potentialViolations.map((v) => (
+                  <li key={v.ruleId} className="flex items-start gap-2 bg-black/40 p-2.5 rounded-xl border border-white/5">
+                    <span className="font-bold text-amber-400">•</span>
+                    <span>
+                      <strong className="text-white">{v.title}:</strong> {v.explanation}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="bg-emerald-950/20 rounded-3xl p-5 sm:p-6 border border-emerald-500/30 backdrop-blur-xl">
+              <SectionLabel glow className="mb-2">/PACKAGING CONCERN</SectionLabel>
+              <h3 className="text-base font-bold text-emerald-300 mb-2 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                Automated Screening: PASS
+              </h3>
+              <p className="text-xs text-slate-300 font-mono leading-relaxed">
+                No statutory declaration issues were automatically detected during OCR screening. If you observed an issue with the physical packaging (e.g., hidden or tampered stickers, obscured price, dual prices, or illegible dates), you may voluntarily record your observation below.
+              </p>
+            </div>
+          )}
 
           {/* Form Fields Card */}
           <div className="bg-slate-900/80 rounded-[2rem] p-6 sm:p-7 border border-white/10 shadow-2xl backdrop-blur-2xl space-y-5">
@@ -276,7 +315,7 @@ export const Report: React.FC = () => {
             <div>
               <label className="block text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                Store / Location of Purchase (Optional)
+                Store / Retailer Location (Optional)
               </label>
               <input
                 type="text"
@@ -290,15 +329,38 @@ export const Report: React.FC = () => {
             <div>
               <label className="block text-xs font-mono font-bold text-slate-300 uppercase mb-2 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-emerald-400" />
-                Additional Remarks / Observations
+                {isPassConcern ? 'Describe Observed Packaging Concern' : 'Additional Remarks / Observations'}
               </label>
               <textarea
                 rows={3}
                 value={userNotes}
                 onChange={(e) => setUserNotes(e.target.value)}
-                placeholder="Detail any additional package defects, smudged dates, or retailer overcharging."
+                placeholder={
+                  isPassConcern
+                    ? 'Describe what you noticed on the package (e.g. sticker price higher than printed MRP, smudged batch code, missing customer care email).'
+                    : 'Detail any additional package defects, smudged dates, or retailer overcharging.'
+                }
                 className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-white/30 font-sans"
               />
+            </div>
+
+            {/* Voluntary Confirmation Checkbox */}
+            <div className="pt-2 border-t border-white/5">
+              <label
+                onClick={() => setConfirmedVoluntary(!confirmedVoluntary)}
+                className="flex items-start gap-3 cursor-pointer text-xs font-mono text-slate-300 select-none"
+              >
+                <div className="mt-0.5 text-emerald-400 flex-shrink-0">
+                  {confirmedVoluntary ? (
+                    <CheckSquare className="w-4 h-4 text-emerald-400" />
+                  ) : (
+                    <Square className="w-4 h-4 text-slate-500" />
+                  )}
+                </div>
+                <span>
+                  I confirm I am voluntarily recording this packaging observation for consumer compliance monitoring. No sensitive personal data or full-resolution photos are transmitted.
+                </span>
+              </label>
             </div>
           </div>
 
@@ -307,7 +369,7 @@ export const Report: React.FC = () => {
             <div className="p-4 bg-red-950/30 border border-red-500/30 rounded-2xl text-xs text-red-300 space-y-2 font-mono">
               <div className="flex items-center gap-2 font-semibold">
                 <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                <span>Backend Connection Issue</span>
+                <span>Notice</span>
               </div>
               <p>{errorMessage}</p>
               <div className="pt-1">
@@ -326,18 +388,18 @@ export const Report: React.FC = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full py-4 bg-white hover:bg-slate-100 disabled:bg-slate-700 text-slate-950 font-bold rounded-full flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(255,255,255,0.3)] transition active:scale-[0.98] cursor-pointer"
+            disabled={isSubmitting || !confirmedVoluntary}
+            className="w-full py-4 bg-white hover:bg-slate-100 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-full flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(255,255,255,0.3)] transition active:scale-[0.98] cursor-pointer"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2 font-mono text-sm">
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                Submitting report...
+                Recording observation...
               </span>
             ) : (
               <>
                 <Send className="w-5 h-5 text-emerald-600" />
-                <span>Submit Compliance Observation</span>
+                <span>Confirm & Submit Observation</span>
               </>
             )}
           </button>

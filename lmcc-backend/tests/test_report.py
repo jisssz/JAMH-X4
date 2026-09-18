@@ -216,3 +216,58 @@ def test_invalid_ids_do_not_crash_server():
         response = client.get(f"/api/reports/{m_id}")
         assert response.status_code == 404
 
+
+# ----------------------------------------------------
+# 11. Idempotent Deduplication via localReportId
+# ----------------------------------------------------
+def test_idempotent_report_deduplication():
+    local_id = "local_1726700000000_abc123"
+    payload = {
+        "verdict": "REVIEW",
+        "productName": "Biscuits with missing MRP",
+        "localReportId": local_id,
+        "issueCount": 1,
+        "issues": [
+            {
+                "ruleId": "LM-PCR-2011-R6-1-DA",
+                "field": "mrp",
+                "title": "Missing MRP",
+                "severity": "critical",
+                "explanation": "No MRP found",
+            }
+        ],
+    }
+
+    # First submission
+    res1 = client.post("/api/report", json=payload)
+    assert res1.status_code == 201
+    data1 = res1.json()
+    first_id = data1["id"]
+    assert data1["status"] == "created"
+
+    # Second submission with same localReportId (simulating retry or network reconnect)
+    res2 = client.post("/api/report", json=payload)
+    assert res2.status_code == 201
+    data2 = res2.json()
+    assert data2["id"] == first_id
+    assert data2["status"] == "already_exists"
+
+    # Verify reports count is 1, not duplicated
+    list_res = client.get("/api/reports")
+    assert list_res.status_code == 200
+    reports = list_res.json()
+    matching = [r for r in reports if r.get("localReportId") == local_id]
+    assert len(matching) == 1
+    assert matching[0]["id"] == first_id
+
+
+# ----------------------------------------------------
+# 12. Distinct localReportIds Create Distinct Records
+# ----------------------------------------------------
+def test_distinct_local_report_ids():
+    res1 = client.post("/api/report", json={"verdict": "PASS", "localReportId": "local_1"})
+    res2 = client.post("/api/report", json={"verdict": "PASS", "localReportId": "local_2"})
+    assert res1.status_code == 201
+    assert res2.status_code == 201
+    assert res1.json()["id"] != res2.json()["id"]
+

@@ -1,6 +1,7 @@
 import { ReportCreatePayload } from '../api';
 
 export type SyncStatus = 'pending' | 'synced' | 'failed';
+export type ReportLifecycleState = 'LOCAL_ONLY' | 'QUEUED' | 'SYNCING' | 'SUBMITTED' | 'FAILED';
 
 export interface LocalReport {
   localId: string;
@@ -11,6 +12,22 @@ export interface LocalReport {
   retryCount: number;
   lastError?: string | null;
   syncedAt?: string | null;
+}
+
+export function getReportLifecycleState(
+  report: { syncStatus: SyncStatus; serverId?: string | null },
+  isCurrentlySyncing: boolean = false
+): ReportLifecycleState {
+  if (report.serverId || report.syncStatus === 'synced') {
+    return 'SUBMITTED';
+  }
+  if (isCurrentlySyncing) {
+    return 'SYNCING';
+  }
+  if (report.syncStatus === 'failed') {
+    return 'FAILED';
+  }
+  return 'QUEUED';
 }
 
 const DB_NAME = 'lmcc_offline_db';
@@ -52,9 +69,14 @@ function openDB(): Promise<IDBDatabase> {
  */
 export async function saveLocalReport(payload: ReportCreatePayload): Promise<LocalReport> {
   const localId = `local_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const enrichedPayload: ReportCreatePayload = {
+    ...payload,
+    localReportId: payload.localReportId || localId,
+  };
+
   const report: LocalReport = {
     localId,
-    payload,
+    payload: enrichedPayload,
     createdAt: new Date().toISOString(),
     syncStatus: 'pending',
     serverId: null,

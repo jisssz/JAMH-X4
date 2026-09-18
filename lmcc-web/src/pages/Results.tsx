@@ -412,8 +412,15 @@ export const Results: React.FC = () => {
         {/* ---------------------------------------------------- */}
         {/* Primary Action Buttons */}
         {/* ---------------------------------------------------- */}
-        <div className="pt-4 flex flex-col sm:flex-row gap-3">
-          {verdict.potentialViolations.length > 0 && (
+        {verdict.overallStatus === 'PASS' && (
+          <div className="p-3.5 bg-emerald-950/20 rounded-2xl border border-emerald-500/20 flex items-center gap-2.5 text-xs font-mono text-emerald-300">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span>No potential declaration issues detected during automated screening.</span>
+          </div>
+        )}
+
+        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+          {verdict.overallStatus === 'REVIEW' ? (
             <button
               type="button"
               onClick={() =>
@@ -422,13 +429,32 @@ export const Results: React.FC = () => {
                     extractedLabel,
                     verdict,
                     imageBlob,
+                    isPassConcern: false,
                   },
                 })
               }
               className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-4 px-6 rounded-full flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(245,158,11,0.25)] transition active:scale-[0.98] cursor-pointer"
             >
               <Flag className="w-5 h-5" />
-              <span>Report an Issue</span>
+              <span>Flag This Product</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                navigate('/report', {
+                  state: {
+                    extractedLabel,
+                    verdict,
+                    imageBlob,
+                    isPassConcern: true,
+                  },
+                })
+              }
+              className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-semibold py-4 px-6 rounded-full flex items-center justify-center gap-2 border border-white/15 transition active:scale-[0.98] cursor-pointer text-xs font-mono"
+            >
+              <Flag className="w-4 h-4 text-slate-400" />
+              <span>Report a Concern</span>
             </button>
           )}
 

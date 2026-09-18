@@ -19,8 +19,15 @@ def submit_report(payload: ReportCreate, db: Session = Depends(get_db)):
     """
     Submits a client-screened Legal Metrology compliance observation report.
     Persists structured declarations and issues without collecting personal user data.
+    Provides idempotent deduplication using client-assigned localReportId.
     """
     try:
+        # Idempotent deduplication check: if localReportId is provided, return existing if already recorded
+        if payload.localReportId:
+            existing = db.query(Report).filter(Report.local_report_id == payload.localReportId).first()
+            if existing:
+                return ReportResponse(id=existing.id, status="already_exists")
+
         # Convert Pydantic issues into JSON-serializable list of dicts
         issues_data = [issue.model_dump() for issue in payload.issues]
 
@@ -36,6 +43,7 @@ def submit_report(payload: ReportCreate, db: Session = Depends(get_db)):
             issues=issues_data,
             raw_ocr=payload.rawOcr,
             user_remarks=payload.userRemarks,
+            local_report_id=payload.localReportId,
         )
         db.add(db_report)
         db.commit()
@@ -75,6 +83,7 @@ def list_reports(
                 issues=r.issues or [],
                 rawOcr=r.raw_ocr,
                 userRemarks=r.user_remarks,
+                localReportId=r.local_report_id,
             )
         )
     return results
@@ -104,4 +113,5 @@ def get_report(report_id: str, db: Session = Depends(get_db)):
         issues=report.issues or [],
         rawOcr=report.raw_ocr,
         userRemarks=report.user_remarks,
+        localReportId=report.local_report_id,
     )

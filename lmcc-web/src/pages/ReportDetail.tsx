@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { getReport, ReportRead } from '../services/api';
 import { getLocalReport } from '../services/storage/localReports';
+import { getAuthoritySubmissionStatus } from '../services/authority/authoritySubmissionService';
+import { registerSyncListener } from '../services/sync/reportSync';
 import GlowBackground from '../components/ui/GlowBackground';
 import SectionLabel from '../components/ui/SectionLabel';
 
@@ -39,6 +41,8 @@ export const ReportDetail: React.FC = () => {
   const [copiedId, setCopiedId] = useState(false);
   const [showRawOcr, setShowRawOcr] = useState(false);
   const [copiedOcr, setCopiedOcr] = useState(false);
+
+  const authorityStatus = getAuthoritySubmissionStatus(id || '');
 
   const fetchDetail = async () => {
     if (!id) {
@@ -130,6 +134,25 @@ export const ReportDetail: React.FC = () => {
 
   useEffect(() => {
     fetchDetail();
+
+    const unsubscribe = registerSyncListener((isSyncing) => {
+      if (!isSyncing) {
+        fetchDetail();
+      }
+    });
+
+    const handleFocus = () => {
+      fetchDetail();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
   }, [id]);
 
   const handleCopyId = () => {
@@ -350,6 +373,105 @@ export const ReportDetail: React.FC = () => {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* 3b. Transparent 4-Stage Lifecycle & Authority Status Timeline */}
+            <div className="bg-slate-900/80 p-6 rounded-[2rem] border border-white/10 shadow-2xl backdrop-blur-xl space-y-4 font-mono">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    Report Lifecycle & Channel Status
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchDetail}
+                  className="text-[10px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer transition"
+                  title="Refresh Status"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                  <span>Refresh Status</span>
+                </button>
+              </div>
+
+              <div className="space-y-4 pt-1">
+                {/* Stage 1: Screened */}
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">1. Screened on Device</span>
+                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Completed</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Client-side OCR and Rule 6 compliance assessment executed locally.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stage 2: Saved Locally */}
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">2. Persisted in Local Storage</span>
+                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Completed</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Observation and structured declarations stored safely in browser IndexedDB.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stage 3: Submitted to JAMH X4 */}
+                <div className="flex items-start gap-3">
+                  {localInfo?.isLocal && localInfo?.syncStatus !== 'synced' ? (
+                    <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Clock className="w-3.5 h-3.5" />
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">3. Submitted to JAMH X4 Registry</span>
+                      {localInfo?.isLocal && localInfo?.syncStatus !== 'synced' ? (
+                        <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">Queued to Sync</span>
+                      ) : (
+                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Synchronized</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {localInfo?.isLocal && localInfo?.syncStatus !== 'synced'
+                        ? 'Waiting for network connection to synchronize with the FastAPI backend registry.'
+                        : `Persisted in central research database. Registry ID: ${localInfo?.serverId || report.id}`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stage 4: Official Department Submission */}
+                <div className="flex items-start gap-3 opacity-80">
+                  <div className="w-6 h-6 rounded-full bg-white/5 text-slate-500 border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-300">4. Official Department Channel</span>
+                      <span className="text-[10px] text-slate-400 bg-white/5 px-2 py-0.5 rounded-full">Pending Integration</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                      {authorityStatus.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* 4. Product Declarations Summary Grid */}

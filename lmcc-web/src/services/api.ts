@@ -23,6 +23,7 @@ export interface ReportCreatePayload {
   issues: IssueDetail[];
   rawOcr?: string;
   userRemarks?: string;
+  localReportId?: string;
 }
 
 export interface ReportResponse {
@@ -44,6 +45,7 @@ export interface ReportRead {
   issues: IssueDetail[];
   rawOcr?: string;
   userRemarks?: string;
+  localReportId?: string;
 }
 
 // Robust resolution of backend API Base URL:

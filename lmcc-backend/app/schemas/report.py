@@ -29,6 +29,7 @@ class ReportCreate(BaseModel):
     issues: List[IssueDetail] = Field(default_factory=list)
     rawOcr: Optional[str] = Field(None, max_length=50000)
     userRemarks: Optional[str] = Field(None, max_length=2000)
+    localReportId: Optional[str] = Field(None, max_length=100)
 
     @field_validator("verdict")
     @classmethod
@@ -58,5 +59,6 @@ class ReportRead(BaseModel):
     issues: List[IssueDetail]
     rawOcr: Optional[str] = None
     userRemarks: Optional[str] = None
+    localReportId: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

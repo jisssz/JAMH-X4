@@ -49,3 +49,7 @@ lmcc-backend/.env.*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Test screenshots and raw asset sources
+/*.png
+login intro/

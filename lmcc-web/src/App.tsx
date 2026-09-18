@@ -11,9 +11,12 @@ import { ReportDetail } from './pages/ReportDetail';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
+import { LoadingScreen } from './components/loading/LoadingScreen';
 import { initAutoSync } from './services/sync/reportSync';
 
 export const App: React.FC = () => {
+  const [showIntro, setShowIntro] = React.useState(true);
+
   React.useEffect(() => {
     const cleanup = initAutoSync();
     return cleanup;
@@ -22,6 +25,7 @@ export const App: React.FC = () => {
   return (
     <ImageProvider>
       <BrowserRouter>
+        {showIntro && <LoadingScreen onComplete={() => setShowIntro(false)} />}
         <OfflineIndicator />
         <InstallPrompt />
         <UpdatePrompt />

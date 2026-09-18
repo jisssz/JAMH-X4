@@ -113,7 +113,22 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, class
             <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-[11px] text-white font-medium border border-white/10">
               {dimensions ? `${dimensions.width} × ${dimensions.height}px` : 'Loading...'}
             </div>
+            {dimensions && (dimensions.width < 350 || dimensions.height < 350) && (
+              <div className="absolute top-3 right-3 bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1">
+                <AlertCircle className="w-3 h-3 text-amber-400" />
+                <span>Low Resolution</span>
+              </div>
+            )}
           </div>
+
+          {dimensions && (dimensions.width < 350 || dimensions.height < 350) && (
+            <div className="w-full mb-3 flex items-start gap-2 text-[11px] text-amber-300/90 bg-amber-950/40 p-2.5 rounded-xl border border-amber-500/30 font-mono">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <span>
+                Low resolution detected ({dimensions.width}×{dimensions.height}px). Ensure fine print (MRP, date, weight) is sharp and readable.
+              </span>
+            </div>
+          )}
 
           <div className="w-full flex items-center justify-between mb-5 px-1 text-xs text-slate-300">
             <div className="truncate max-w-[200px]">

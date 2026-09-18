@@ -2,7 +2,7 @@
 ════════════════════════════════════════════════════════════════════
                  LMCC ACCURACY LAB EVALUATION REPORT                
 ════════════════════════════════════════════════════════════════════
-Timestamp:              2026-09-18T17:05:49.438Z
+Timestamp:              2026-09-18T17:50:51.543Z
 Total Products Tested:  27 (Benchmark: 23 | Held-Out: 4)
 
 ── FIELD EXTRACTION ACCURACY ───────────────────────────────────────

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-19T04:01:56.826Z",
+  "timestamp": "2026-09-19T04:26:41.996Z",
   "totalProducts": 27,
   "splits": {
     "benchmarkCount": 23,
@@ -18,8 +18,8 @@
     },
     "manufacturer": {
       "total": 27,
-      "correct": 27,
-      "accuracyPercent": 100
+      "correct": 22,
+      "accuracyPercent": 81.5
     },
     "address": {
       "total": 27,
@@ -38,23 +38,23 @@
     },
     "overall": {
       "total": 162,
-      "correct": 162,
-      "accuracyPercent": 100
+      "correct": 157,
+      "accuracyPercent": 96.9
     }
   },
   "complianceDecision": {
-    "truePass": 24,
+    "truePass": 20,
     "trueReview": 3,
     "falsePass": 0,
-    "falseReview": 0,
+    "falseReview": 4,
     "falsePassRatePercent": 0,
-    "falseReviewRatePercent": 0,
-    "decisionAccuracyPercent": 100
+    "falseReviewRatePercent": 16.7,
+    "decisionAccuracyPercent": 85.2
   },
   "byLevel": {
     "level_1_synthetic": {
       "total": 6,
-      "fieldAccuracyPercent": 100,
+      "fieldAccuracyPercent": 97.2,
       "decisionAccuracyPercent": 100
     },
     "level_2_real": {
@@ -69,15 +69,15 @@
     },
     "level_4_adversarial": {
       "total": 8,
-      "fieldAccuracyPercent": 100,
-      "decisionAccuracyPercent": 100
+      "fieldAccuracyPercent": 91.7,
+      "decisionAccuracyPercent": 50
     }
   },
   "byLanguage": {
     "eng": {
       "total": 20,
-      "fieldAccuracyPercent": 100,
-      "decisionAccuracyPercent": 100
+      "fieldAccuracyPercent": 95.8,
+      "decisionAccuracyPercent": 80
     },
     "hin": {
       "total": 2,
@@ -113,8 +113,8 @@
   "bySplit": {
     "benchmark": {
       "total": 23,
-      "fieldAccuracyPercent": 100,
-      "decisionAccuracyPercent": 100
+      "fieldAccuracyPercent": 96.4,
+      "decisionAccuracyPercent": 82.6
     },
     "held_out_test": {
       "total": 4,
@@ -122,6 +122,129 @@
       "decisionAccuracyPercent": 100
     }
   },
-  "rootCauses": {},
-  "failures": []
+  "rootCauses": {
+    "MANUFACTURER_EXTRACTION_GAP": 5,
+    "FALSE_REVIEW_UNWARRANTED_FLAG": 4
+  },
+  "failures": [
+    {
+      "id": "SYN_005_MISSING_NET_QTY_NONCOMPLIANT",
+      "name": "Synthetic Label Missing Net Quantity",
+      "language": "eng",
+      "level": "level_1_synthetic",
+      "split": "benchmark",
+      "fieldMatches": {
+        "mrp": true,
+        "netQuantity": true,
+        "manufacturer": false,
+        "address": true,
+        "packingDate": true,
+        "consumerCare": true
+      },
+      "expectedCompliance": "REVIEW",
+      "actualCompliance": "REVIEW",
+      "decisionMatch": true,
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "rootCauses": [
+        "MANUFACTURER_EXTRACTION_GAP"
+      ]
+    },
+    {
+      "id": "ADV_002_FSSAI_PHONE_COLLISION",
+      "name": "14-digit FSSAI License Adjacent to Toll-Free Phone",
+      "language": "eng",
+      "level": "level_4_adversarial",
+      "split": "benchmark",
+      "fieldMatches": {
+        "mrp": true,
+        "netQuantity": true,
+        "manufacturer": false,
+        "address": true,
+        "packingDate": true,
+        "consumerCare": true
+      },
+      "expectedCompliance": "PASS",
+      "actualCompliance": "REVIEW",
+      "decisionMatch": false,
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "rootCauses": [
+        "FALSE_REVIEW_UNWARRANTED_FLAG",
+        "MANUFACTURER_EXTRACTION_GAP"
+      ]
+    },
+    {
+      "id": "ADV_004_DUAL_PRICES_OFFER_DISCOUNT",
+      "name": "Dual Prices: Statutory MRP vs Promotional Offer Price",
+      "language": "eng",
+      "level": "level_4_adversarial",
+      "split": "benchmark",
+      "fieldMatches": {
+        "mrp": true,
+        "netQuantity": true,
+        "manufacturer": false,
+        "address": true,
+        "packingDate": true,
+        "consumerCare": true
+      },
+      "expectedCompliance": "PASS",
+      "actualCompliance": "REVIEW",
+      "decisionMatch": false,
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "rootCauses": [
+        "FALSE_REVIEW_UNWARRANTED_FLAG",
+        "MANUFACTURER_EXTRACTION_GAP"
+      ]
+    },
+    {
+      "id": "ADV_005_DUAL_DATES_MFD_VS_EXPIRY",
+      "name": "Dual Dates: Manufacturing Date vs Best Before Date",
+      "language": "eng",
+      "level": "level_4_adversarial",
+      "split": "benchmark",
+      "fieldMatches": {
+        "mrp": true,
+        "netQuantity": true,
+        "manufacturer": false,
+        "address": true,
+        "packingDate": true,
+        "consumerCare": true
+      },
+      "expectedCompliance": "PASS",
+      "actualCompliance": "REVIEW",
+      "decisionMatch": false,
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "rootCauses": [
+        "FALSE_REVIEW_UNWARRANTED_FLAG",
+        "MANUFACTURER_EXTRACTION_GAP"
+      ]
+    },
+    {
+      "id": "ADV_006_COPYRIGHT_YEAR_COLLISION",
+      "name": "Copyright Year (© 2021) with Packaging Date (08/2024)",
+      "language": "eng",
+      "level": "level_4_adversarial",
+      "split": "benchmark",
+      "fieldMatches": {
+        "mrp": true,
+        "netQuantity": true,
+        "manufacturer": false,
+        "address": true,
+        "packingDate": true,
+        "consumerCare": true
+      },
+      "expectedCompliance": "PASS",
+      "actualCompliance": "REVIEW",
+      "decisionMatch": false,
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "rootCauses": [
+        "FALSE_REVIEW_UNWARRANTED_FLAG",
+        "MANUFACTURER_EXTRACTION_GAP"
+      ]
+    }
+  ]
 }

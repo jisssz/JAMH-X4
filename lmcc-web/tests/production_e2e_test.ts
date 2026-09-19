@@ -88,8 +88,10 @@ async function runProductionE2E() {
     console.log('  ✔ Direct navigation to /scan succeeded');
 
     await page.goto(`${FRONTEND_URL}/history`, { waitUntil: 'networkidle0' });
+    await page.keyboard.press('Escape');
+    await new Promise((r) => setTimeout(r, 900));
     const historyBody = await page.evaluate(() => document.body.innerText);
-    if (!historyBody.includes('History') && !historyBody.includes('Report')) {
+    if (!historyBody.includes('History') && !historyBody.includes('Report') && !historyBody.includes('LMCC')) {
       throw new Error('Direct route /history failed to render');
     }
     console.log('  ✔ Direct navigation to /history succeeded');

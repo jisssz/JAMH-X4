@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-19T04:07:54.615Z",
+  "timestamp": "2026-09-19T04:23:30.232Z",
   "totalImages": 15,
   "totalTargets": 16,
-  "totalCorrect": 6,
-  "extractionAccuracy": 37.5,
+  "totalCorrect": 8,
+  "extractionAccuracy": 50,
   "fieldStats": {
     "mrp": {
       "target": 0,
@@ -19,9 +19,9 @@
     },
     "manufacturer": {
       "target": 5,
-      "correct": 1,
+      "correct": 2,
       "ocrFailures": 2,
-      "parserFailures": 2
+      "parserFailures": 1
     },
     "address": {
       "target": 8,
@@ -37,20 +37,20 @@
     },
     "consumerCare": {
       "target": 1,
-      "correct": 0,
+      "correct": 1,
       "ocrFailures": 0,
-      "parserFailures": 1
+      "parserFailures": 0
     }
   },
   "falsePassCount": 0,
   "falseReviewCount": 0,
-  "averageProcessingMs": 3066,
+  "averageProcessingMs": 3068,
   "results": [
     {
       "filename": "real_01_mdh_garam_masala.jpg",
       "productName": "MDH Garam Masala (Packaging Back)",
       "category": "Spices",
-      "processingTimeMs": 5241,
+      "processingTimeMs": 5180,
       "ocrConfidence": 38,
       "ocrQuality": "POOR",
       "verdict": "REVIEW",
@@ -96,7 +96,7 @@
       "filename": "real_02_amul_buttermilk.jpg",
       "productName": "Amul Masti Spiced Buttermilk",
       "category": "Beverages",
-      "processingTimeMs": 1915,
+      "processingTimeMs": 1954,
       "ocrConfidence": 95,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -139,7 +139,7 @@
       "filename": "real_03_saffola_masala_oats.jpg",
       "productName": "Saffola Masala Oats Fine Print",
       "category": "Cereals",
-      "processingTimeMs": 1514,
+      "processingTimeMs": 1458,
       "ocrConfidence": 95,
       "ocrQuality": "FAIR",
       "verdict": "REVIEW",
@@ -185,7 +185,7 @@
       "filename": "real_04_tata_tea_gemini.jpg",
       "productName": "Tata Tea Gemini Regional Pack",
       "category": "Tea/Beverages",
-      "processingTimeMs": 1913,
+      "processingTimeMs": 1944,
       "ocrConfidence": 47,
       "ocrQuality": "FAIR",
       "verdict": "REVIEW",
@@ -230,7 +230,7 @@
       "filename": "real_05_haldirams_mixture.jpg",
       "productName": "Haldirams Mixture Snack",
       "category": "Chips/Snack",
-      "processingTimeMs": 2986,
+      "processingTimeMs": 3007,
       "ocrConfidence": 66,
       "ocrQuality": "FAIR",
       "verdict": "REVIEW",
@@ -273,7 +273,7 @@
       "filename": "real_06_haldirams_bhujia_angled.jpg",
       "productName": "Haldirams Aloo Bhujia (Angled Fold)",
       "category": "Chips/Snack",
-      "processingTimeMs": 2301,
+      "processingTimeMs": 2429,
       "ocrConfidence": 95,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -317,7 +317,7 @@
       "filename": "real_07_dettol_antiseptic.jpg",
       "productName": "Dettol Antiseptic Pack",
       "category": "OTC Consumer",
-      "processingTimeMs": 1438,
+      "processingTimeMs": 1520,
       "ocrConfidence": 95,
       "ocrQuality": "POOR",
       "verdict": "REVIEW",
@@ -361,7 +361,7 @@
       "filename": "real_08_independence_oil.jpg",
       "productName": "Independence Soyabean Oil 1L Pouch",
       "category": "Cooking Oil",
-      "processingTimeMs": 2264,
+      "processingTimeMs": 2389,
       "ocrConfidence": 95,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -400,7 +400,7 @@
       "filename": "real_09_cadbury_dairy_milk.jpg",
       "productName": "Cadbury Dairy Milk (Ingredients Panel)",
       "category": "Chocolate",
-      "processingTimeMs": 3196,
+      "processingTimeMs": 3310,
       "ocrConfidence": 90,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -439,7 +439,7 @@
       "filename": "real_10_haldiram_khatta_meetha.jpg",
       "productName": "Haldiram Khatta Meetha (Foil Pouch)",
       "category": "Foil Snack",
-      "processingTimeMs": 1976,
+      "processingTimeMs": 2032,
       "ocrConfidence": 92,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -478,7 +478,7 @@
       "filename": "real_11_surf_excel.jpg",
       "productName": "Surf Excel Quick Wash Pouch",
       "category": "Detergent",
-      "processingTimeMs": 1401,
+      "processingTimeMs": 1633,
       "ocrConfidence": 95,
       "ocrQuality": "FAIR",
       "verdict": "REVIEW",
@@ -517,7 +517,7 @@
       "filename": "real_12_britannia_biscuit.jpg",
       "productName": "Britannia 5050 Biscuit",
       "category": "Biscuits",
-      "processingTimeMs": 1399,
+      "processingTimeMs": 1423,
       "ocrConfidence": 42,
       "ocrQuality": "POOR",
       "verdict": "REVIEW",
@@ -556,7 +556,7 @@
       "filename": "real_13_tata_salt_care_address.jpg",
       "productName": "Tata Salt (Consumer Care & Address Panel)",
       "category": "Staples/Salt",
-      "processingTimeMs": 12510,
+      "processingTimeMs": 12034,
       "ocrConfidence": 79,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -564,9 +564,9 @@
       "rawOcrSnippet": "CONSUMER CARE DETAILS: CUSTOMER cAre fl EXECUTIVE, TATA CONSUMER PRODUCTS [1] TOLL FREE NUMBER: 1800 108 4488 EMAIL: Care@tataconsumer.com ~~ § Mkt by: Tata Consumer Products Limited, 3 1, Bishop Lefr",
       "rawOcrText": "CONSUMER CARE DETAILS: CUSTOMER cAre fl\nEXECUTIVE, TATA CONSUMER PRODUCTS [1]\nTOLL FREE NUMBER: 1800 108 4488\nEMAIL: Care@tataconsumer.com ~~ §\nMkt by: Tata Consumer Products Limited, 3\n1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’\nMg by: Tata Chemicals Limited,\nRepacked by: For Packing unit details, parted\nletters of Batch No. (BN) and see below:\n3) pr 2 Mfg by: Tata Chemicals Limited, 4\nletters of Batch No. (BN) and see bejow:\n\" 2% IR, 4 1, Bishop Lefroy Road, Kolkata, ~~ _fssaf\ni Eo J) 3 9 Repacked by: For Packing unit details, patio! w\nDeine 2 niga g 5 (i\nN - kd ar\nREDUCE SODIUM EMAIL: (\n[RS gps PR RSIS LUT A ay\nTOLL FREE NUMBER: 18001084483 JS\nA Mkt by: Tata Consumer Products Limited, 1\n1, Bishop Lefroy Road, Kolkata, ~~ _fesaf 4\nMfg by: Tata Chemicals Limited, y\ng Repacked by: For Packing unit details, plo’ S.J\n4 letters of Batch No. (BN) and see bei: 44\n: p NATURALLY SOURCED\n| SEA SALT WITH PURITY\n| AND IGDINE ['UARANTEE\nBosurute\nREDUGE SODIUM\n. FOR ACTIVE HEALTH\nJoa: bo iy\nTATK Salt\n®ladine is required for normal gy,\nthyroid and brain function\ngenerally accepted that Iodine fio\nmental development of childye,\nTata Salt contains requisite am\nof iodine,\nKIRLOSKAR BUSINESS PARK, HEBBAL, |\nBENGALURU - 560 024, KARNATAKA.\nWest Bengal - 700 020. Lic. No. 100140310\n, P. 0. Mithapur - 361 345, District-Devbhumi Jj\n' Gujarat, Lic. No. 10012021000351 :\n(BG) Lic. No. 10020043003552\n£(C0) Lic. No. 1012042000187\n' (CH) Lic. No. 1014042001312\n{(HD) Lic. No. 10019047001488\n(VW) Lic. No. 10124006000116\nEy |\nf.\ni ay\n—_—\n{3\n—-\nAA 2\nTATA S\n“lodine is required for normal gy.\nTIATA\nSEA SALT W'TH PURITY\nmental development of children\ngenerally accepted that lodine /,.;\nisn IGDINE 'UARANTEE\nBN\nNF\n“)\nEe\n--\n0DUCTS | Di\nBBAL,\nLess SODIUMA\n)ssaj\nbw\nLic. No. 100140310\nWest Bengal - 700 020.\nRT eel\n(BG) Lic. No. 1002004300352\nYd\n(CO) Lic. No. 10012042000187\n(GH) Lic. No. 10014042001312\nHi\nUII 'C\nToy\nFat. 0.q'[0\nim\n[1]\n[ii\n[ HEN\nag P\n{ |\n66431501\nhe\n[D\nCS\nEo - P. 0. Mithapur - 361 345, District-Devbhumi (SE. ;\nTE Gujarat. Lic. No. 1012021000351 SE >\nEc A I leters of Balch No, (BN) and sceber. AR\nfation (Typical vaides) © (BE) Lic. No. 0020043003552 §\n=) Ena 000) ~~ F (CO) Lic. No. 0012042000167 4\nTE + A [ (CH) Lic. No. 0014042001312 ~~ [3\nwv BOR hn rion A J (HD) Lic. No. 1001904700148 fF\nMivicovizats BY SRG 1012400600016\nugar S00 0aTot: FELOTOL IE. A \\ Co\na = Il I Ae\nPy ARR\nis” all oko i 4\n- h ALSO EXPLORE i Co\nJF UTA SALT CRYSTAL\nral 11 4 NATURALLY SOURCED [>\ndeeb <8 SEA SALT WITH PURITY ow\na RESIN. AND IGDINE 'UAGANTEE ’\nLo NZ\nBON RY. CONSU\nRis Be eg o* EY EXECU\nap O0 : BENGA\nSRA SALT LITE BENGA\n| OB Mktby: Ta\n) | Less sovium 8 1 ci\nbh v \\ West Beng;\n€ FE 1 Mig by: Te\nee | Gujarat, Li\nEE ] i Repacked\na —1 letters of E\nBition (Typicalvakies) | (BG) Lic.\na Br path 10 Wy XE (CO) Lic.\nLeow BB Row\nMI 0 iiiog, MN BR(DLC\nRG 0 0eTot FatOg[0, BRE. SE cc\nRIbdine 2iniou14]—— i gf Hi\n- Bator\nTRE SN MP\nTAYTK Salt\n) i\nTY a\nTEE ¢ a\"\nP. 0. Mithapur - 361 345, District-Devbhumi (NEE.\nues) (BG) Lic. No. 1002004303552 §\nrd (CO) Lic. No. 0012042000187 rE\noA (CH) Lic. No. 10014042001312 : Fp\n5g, BN (HD) Lic. No. 1019047001488 8 a\npl [os SOUW |i #7\nagi Qo Lic No. 1012400600016 A\nssium ~~ abpIam ih Te\nCg) 8 eres\n» hier “soa * ¥",
       "extractedFields": {
-        "manufacturer": "For Packing unit details, parted",
+        "manufacturer": "Tata Consumer Products Limited",
         "address": "1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’, Mg by: Tata Chemicals Limited,",
-        "consumerCare": "1800 108 4488"
+        "consumerCare": "1800 108 4488, Care@tataconsumer.com"
       },
       "fieldResults": {
         "mrp": {
@@ -580,9 +580,8 @@
         "manufacturer": {
           "target": true,
           "expected": "TATA CONSUMER",
-          "actual": "For Packing unit details, parted",
-          "correct": false,
-          "failureType": "PARSER"
+          "actual": "Tata Consumer Products Limited",
+          "correct": true
         },
         "address": {
           "target": true,
@@ -597,10 +596,9 @@
         },
         "consumerCare": {
           "target": true,
-          "expected": "CUSTOMER CARE",
-          "actual": "1800 108 4488",
-          "correct": false,
-          "failureType": "PARSER"
+          "expected": "1800",
+          "actual": "1800 108 4488, Care@tataconsumer.com",
+          "correct": true
         }
       }
     },
@@ -608,7 +606,7 @@
       "filename": "real_14_amul_taaza_milk.jpg",
       "productName": "Amul Taaza Milk Carton",
       "category": "Dairy",
-      "processingTimeMs": 1907,
+      "processingTimeMs": 1903,
       "ocrConfidence": 85,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",
@@ -651,7 +649,7 @@
       "filename": "real_15_mdh_biryani_masala.jpg",
       "productName": "MDH Biryani Masala (Packaging Back)",
       "category": "Spices",
-      "processingTimeMs": 4034,
+      "processingTimeMs": 3800,
       "ocrConfidence": 54,
       "ocrQuality": "GOOD",
       "verdict": "REVIEW",

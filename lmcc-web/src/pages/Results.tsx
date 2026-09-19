@@ -23,19 +23,22 @@ import {
   MapPin,
   Sparkles,
   Camera,
+  Layers,
+  Plus,
 } from 'lucide-react';
 import { ExtractedLabel } from '../models/ExtractedLabel';
 import { Verdict } from '../models/Verdict';
 import { VerdictCard } from '../components/VerdictCard';
 import { ViolationCard } from '../components/ViolationCard';
 import { useImage } from '../context/ImageContext';
+import { MultiPanelMergeResult } from '../services/parser/multiPanelMerger';
 import GlowBackground from '../components/ui/GlowBackground';
 import SectionLabel from '../components/ui/SectionLabel';
 
 export const Results: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { capturedImage, imagePreviewUrl } = useImage();
+  const { capturedImage, imagePreviewUrl, panels } = useImage();
 
   const state = location.state as {
     extractedLabel?: ExtractedLabel;
@@ -45,6 +48,8 @@ export const Results: React.FC = () => {
     ocrConfidence?: number;
     ocrLanguage?: string;
     ocrAttempts?: number;
+    multiPanelResult?: MultiPanelMergeResult;
+    isMultiPanel?: boolean;
   } | null;
 
   const extractedLabel = state?.extractedLabel;
@@ -54,6 +59,7 @@ export const Results: React.FC = () => {
   const ocrConfidence = state?.ocrConfidence;
   const ocrLanguage = state?.ocrLanguage;
   const ocrAttempts = state?.ocrAttempts;
+  const multiPanelResult = state?.multiPanelResult;
 
   const [showRawOcr, setShowRawOcr] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -184,24 +190,84 @@ export const Results: React.FC = () => {
         {/* ---------------------------------------------------- */}
         <VerdictCard verdict={verdict} />
 
+        {/* Multi-Panel Conflict Alert */}
+        {multiPanelResult?.hasConflict && (
+          <div className="p-4 bg-rose-950/40 border border-rose-500/40 rounded-2xl flex items-start gap-3 text-xs font-mono text-rose-300">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-white block font-sans text-sm mb-1">
+                Multi-Panel Discrepancies Flagged
+              </strong>
+              <ul className="list-disc list-inside space-y-1 text-slate-300">
+                {multiPanelResult.conflictDetails.map((detail, idx) => (
+                  <li key={idx}>{detail}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* ---------------------------------------------------- */}
-        {/* Scanned Image Card */}
+        {/* Scanned Image Card / Multi-Panel Gallery */}
         {/* ---------------------------------------------------- */}
-        {imagePreviewUrl && (
+        {panels.length > 1 ? (
+          <div className="bg-slate-900/80 rounded-3xl p-5 border border-white/10 shadow-xl backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <Layers className="w-4 h-4 text-emerald-400" />
+                Scanned Package Panels ({panels.length})
+              </h3>
+              <button
+                type="button"
+                onClick={() => navigate('/scan?mode=camera&panel=other&add=true')}
+                className="text-xs text-emerald-400 hover:text-emerald-300 font-mono flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Panel</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {panels.map((p, idx) => (
+                <div key={p.id} className="bg-slate-950/80 rounded-2xl p-2.5 border border-white/5 flex flex-col items-center text-center">
+                  <div
+                    className="w-full h-28 rounded-xl overflow-hidden bg-black mb-2 border border-white/10 cursor-pointer hover:opacity-90 transition"
+                    onClick={() => setIsImageExpanded(true)}
+                  >
+                    <img src={p.previewUrl} alt={p.label} className="w-full h-full object-contain" />
+                  </div>
+                  <span className="text-[11px] font-bold text-white font-sans truncate w-full">{p.label}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">Panel #{idx + 1}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : imagePreviewUrl ? (
           <div className="bg-slate-900/80 rounded-3xl p-5 border border-white/10 shadow-xl backdrop-blur-xl">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-emerald-400" />
                 Scanned Package Photograph
               </h3>
-              <button
-                type="button"
-                onClick={() => setIsImageExpanded(true)}
-                className="text-xs text-slate-300 hover:text-white font-mono flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 cursor-pointer"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span>Enlarge</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/scan?mode=camera&panel=back&add=true')}
+                  className="text-xs text-slate-300 hover:text-white font-mono flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 cursor-pointer"
+                  title="Scan back or other panel"
+                >
+                  <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Add Next Side</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsImageExpanded(true)}
+                  className="text-xs text-slate-300 hover:text-white font-mono flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 cursor-pointer"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Enlarge</span>
+                </button>
+              </div>
             </div>
 
             <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-slate-950 flex items-center justify-center border border-white/5">
@@ -216,7 +282,38 @@ export const Results: React.FC = () => {
               </span>
             </div>
           </div>
-        )}
+        ) : null}
+
+        {/* ---------------------------------------------------- */}
+        {/* Multi-Panel Smart Guidance Card (Phase 5) */}
+        {/* ---------------------------------------------------- */}
+        {verdict.overallStatus === 'REVIEW' &&
+          (!extractedLabel.mrp || !(extractedLabel.packingDate || extractedLabel.manufactureDate)) && (
+            <div className="bg-gradient-to-r from-amber-500/10 via-slate-900 to-amber-500/10 border border-amber-500/30 rounded-3xl p-5 backdrop-blur-xl shadow-xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase flex items-center gap-1.5 mb-1">
+                    <Layers className="w-3.5 h-3.5" />
+                    Multi-Panel Package Scanning
+                  </span>
+                  <h4 className="text-sm sm:text-base font-bold text-white">
+                    Missing {!extractedLabel.mrp && !extractedLabel.packingDate ? 'MRP & Date' : !extractedLabel.mrp ? 'MRP' : 'Date'}? Scan Package Crimp / Seal
+                  </h4>
+                  <p className="text-xs text-slate-300 mt-1 font-mono max-w-xl">
+                    In Indian packaged commodities, price and batch dates are frequently stamped on the crimped seal, base, or neck rather than the printed back label. Capture the crimp to merge evidence into this screening.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/scan?mode=camera&panel=crimp&add=true')}
+                  className="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.3)] transition shrink-0 cursor-pointer font-mono active:scale-95"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>Scan Crimp / Seal</span>
+                </button>
+              </div>
+            </div>
+          )}
 
         {/* ---------------------------------------------------- */}
         {/* Detected Declarations Grid */}

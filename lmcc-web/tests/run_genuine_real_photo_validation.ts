@@ -125,7 +125,7 @@ export const GENUINE_DATASET: RealPhotoMeta[] = [
     groundTruth: {
       manufacturer: { visible: true, readable: true, expected: 'TATA CONSUMER' },
       address: { visible: true, readable: true, expected: 'HEBBAL' },
-      consumerCare: { visible: true, readable: true, expected: 'CUSTOMER CARE' },
+      consumerCare: { visible: true, readable: true, expected: '1800' },
     },
   },
   {

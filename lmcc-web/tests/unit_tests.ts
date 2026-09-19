@@ -4,6 +4,7 @@ import { parseLabel } from '../src/services/parser/fieldParser';
 import { RulesEngine } from '../src/services/rules/rulesEngine';
 import { OcrService } from '../src/services/ocr/OcrService';
 import { mergeOcrStreams } from '../src/services/ocr/ocrTextMerger';
+import { mergeMultiPanelDeclarations } from '../src/services/parser/multiPanelMerger';
 
 // ----------------------------------------------------
 // Fixture 1: Biscuit / Snack Package (Compliant)
@@ -1557,6 +1558,197 @@ test('Phase 15 Regression: Missing statutory declaration strictly yields REVIEW 
   assert.ok(verdict.flaggedChecks >= 1);
   assert.ok(verdict.potentialViolations.some((v) => v.field === 'mrp'));
 });
+
+test('Phase 16 Regression: Multi-line Consumer Care section with job title header extracts toll-free contact', () => {
+  const ocr = `
+    CUSTOMER CARE DETAILS:
+    CUSTOMER CARE EXECUTIVE
+    TATA CONSUMER PRODUCTS LIMITED
+    1800-108-4444
+    EMAIL: care@tataconsumer.com
+  `;
+  const parsed = parseLabel(ocr);
+  assert.ok(parsed.consumerCare?.includes('1800-108-4444'), 'Must extract 1800-108-4444 despite intervening executive title');
+  assert.ok(parsed.consumerCare?.includes('care@tataconsumer.com'), 'Must extract care email address');
+});
+
+test('Phase 16 Regression: Corporate entity header followed by floor and business park identifies manufacturer and address', () => {
+  const ocr = `
+    TATA CONSUMER PRODUCTS LIMITED
+    14TH FLOOR
+    KIRLOSKAR BUSINESS PARK
+    BENGALURU - 560024
+  `;
+  const parsed = parseLabel(ocr);
+  assert.strictEqual(parsed.manufacturer, 'TATA CONSUMER PRODUCTS LIMITED');
+  assert.ok(parsed.address?.includes('14TH FLOOR') || parsed.address?.includes('KIRLOSKAR BUSINESS PARK'));
+});
+
+test('Phase 16 Regression: Manufactured by prefix followed by entity on line 2 and plot on line 3 extracts entity cleanly', () => {
+  const ocr = `
+    Manufactured by:
+    ABC FOOD PRODUCTS PVT LTD
+    Plot 12
+    Industrial Area
+    New Delhi - 110020
+  `;
+  const parsed = parseLabel(ocr);
+  assert.strictEqual(parsed.manufacturer, 'ABC FOOD PRODUCTS PVT LTD');
+  assert.ok(parsed.address?.includes('Plot 12') || parsed.address?.includes('Industrial Area'));
+});
+
+test('Phase 16 Regression: Separated Email and Toll Free labels extract combined contact details', () => {
+  const ocr = `
+    Consumer Care:
+    Email:
+    help@example.com
+    Toll Free:
+    1800-123-456
+  `;
+  const parsed = parseLabel(ocr);
+  assert.ok(parsed.consumerCare?.includes('1800-123-456'));
+  assert.ok(parsed.consumerCare?.includes('help@example.com'));
+});
+
+test('Phase 16 Regression: FSSAI 14-digit license, 6-digit postal PIN, and 13-digit barcode are never confused as phone numbers', () => {
+  const ocr = `
+    CUSTOMER CARE DETAILS:
+    Lic. No. 10014031000123
+    BARCODE 8901030999999
+    PIN: 560024
+    Helpline: 1800-200-9999
+  `;
+  const parsed = parseLabel(ocr);
+  assert.ok(parsed.consumerCare?.includes('1800-200-9999'));
+  assert.ok(!parsed.consumerCare?.includes('10014031000123'));
+  assert.ok(!parsed.consumerCare?.includes('8901030999999'));
+  assert.ok(!parsed.consumerCare?.includes('560024'));
+});
+
+// ----------------------------------------------------
+// Phase 17: Multi-Panel Package Scan & Consistency Check
+// ----------------------------------------------------
+test('Phase 17 Multi-Panel: Merging disparate declarations from 3 panels (Front, Back, Crimp) yields compliant PASS', () => {
+  const panel1Front = {
+    panelId: 'p1_front',
+    panelType: 'front' as const,
+    panelLabel: 'Front / Main Label',
+    rawText: `
+      TAZA PREMIUM CHAI
+      NET WT: 500 g
+    `,
+    confidence: 92,
+    quality: 'GOOD' as const,
+  };
+
+  const panel2Back = {
+    panelId: 'p2_back',
+    panelType: 'back' as const,
+    panelLabel: 'Back Declaration Panel',
+    rawText: `
+      MANUFACTURED & PACKED BY:
+      TAZA BEVERAGES PVT LTD
+      PLOT 44, INDUSTRIAL AREA, KAKKANAD, KOCHI, KERALA - 682030
+      CUSTOMER CARE DETAILS:
+      CUSTOMER CARE CELL: 1800-425-9000
+      EMAIL: CARE@TAZATEA.IN
+    `,
+    confidence: 88,
+    quality: 'GOOD' as const,
+  };
+
+  const panel3Crimp = {
+    panelId: 'p3_crimp',
+    panelType: 'crimp' as const,
+    panelLabel: 'Crimp / Seal / Base',
+    rawText: `
+      BATCH: B2408
+      PKD ON: 15/08/2024
+      MRP: ₹ 145.00
+      (INCL. OF ALL TAXES)
+    `,
+    confidence: 85,
+    quality: 'GOOD' as const,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1Front, panel2Back, panel3Crimp]);
+  assert.strictEqual(merged.hasConflict, false, 'Should have no conflicting declarations');
+  assert.strictEqual(merged.unifiedLabel.netQuantity, '500 g');
+  assert.strictEqual(merged.unifiedLabel.mrp, '₹145.00');
+  assert.strictEqual(merged.unifiedLabel.packingDate, '15/08/2024');
+  assert.ok(merged.unifiedLabel.manufacturer?.includes('TAZA BEVERAGES'));
+  assert.ok(merged.unifiedLabel.address?.includes('KAKKANAD'));
+  assert.ok(merged.unifiedLabel.consumerCare?.includes('1800-425-9000'));
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'PASS', 'Unified multi-panel evidence should pass full Rule 6 check');
+  assert.strictEqual(verdict.flaggedChecks, 0);
+});
+
+test('Phase 17 Multi-Panel: Conflicting MRP across panels strictly flags conflict and produces REVIEW', () => {
+  const panelBack = {
+    panelId: 'p_back',
+    panelType: 'back' as const,
+    panelLabel: 'Back Label',
+    rawText: `
+      MFD BY: TEST FOODS LTD
+      PLOT 1, NEW DELHI - 110001
+      NET WT: 1 kg
+      MRP: ₹ 120.00
+      MFD: 05/2024
+      CARE: 1800-111-222
+    `,
+    confidence: 90,
+  };
+
+  const panelCrimp = {
+    panelId: 'p_crimp',
+    panelType: 'crimp' as const,
+    panelLabel: 'Seal Crimp',
+    rawText: `
+      MRP: ₹ 150.00
+    `,
+    confidence: 90,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panelBack, panelCrimp]);
+  assert.strictEqual(merged.hasConflict, true, 'Different MRPs must trigger conflict detection');
+  assert.ok(merged.conflictDetails.some((c) => c.includes('Conflicting MRP')));
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Conflicting panel declaration must yield REVIEW (zero false PASS)');
+});
+
+test('Phase 17 Multi-Panel: Incomplete multi-panel scan safely yields REVIEW when statutory fields remain unphotographed', () => {
+  const panel1 = {
+    panelId: 'p1',
+    panelType: 'front' as const,
+    panelLabel: 'Front',
+    rawText: 'ORGANIC CHIPS NET WT 100 g',
+    confidence: 95,
+  };
+
+  const panel2 = {
+    panelId: 'p2',
+    panelType: 'back' as const,
+    panelLabel: 'Back',
+    rawText: 'TASTY SNACKS PVT LTD, MUMBAI 400001',
+    confidence: 95,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1, panel2]);
+  assert.strictEqual(merged.hasConflict, false);
+  assert.strictEqual(merged.unifiedLabel.mrp, undefined);
+  assert.strictEqual(merged.unifiedLabel.packingDate, undefined);
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Missing MRP and Date must strictly yield REVIEW');
+});
+
+
 
 
 

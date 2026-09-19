@@ -1,26 +1,51 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Camera, UploadCloud, HelpCircle, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Camera, UploadCloud, HelpCircle, ShieldCheck, Layers, RefreshCw } from 'lucide-react';
 import { CameraCapture } from '../components/CameraCapture';
 import { ImageUpload } from '../components/ImageUpload';
 import { LanguageSelector } from '../components/LanguageSelector';
-import { useImage } from '../context/ImageContext';
+import { useImage, PanelType } from '../context/ImageContext';
 import GlowBackground from '../components/ui/GlowBackground';
 
 export const Scan: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { setCapturedImage } = useImage();
+  const { setCapturedImage, addPanel, panels, clearPanels } = useImage();
 
   const initialMode = searchParams.get('mode') === 'upload' ? 'upload' : 'camera';
+  const panelParam = (searchParams.get('panel') as PanelType) || 'front';
+  const isAddingPanel = searchParams.get('add') === 'true';
   const [mode, setMode] = useState<'camera' | 'upload'>(initialMode);
 
   const handleImageReady = (image: Blob | File) => {
-    // Store in clean ImageContext (no heavy binary in URL params)
-    setCapturedImage(image);
-    // Also pass state for resilient fallback
+    if (isAddingPanel && panels.length > 0) {
+      addPanel(image, panelParam);
+    } else {
+      setCapturedImage(image);
+    }
     navigate('/processing', { state: { hasImage: true } });
   };
+
+  const panelInstructions: Record<PanelType, { title: string; subtitle: string }> = {
+    front: {
+      title: 'Step 1: Main / Front Label',
+      subtitle: 'Capture the front face displaying brand name and Net Quantity.',
+    },
+    back: {
+      title: 'Step 2: Back Declaration Panel',
+      subtitle: 'Capture statutory panel showing Manufacturer, Address, and Consumer Care.',
+    },
+    crimp: {
+      title: 'Step 3: Crimp / Seal / Base',
+      subtitle: 'Capture ink-jet stamped MRP, Batch No., and Packing/Mfg Date.',
+    },
+    other: {
+      title: 'Additional Package Panel',
+      subtitle: 'Capture any remaining package side with mandatory declarations.',
+    },
+  };
+
+  const currentStepInfo = panelInstructions[panelParam] || panelInstructions.front;
 
   return (
     <div className="min-h-screen bg-[#05070b] text-white flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
@@ -82,6 +107,38 @@ export const Scan: React.FC = () => {
         {/* Language Selector Bar */}
         <div className="w-full mb-3 flex justify-center">
           <LanguageSelector />
+        </div>
+
+        {/* Step Guide / Session Banner */}
+        <div className="w-full mb-3 bg-slate-900/90 border border-white/10 rounded-2xl p-3.5 backdrop-blur-xl shadow-lg flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <Layers className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-white block font-sans">
+                {currentStepInfo.title}
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono block">
+                {currentStepInfo.subtitle}
+              </span>
+            </div>
+          </div>
+          {panels.length > 0 && (
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                {panels.length} panel{panels.length > 1 ? 's' : ''} queued
+              </span>
+              <button
+                type="button"
+                onClick={clearPanels}
+                title="Restart multi-panel session"
+                className="text-slate-400 hover:text-rose-400 p-1 rounded-md transition cursor-pointer"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </button>
+            </div>
+          )}
         </div>
 
         {mode === 'camera' ? (

@@ -37,3 +37,16 @@ def init_db():
 
     Base.metadata.create_all(bind=engine)
 
+    # Auto-migrate SQLite schema if new columns were added to model
+    if DATABASE_URL.startswith("sqlite"):
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            try:
+                result = conn.execute(text("PRAGMA table_info(reports)"))
+                columns = [row[1] for row in result.fetchall()]
+                if "local_report_id" not in columns:
+                    conn.execute(text("ALTER TABLE reports ADD COLUMN local_report_id VARCHAR"))
+                    conn.commit()
+            except Exception:
+                pass
+

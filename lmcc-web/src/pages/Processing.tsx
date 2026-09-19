@@ -5,13 +5,14 @@ import { useImage } from '../context/ImageContext';
 import { defaultOcrService } from '../services/ocr/TesseractOcrService';
 import { getSelectedLanguage } from '../services/ocr/ocrLanguages';
 import { parseLabel } from '../services/parser/fieldParser';
+import { mergeMultiPanelDeclarations, PanelOcrInput } from '../services/parser/multiPanelMerger';
 import { defaultRulesEngine } from '../services/rules/rulesEngine';
 import { ProcessingIndicator } from '../components/ProcessingIndicator';
 import GlowBackground from '../components/ui/GlowBackground';
 
 export const Processing: React.FC = () => {
   const navigate = useNavigate();
-  const { capturedImage, imagePreviewUrl, clearImage } = useImage();
+  const { capturedImage, imagePreviewUrl, clearImage, panels } = useImage();
 
   const [step, setStep] = useState<'ocr' | 'parsing' | 'rules' | 'done'>('ocr');
   const [progress, setProgress] = useState(0.05);
@@ -23,68 +24,153 @@ export const Processing: React.FC = () => {
   const isProcessingRef = useRef(false);
 
   const runOcrPipeline = async () => {
-    if (!capturedImage) return;
+    if (!capturedImage && panels.length === 0) return;
 
     setError(null);
     setEmptyOcr(false);
     setStep('ocr');
     setProgress(0.08);
-    setStatusMessage(`Loading OCR engine (${selectedLang.label})...`);
 
     try {
-      // 1. Real Client-side OCR via Tesseract.js with Quality Assessment & Multi-Pass Fallback
-      const ocrResult = await defaultOcrService.recognizeWithQuality(
-        capturedImage,
-        (prog, msg) => {
-          setProgress(prog);
-          setStatusMessage(msg);
-        },
-        { language: selectedLang.tesseractCode }
-      );
+      if (panels.length > 1) {
+        // Multi-Panel OCR Pipeline
+        const panelInputs: PanelOcrInput[] = [];
 
-      const rawOcrText = ocrResult.text;
+        for (let idx = 0; idx < panels.length; idx++) {
+          const panel = panels[idx];
+          setStatusMessage(`Scanning panel ${idx + 1} of ${panels.length}: ${panel.label}...`);
 
-      // 2. Handle empty OCR result
-      if (!rawOcrText || rawOcrText.trim().length === 0) {
-        setEmptyOcr(true);
-        return;
+          const panelOcr = await defaultOcrService.recognizeWithQuality(
+            panel.blob,
+            (prog, msg) => {
+              const base = idx / panels.length;
+              const slice = 1 / panels.length;
+              setProgress(base * 0.85 + prog * slice * 0.85);
+              setStatusMessage(`Panel ${idx + 1}/${panels.length} (${panel.label}): ${msg}`);
+            },
+            { language: selectedLang.tesseractCode }
+          );
+
+          panelInputs.push({
+            panelId: panel.id,
+            panelType: panel.type,
+            panelLabel: panel.label,
+            rawText: panelOcr.text || '',
+            confidence: panelOcr.confidence,
+            quality: panelOcr.quality,
+          });
+        }
+
+        const merged = mergeMultiPanelDeclarations(panelInputs);
+
+        if (!merged.unifiedRawText || merged.unifiedRawText.trim().length === 0) {
+          setEmptyOcr(true);
+          return;
+        }
+
+        setStep('parsing');
+        setStatusMessage('Merging multi-panel declarations & cross-checking consistency...');
+        setProgress(0.92);
+        await new Promise((r) => setTimeout(r, 200));
+
+        setStep('rules');
+        setStatusMessage('Evaluating Legal Metrology Rule 6 across panels...');
+        setProgress(0.98);
+        await new Promise((r) => setTimeout(r, 150));
+
+        const verdict = defaultRulesEngine.evaluate(merged.unifiedLabel);
+
+        // Phase 6 Safety: If panels conflict on price, dates, or quantity, strictly mandate REVIEW
+        if (merged.hasConflict) {
+          verdict.overallStatus = 'REVIEW';
+          verdict.summary = 'Needs Review: Conflicting statutory declarations detected across package panels.';
+          for (const conflictMsg of merged.conflictDetails) {
+            verdict.potentialViolations.unshift({
+              ruleId: 'MULTI_PANEL_CONFLICT',
+              field: 'conflict',
+              title: 'Multi-Panel Declaration Discrepancy',
+              severity: 'high',
+              explanation: conflictMsg,
+              evidence: conflictMsg,
+              recommendation: 'The packaging panels display conflicting statutory values. Inspection required.',
+              source: 'Multi-Panel Screening Cross-Check',
+              gazetteReference: 'Rule 6 Consistency across Package Faces',
+            });
+          }
+        }
+
+        setStep('done');
+        setProgress(1.0);
+        setStatusMessage('Unified package analysis complete! Opening results...');
+        await new Promise((r) => setTimeout(r, 200));
+
+        navigate('/results', {
+          replace: true,
+          state: {
+            extractedLabel: merged.unifiedLabel,
+            verdict,
+            imageBlob: panels[0]?.blob || capturedImage,
+            ocrQuality: merged.overallQuality,
+            ocrConfidence: merged.averageConfidence,
+            ocrLanguage: selectedLang.label,
+            ocrAttempts: panels.length,
+            multiPanelResult: merged,
+            isMultiPanel: true,
+          },
+        });
+      } else {
+        // Single Image OCR Pipeline
+        const activeBlob = panels[0]?.blob || capturedImage;
+        if (!activeBlob) return;
+
+        setStatusMessage(`Loading OCR engine (${selectedLang.label})...`);
+        const ocrResult = await defaultOcrService.recognizeWithQuality(
+          activeBlob,
+          (prog, msg) => {
+            setProgress(prog);
+            setStatusMessage(msg);
+          },
+          { language: selectedLang.tesseractCode }
+        );
+
+        const rawOcrText = ocrResult.text;
+
+        if (!rawOcrText || rawOcrText.trim().length === 0) {
+          setEmptyOcr(true);
+          return;
+        }
+
+        setStep('parsing');
+        setStatusMessage('Detecting mandatory label declarations...');
+        setProgress(0.92);
+        await new Promise((r) => setTimeout(r, 200));
+        const extractedLabel = parseLabel(rawOcrText);
+
+        setStep('rules');
+        setStatusMessage('Checking Legal Metrology (Packaged Commodities) Rules, 2011...');
+        setProgress(0.98);
+        await new Promise((r) => setTimeout(r, 150));
+        const verdict = defaultRulesEngine.evaluate(extractedLabel);
+
+        setStep('done');
+        setProgress(1.0);
+        setStatusMessage('Analysis complete! Opening results...');
+        await new Promise((r) => setTimeout(r, 200));
+
+        navigate('/results', {
+          replace: true,
+          state: {
+            extractedLabel,
+            verdict,
+            imageBlob: activeBlob,
+            ocrQuality: ocrResult.quality,
+            ocrConfidence: ocrResult.confidence,
+            ocrLanguage: selectedLang.label,
+            ocrAttempts: ocrResult.attempts,
+            isMultiPanel: false,
+          },
+        });
       }
-
-      // 3. Field Parsing (Rules 6 mandatory declarations)
-      setStep('parsing');
-      setStatusMessage('Detecting mandatory label declarations...');
-      setProgress(0.92);
-
-      await new Promise((r) => setTimeout(r, 200));
-      const extractedLabel = parseLabel(rawOcrText);
-
-      // 4. Legal Metrology Rules Evaluation
-      setStep('rules');
-      setStatusMessage('Checking Legal Metrology (Packaged Commodities) Rules, 2011...');
-      setProgress(0.98);
-
-      await new Promise((r) => setTimeout(r, 150));
-      const verdict = defaultRulesEngine.evaluate(extractedLabel);
-
-      setStep('done');
-      setProgress(1.0);
-      setStatusMessage('Analysis complete! Opening results...');
-
-      await new Promise((r) => setTimeout(r, 200));
-
-      // Navigate to Results page with real data and OCR quality metrics
-      navigate('/results', {
-        replace: true,
-        state: {
-          extractedLabel,
-          verdict,
-          imageBlob: capturedImage,
-          ocrQuality: ocrResult.quality,
-          ocrConfidence: ocrResult.confidence,
-          ocrLanguage: selectedLang.label,
-          ocrAttempts: ocrResult.attempts,
-        },
-      });
     } catch (err: unknown) {
       console.error('OCR pipeline failure:', err);
       setError(

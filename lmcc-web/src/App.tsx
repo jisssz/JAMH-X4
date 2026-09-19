@@ -38,6 +38,7 @@ export const App: React.FC = () => {
           <Route path="/report" element={<Report />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:id" element={<ReportDetail />} />
+          <Route path="/authority" element={<AuthorityDashboard />} />
           <Route path="/authority-dashboard" element={<AuthorityDashboard />} />
           <Route path="/dashboard" element={<AuthorityDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />

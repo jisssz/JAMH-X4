@@ -15,7 +15,8 @@ export class RulesEngine {
     const potentialViolations: PotentialViolation[] = [];
 
     for (const rule of this.rules) {
-      const detectedVal = label[rule.field];
+      const rawVal = label[rule.field];
+      const detectedVal = typeof rawVal === 'string' ? rawVal : undefined;
       const hasValue = Boolean(detectedVal && detectedVal.trim().length > 0);
 
       // ----------------------------------------------------
@@ -236,6 +237,38 @@ export class RulesEngine {
           gazetteReference: rule.gazetteReference,
         });
       }
+    }
+
+    // ----------------------------------------------------
+    // Multi-Panel Discrepancy & Consistency Verification
+    // ----------------------------------------------------
+    if (label.hasConflict && label.conflictDetails && label.conflictDetails.length > 0) {
+      const conflictMsg = label.conflictDetails.join('; ');
+      checks.push({
+        ruleId: 'LM-PCR-2011-R6-CONSISTENCY',
+        field: 'multiPanelConsistency',
+        title: 'Multi-Panel Declaration Discrepancy',
+        expected: 'Consistent statutory declarations across all package panels without contradictory MRP, dates, or quantities.',
+        detected: conflictMsg,
+        passed: false,
+        explanation: `Conflicting statutory declarations were detected across physical package panels: ${conflictMsg}`,
+        evidence: `Discrepant declarations found across staged panels: ${label.conflictDetails.join(' | ')}`,
+        source: 'Rule 6 Consistency, Legal Metrology (Packaged Commodities) Rules, 2011',
+        gazetteReference: 'G.S.R. 427(E) & G.S.R. 779(E)',
+      });
+
+      potentialViolations.push({
+        ruleId: 'LM-PCR-2011-R6-CONSISTENCY',
+        field: 'multiPanelConsistency',
+        title: 'Multi-Panel Declaration Discrepancy',
+        severity: 'critical',
+        detectedValue: conflictMsg,
+        explanation: `Statutory values conflict across physical package panels: ${conflictMsg}. Pre-packaged commodities cannot bear multiple inconsistent statutory declarations.`,
+        evidence: `Discrepancies: ${label.conflictDetails.join(' | ')}`,
+        recommendation: 'Inspect physical package panels to resolve contradictory statutory declarations (e.g. differing stamped vs printed MRP or dates).',
+        source: 'Rule 6 Consistency, Legal Metrology (Packaged Commodities) Rules, 2011',
+        gazetteReference: 'G.S.R. 427(E) & G.S.R. 779(E)',
+      });
     }
 
     const totalChecks = checks.length;

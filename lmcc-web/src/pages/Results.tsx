@@ -64,6 +64,7 @@ export const Results: React.FC = () => {
   const ocrLanguage = state?.ocrLanguage;
   const ocrAttempts = state?.ocrAttempts;
   const multiPanelResult = state?.multiPanelResult;
+  const isMultiPanel = Boolean(state?.isMultiPanel || panels.length > 1 || (multiPanelResult && multiPanelResult.panelContributions.length > 1));
   const barcodeCrossCheck = state?.barcodeCrossCheck;
 
   const [showRawOcr, setShowRawOcr] = useState(false);
@@ -207,12 +208,12 @@ export const Results: React.FC = () => {
         )}
 
         {/* Multi-Panel Package Session Gallery */}
-        {panels.length > 1 ? (
+        {isMultiPanel ? (
           <div className="bg-slate-900/80 rounded-3xl p-5 border border-white/10 shadow-xl backdrop-blur-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <Layers className="w-4 h-4 text-emerald-400" />
-                <span>Unified Package Session ({panels.length} Panels Analyzed)</span>
+                <span>Unified Package Session ({panels.length > 1 ? panels.length : multiPanelResult?.panelContributions.length || 2} Panels Analyzed)</span>
               </h3>
               <button
                 type="button"
@@ -424,8 +425,8 @@ export const Results: React.FC = () => {
             )}
 
             {/* Disclaimer */}
-            <p className="text-[10px] text-slate-500 font-mono leading-relaxed pt-1">
-              <strong>Reference Source Notice:</strong> {barcodeCrossCheck.disclaimer}
+            <p className="text-[10px] text-slate-400 font-mono leading-relaxed pt-1">
+              <strong>Reference Source Notice:</strong> {barcodeCrossCheck.disclaimer} <em>(Note: GS1 prefix designates the issuing company registration organization, not proof of physical country of manufacture).</em>
             </p>
           </section>
         )}

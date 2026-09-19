@@ -235,6 +235,53 @@ export const AuthorityDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Dataset Status Banner */}
+        {isDemo ? (
+          <div className="p-4 rounded-2xl bg-sky-950/40 border border-sky-500/40 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-300 shrink-0 font-bold font-mono">
+                DEMO
+              </div>
+              <div>
+                <span className="font-bold text-sky-200">
+                  DEMONSTRATION / PILOT BENCHMARK DATASET (1,420 Screenings)
+                </span>
+                <p className="text-slate-400 text-[11px] mt-0.5">
+                  Illustrative pilot surveillance data compiled across 5 commodity sectors for SIH Evaluation. Does not represent unverified live user scans.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setUseDemoData(false)}
+              className="hidden sm:inline-flex px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold font-mono text-[11px] transition shrink-0 cursor-pointer"
+            >
+              Switch to Live Registry
+            </button>
+          </div>
+        ) : (
+          <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0 font-bold font-mono">
+                LIVE
+              </div>
+              <div>
+                <span className="font-bold text-emerald-200">
+                  LIVE SCREENED REGISTRY DATA
+                </span>
+                <p className="text-slate-400 text-[11px] mt-0.5">
+                  Real-time aggregated compliance observations submitted and synced by client devices.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setUseDemoData(true)}
+              className="hidden sm:inline-flex px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold font-mono text-[11px] transition shrink-0 cursor-pointer"
+            >
+              View Pilot Benchmark (1,420)
+            </button>
+          </div>
+        )}
+
         {error && (
           <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
@@ -468,7 +515,7 @@ export const AuthorityDashboard: React.FC = () => {
                   <th className="py-2.5 px-3 text-right">Screenings</th>
                   <th className="py-2.5 px-3 text-right">Reviews Flagged</th>
                   <th className="py-2.5 px-3 text-right">Review Rate</th>
-                  <th className="py-2.5 px-3 text-center">Compliance Status</th>
+                  <th className="py-2.5 px-3 text-center">Screening Distribution</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -494,14 +541,14 @@ export const AuthorityDashboard: React.FC = () => {
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : b.reviewRate <= 35
                             ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            : 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
                         }`}
                       >
                         {b.reviewRate <= 20
-                          ? 'HIGH CONFORMITY'
+                          ? 'Standard Distribution'
                           : b.reviewRate <= 35
-                          ? 'MODERATE ADVISORY'
-                          : 'ELEVATED ADVISORY'}
+                          ? 'Moderate Review Frequency'
+                          : 'Higher Review Frequency'}
                       </span>
                     </td>
                   </tr>
@@ -510,8 +557,8 @@ export const AuthorityDashboard: React.FC = () => {
             </table>
           </div>
 
-          <p className="text-[11px] text-slate-500 italic pt-2">
-            Notice: Surveillance metrics represent crowdsourced consumer edge observations. An advisory REVIEW recommendation suggests that automated computer vision did not locate all mandatory statutory text with high confidence; it does not establish judicial guilt or confirm non-compliance.
+          <p className="text-[11px] text-slate-400 italic pt-2">
+            Surveillance metrics represent crowdsourced automated consumer screenings. Review frequency indicates automated screening outcomes and does not establish legal non-compliance or judicial liability.
           </p>
         </div>
 

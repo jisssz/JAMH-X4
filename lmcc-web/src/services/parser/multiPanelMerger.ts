@@ -64,13 +64,38 @@ function normalizeQty(val?: string): { num: number; unit: string } | null {
 }
 
 /**
+ * Normalizes date strings for equality comparison (e.g. '08/2024', '08 / 2024', '08-2024' -> '08/2024').
+ */
+function normalizeDateStr(d?: string): string {
+  if (!d) return '';
+  return d
+    .replace(/[\s\-\.]+/g, '/')
+    .toUpperCase()
+    .trim();
+}
+
+/**
+ * Normalizes strings for loose textual matching (ignoring punctuation, legal suffixes).
+ */
+function cleanText(str?: string): string {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\b(ltd|limited|pvt|private|inc|corp|corporation|co|company|india)\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
  * Merges multi-panel package OCR outputs into a single statutory declaration evidence set.
  * 
- * Safety Rules (Phase 6):
- * 1. Never infer missing fields. If a field is missing from all panels, it remains undefined -> REVIEW.
- * 2. If conflicting values are detected (e.g. different MRPs on crimp vs back, or different packaging dates),
- *    the conflict is recorded and flagged -> mandate REVIEW.
- * 3. Unified raw text retains panel demarcations for complete auditing transparency.
+ * Safety Invariants:
+ * 1. Case A: "Manufactured by ABC" and "Imported by XYZ" are separate statutory roles, NEVER a conflict.
+ * 2. Case B: MFD (e.g. 08/2024) and Best Before / Expiry (e.g. 12 months) are complementary, NOT conflicting.
+ * 3. Case C: Differing MRPs (₹100 vs ₹120) strictly produce a conflict and mandate REVIEW with both sources.
+ * 4. Case D: Distinct factory vs corporate/importer addresses are preserved, never silently collapsed or discarded.
+ * 5. Case E: Identical or re-declared values on multiple panels never trigger false conflicts.
  */
 export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanelMergeResult {
   if (!inputs || inputs.length === 0) {
@@ -108,7 +133,8 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
   let packingDate: string | undefined;
   let manufactureDate: string | undefined;
   let dateEvidence: string | undefined;
-  let datePanelLabel: string | undefined;
+  let mfgDatePanelLabel: string | undefined;
+  let pkgDatePanelLabel: string | undefined;
   let isDateAmbiguous = false;
   let isFutureDate = false;
 
@@ -130,7 +156,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     const p = item.parsed;
     const label = item.input.panelLabel;
 
-    // 1. MRP
+    // 1. MRP (Case C & Case E)
     if (p.mrp) {
       fieldsFound.push('MRP');
       if (!mrp) {
@@ -150,7 +176,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       }
     }
 
-    // 2. Net Quantity
+    // 2. Net Quantity (Case E)
     if (p.netQuantity) {
       fieldsFound.push('Net Quantity');
       if (!netQuantity) {
@@ -170,71 +196,117 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       }
     }
 
-    // 3. Date
-    const itemDate = p.manufactureDate || p.packingDate;
-    if (itemDate) {
-      fieldsFound.push('Date');
-      if (p.isFutureDate) isFutureDate = true;
-      if (p.isDateAmbiguous) isDateAmbiguous = true;
+    // 3. Date (Case B & Case E)
+    // Complementary dates (MFD vs Best Before or MFD vs PKD) are preserved without false conflicts.
+    if (p.isFutureDate) isFutureDate = true;
+    if (p.isDateAmbiguous) isDateAmbiguous = true;
 
-      if (!packingDate && !manufactureDate) {
-        packingDate = p.packingDate;
+    if (p.manufactureDate) {
+      fieldsFound.push('Mfg Date');
+      if (!manufactureDate) {
         manufactureDate = p.manufactureDate;
-        dateEvidence = `[${label}]: ${p.dateEvidence || itemDate}`;
-        datePanelLabel = label;
-        fieldOrigins.date = { panelId: item.input.panelId, panelLabel: label, value: itemDate };
+        mfgDatePanelLabel = label;
+        dateEvidence = dateEvidence ? `${dateEvidence} | [${label} MFD]: ${p.dateEvidence || p.manufactureDate}` : `[${label}]: ${p.dateEvidence || p.manufactureDate}`;
+        fieldOrigins.date = { panelId: item.input.panelId, panelLabel: label, value: p.manufactureDate };
       } else {
-        const currentDate = manufactureDate || packingDate;
-        if (currentDate && currentDate !== itemDate) {
+        const normA = normalizeDateStr(manufactureDate);
+        const normB = normalizeDateStr(p.manufactureDate);
+        if (normA && normB && normA !== normB) {
           hasConflict = true;
           conflictDetails.push(
-            `Conflicting Date: ${currentDate} on ${datePanelLabel} vs ${itemDate} on ${label}`
+            `Conflicting Manufacture Date: ${manufactureDate} on ${mfgDatePanelLabel} vs ${p.manufactureDate} on ${label}`
           );
         }
       }
     }
 
-    // 4. Manufacturer
+    // Only treat as explicit packing date if not identical to manufactureDate fallback
+    const hasExplicitPkg = Boolean(p.packingDate && (!p.manufactureDate || p.packingDate !== p.manufactureDate));
+    if (hasExplicitPkg && p.packingDate) {
+      fieldsFound.push('Packing Date');
+      if (!packingDate) {
+        packingDate = p.packingDate;
+        pkgDatePanelLabel = label;
+        dateEvidence = dateEvidence ? `${dateEvidence} | [${label} PKD]: ${p.dateEvidence || p.packingDate}` : `[${label}]: ${p.dateEvidence || p.packingDate}`;
+        if (!fieldOrigins.date) {
+          fieldOrigins.date = { panelId: item.input.panelId, panelLabel: label, value: p.packingDate };
+        }
+      } else {
+        const normA = normalizeDateStr(packingDate);
+        const normB = normalizeDateStr(p.packingDate);
+        if (normA && normB && normA !== normB) {
+          hasConflict = true;
+          conflictDetails.push(
+            `Conflicting Packing Date: ${packingDate} on ${pkgDatePanelLabel} vs ${p.packingDate} on ${label}`
+          );
+        }
+      }
+    }
+
+    // 4. Manufacturer (Case A & Case E)
     if (p.manufacturer) {
       fieldsFound.push('Manufacturer');
       if (!manufacturer) {
         manufacturer = p.manufacturer;
         manufacturerEvidence = `[${label}]: ${p.manufacturerEvidence || p.manufacturer}`;
         fieldOrigins.manufacturer = { panelId: item.input.panelId, panelLabel: label, value: p.manufacturer };
+      } else {
+        const cleanA = cleanText(manufacturer);
+        const cleanB = cleanText(p.manufacturer);
+        if (cleanA && cleanB && !cleanA.includes(cleanB) && !cleanB.includes(cleanA)) {
+          // Combine distinct corporate entities (e.g. Producer + Marketer/Packer)
+          manufacturer = `${manufacturer} / ${p.manufacturer}`;
+          manufacturerEvidence = `${manufacturerEvidence} | [${label}]: ${p.manufacturerEvidence || p.manufacturer}`;
+        }
       }
     }
 
-    // 5. Address
-    if (p.address) {
-      fieldsFound.push('Address');
-      if (!address) {
-        address = p.address;
-        addressEvidence = `[${label}]: ${p.addressEvidence || p.address}`;
-        fieldOrigins.address = { panelId: item.input.panelId, panelLabel: label, value: p.address };
-      } else if (!address.includes(p.address) && p.address.length > address.length) {
-        address = p.address;
-        addressEvidence = `[${label}]: ${p.addressEvidence || p.address}`;
-        fieldOrigins.address = { panelId: item.input.panelId, panelLabel: label, value: p.address };
-      }
-    }
-
-    // 6. Consumer Care
-    if (p.consumerCare) {
-      fieldsFound.push('Consumer Care');
-      if (!consumerCare) {
-        consumerCare = p.consumerCare;
-        consumerCareEvidence = `[${label}]: ${p.consumerCareEvidence || p.consumerCare}`;
-        fieldOrigins.consumerCare = { panelId: item.input.panelId, panelLabel: label, value: p.consumerCare };
-      }
-    }
-
-    // 7. Importer
+    // 5. Importer (Case A: Completely distinct from Manufacturer)
     if (p.importer) {
       fieldsFound.push('Importer');
       if (!importer) {
         importer = p.importer;
         importerEvidence = `[${label}]: ${p.importerEvidence || p.importer}`;
         fieldOrigins.importer = { panelId: item.input.panelId, panelLabel: label, value: p.importer };
+      }
+    }
+
+    // 6. Address (Case D: Preserve distinct factory vs registered addresses)
+    if (p.address) {
+      fieldsFound.push('Address');
+      if (!address) {
+        address = p.address;
+        addressEvidence = `[${label}]: ${p.addressEvidence || p.address}`;
+        fieldOrigins.address = { panelId: item.input.panelId, panelLabel: label, value: p.address };
+      } else {
+        const cleanAddrA = address.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanAddrB = p.address.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!cleanAddrA.includes(cleanAddrB) && !cleanAddrB.includes(cleanAddrA)) {
+          // Preserve both addresses
+          address = `${address} | [${label}]: ${p.address}`;
+          addressEvidence = `${addressEvidence} | [${label}]: ${p.addressEvidence || p.address}`;
+        } else if (p.address.length > address.length) {
+          address = p.address;
+          addressEvidence = `[${label}]: ${p.addressEvidence || p.address}`;
+          fieldOrigins.address = { panelId: item.input.panelId, panelLabel: label, value: p.address };
+        }
+      }
+    }
+
+    // 7. Consumer Care
+    if (p.consumerCare) {
+      fieldsFound.push('Consumer Care');
+      if (!consumerCare) {
+        consumerCare = p.consumerCare;
+        consumerCareEvidence = `[${label}]: ${p.consumerCareEvidence || p.consumerCare}`;
+        fieldOrigins.consumerCare = { panelId: item.input.panelId, panelLabel: label, value: p.consumerCare };
+      } else {
+        const cleanCareA = consumerCare.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanCareB = p.consumerCare.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!cleanCareA.includes(cleanCareB) && !cleanCareB.includes(cleanCareA)) {
+          consumerCare = `${consumerCare} | [${label}]: ${p.consumerCare}`;
+          consumerCareEvidence = `${consumerCareEvidence} | [${label}]: ${p.consumerCareEvidence || p.consumerCare}`;
+        }
       }
     }
 
@@ -262,7 +334,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     mrpEvidence,
     netQuantity,
     netQuantityEvidence,
-    packingDate,
+    packingDate: packingDate || manufactureDate,
     manufactureDate,
     dateEvidence,
     manufacturer,
@@ -275,6 +347,8 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     importerEvidence,
     isDateAmbiguous: isDateAmbiguous || hasConflict,
     isFutureDate,
+    hasConflict,
+    conflictDetails,
   };
 
   return {

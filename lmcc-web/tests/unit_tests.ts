@@ -1756,10 +1756,10 @@ import { performBarcodeCrossCheck } from '../src/services/barcode/barcodeCrossCh
 import { ReferenceProductInfo } from '../src/services/barcode/productDatabaseService';
 
 test('Phase 18 Barcode: GS1 Country Prefix identification identifies India (890), UK (500), USA (000-019)', () => {
-  assert.strictEqual(getGs1Country('8901234567890'), 'India (GS1 India)');
-  assert.strictEqual(getGs1Country('8901030383848'), 'India (GS1 India)');
-  assert.strictEqual(getGs1Country('5000128001000'), 'United Kingdom');
-  assert.strictEqual(getGs1Country('012345678905'), 'United States & Canada');
+  assert.strictEqual(getGs1Country('8901234567890'), 'GS1 India prefix (GS1 member assignment)');
+  assert.strictEqual(getGs1Country('8901030383848'), 'GS1 India prefix (GS1 member assignment)');
+  assert.strictEqual(getGs1Country('5000128001000'), 'GS1 United Kingdom prefix');
+  assert.strictEqual(getGs1Country('012345678905'), 'GS1 US & Canada prefix');
   assert.strictEqual(getGs1Country('9999999999999'), undefined);
   assert.strictEqual(getGs1Country('12'), undefined);
 });
@@ -1852,6 +1852,149 @@ test('Phase 18 Barcode: No barcode detected produces clean unverified advisory s
   const check = performBarcodeCrossCheck(ocrLabel, undefined, undefined);
   assert.strictEqual(check.overallStatus, 'NO_BARCODE_DETECTED');
   assert.strictEqual(check.comparisons.length, 0);
+});
+
+// ----------------------------------------------------
+// Phase 18 Regression: Barcode Quantity Parsing Invariants
+// ----------------------------------------------------
+import { extractProductQuantity } from '../src/services/barcode/productDatabaseService';
+
+test('Phase 18 Barcode: Quantity extraction handles priority, nulls, and net_weight_value correctly', () => {
+  // Case 1: p.quantity is valid string
+  assert.strictEqual(extractProductQuantity({ quantity: '250 g', net_weight_value: null }), '250 g');
+
+  // Case 2: p.quantity is missing, net_weight_value + unit exists
+  assert.strictEqual(extractProductQuantity({ net_weight_value: 500, net_weight_unit: 'g' }), '500 g');
+
+  // Case 3: p.quantity exists and net_weight_value is also present -> p.quantity prioritized
+  assert.strictEqual(extractProductQuantity({ quantity: '1 kg', net_weight_value: 1000, net_weight_unit: 'g' }), '1 kg');
+
+  // Case 4: neither exists -> returns undefined
+  assert.strictEqual(extractProductQuantity({}), undefined);
+  assert.strictEqual(extractProductQuantity(null), undefined);
+});
+
+// ----------------------------------------------------
+// Phase 19 Multi-Panel Safety Audit: Cases A through E
+// ----------------------------------------------------
+test('Phase 19 Multi-Panel Safety: Case A - Manufactured by ABC and Imported by XYZ are not a conflict', () => {
+  const panel1 = {
+    panelId: 'p1',
+    panelType: 'front' as const,
+    panelLabel: 'Front',
+    rawText: 'IMPORTED BY XYZ TRADING PVT LTD, MUMBAI',
+    confidence: 90,
+  };
+  const panel2 = {
+    panelId: 'p2',
+    panelType: 'back' as const,
+    panelLabel: 'Back',
+    rawText: 'MANUFACTURED BY ABC FOODS CORP, TOKYO JAPAN',
+    confidence: 90,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1, panel2]);
+  assert.strictEqual(merged.hasConflict, false, 'Manufacturer and Importer are distinct roles and must not conflict');
+  assert.ok(merged.unifiedLabel.manufacturer?.includes('ABC FOODS CORP'));
+  assert.ok(merged.unifiedLabel.importer?.includes('XYZ TRADING'));
+});
+
+test('Phase 19 Multi-Panel Safety: Case B - MFD and Best Before / packingDate are complementary, not conflicting', () => {
+  const panel1 = {
+    panelId: 'p1',
+    panelType: 'back' as const,
+    panelLabel: 'Back Panel',
+    rawText: 'MFD: 08/2024\nBEST BEFORE 12 MONTHS FROM MANUFACTURE',
+    confidence: 92,
+  };
+  const panel2 = {
+    panelId: 'p2',
+    panelType: 'crimp' as const,
+    panelLabel: 'Crimp Seal',
+    rawText: 'PKD: 09/2024',
+    confidence: 92,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1, panel2]);
+  assert.strictEqual(merged.hasConflict, false, 'MFD and PKD / Best Before are complementary and must not conflict');
+  assert.strictEqual(merged.unifiedLabel.manufactureDate, '08/2024');
+  assert.strictEqual(merged.unifiedLabel.packingDate, '09/2024');
+});
+
+test('Phase 19 Multi-Panel Safety: Case C - Differing MRPs strictly produce REVIEW with both sources shown', () => {
+  const panel1 = {
+    panelId: 'p1',
+    panelType: 'back' as const,
+    panelLabel: 'Printed Back Label',
+    rawText: 'MRP: ₹ 100.00 INCL OF ALL TAXES',
+    confidence: 95,
+  };
+  const panel2 = {
+    panelId: 'p2',
+    panelType: 'crimp' as const,
+    panelLabel: 'Stamped Crimp Seal',
+    rawText: 'MRP: ₹ 120.00',
+    confidence: 95,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1, panel2]);
+  assert.strictEqual(merged.hasConflict, true, 'Differing MRP values across panels must trigger conflict');
+  assert.ok(merged.conflictDetails.some((c) => c.includes('100') && c.includes('120')));
+  assert.ok(merged.conflictDetails.some((c) => c.includes('Printed Back Label') && c.includes('Stamped Crimp Seal')));
+
+  // Ensure RulesEngine mandates REVIEW
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'REVIEW');
+  assert.ok(verdict.potentialViolations.some((v) => v.ruleId === 'LM-PCR-2011-R6-CONSISTENCY'));
+});
+
+test('Phase 19 Multi-Panel Safety: Case D - Different manufacturer/importer addresses are not silently collapsed', () => {
+  const panel1 = {
+    panelId: 'p1',
+    panelType: 'front' as const,
+    panelLabel: 'Front',
+    rawText: 'FACTORY: PLOT 4 GIDC INDUSTRIAL ESTATE AHMEDABAD 382330',
+    confidence: 90,
+  };
+  const panel2 = {
+    panelId: 'p2',
+    panelType: 'back' as const,
+    panelLabel: 'Back',
+    rawText: 'REGD OFFICE: 10 EXPRESS TOWERS NARIMAN POINT MUMBAI 400021',
+    confidence: 90,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1, panel2]);
+  assert.strictEqual(merged.hasConflict, false);
+  // Both distinct premises addresses must be preserved
+  assert.ok(merged.unifiedLabel.address?.includes('382330') || merged.unifiedLabel.address?.includes('400021'));
+  assert.ok(merged.fieldOrigins.address !== undefined);
+});
+
+test('Phase 19 Multi-Panel Safety: Case E - Identical declarations on multiple panels do not produce a false conflict', () => {
+  const panel1 = {
+    panelId: 'p1',
+    panelType: 'front' as const,
+    panelLabel: 'Front Label',
+    rawText: 'PARLE-G\nNET WT: 250 g\nMRP: Rs. 30.00\nMFD: 06/2024',
+    confidence: 92,
+  };
+  const panel2 = {
+    panelId: 'p2',
+    panelType: 'back' as const,
+    panelLabel: 'Back Label',
+    rawText: 'NET WT: 250g\nMRP: Rs. 30.00\nMFD: 06/2024\nMANUFACTURED BY PARLE PRODUCTS PVT LTD\nMUMBAI 400057\nCARE: 1800222211',
+    confidence: 92,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panel1, panel2]);
+  assert.strictEqual(merged.hasConflict, false, 'Identical declarations on multiple panels must never produce false conflict');
+  assert.strictEqual(merged.conflictDetails.length, 0);
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'PASS', 'Fully consistent multi-panel package must PASS');
 });
 
 

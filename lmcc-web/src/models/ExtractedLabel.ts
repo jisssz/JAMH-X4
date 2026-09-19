@@ -10,6 +10,8 @@ export interface ExtractedLabel {
   consumerCare?: string;
   isDateAmbiguous?: boolean;
   isFutureDate?: boolean;
+  hasConflict?: boolean;
+  conflictDetails?: string[];
 
   // Exact declaration source location lines (for evidence tracing)
   mrpEvidence?: string;

@@ -18,6 +18,22 @@ const DEFAULT_DISCLAIMER =
  * Queries the legitimate, publicly accessible Open Food Facts API v2 for reference product metadata.
  * Implements a strict timeout to ensure offline or slow network conditions never stall OCR screening.
  */
+/**
+ * Safely extracts package quantity from Open Food Facts product payload.
+ * Avoids operator precedence ambiguities between p.quantity and p.net_weight_value.
+ */
+export function extractProductQuantity(p: any): string | undefined {
+  if (!p) return undefined;
+  if (typeof p.quantity === 'string' && p.quantity.trim().length > 0) {
+    return p.quantity.trim();
+  }
+  if (p.net_weight_value !== undefined && p.net_weight_value !== null && String(p.net_weight_value).trim().length > 0) {
+    const unit = p.net_weight_unit ? String(p.net_weight_unit).trim() : '';
+    return `${p.net_weight_value} ${unit}`.trim();
+  }
+  return undefined;
+}
+
 export async function lookupProductByBarcode(
   barcode: string,
   timeoutMs: number = 4000
@@ -62,7 +78,7 @@ export async function lookupProductByBarcode(
       const p = data.product;
       const productName = p.product_name_en || p.product_name || p.generic_name;
       const brands = p.brands || p.brand_owner;
-      const quantity = p.quantity || p.net_weight_value ? `${p.net_weight_value} ${p.net_weight_unit || ''}`.trim() : undefined;
+      const quantity = extractProductQuantity(p);
       const categories = p.categories;
       const countries = p.countries;
       const imageUrl = p.image_front_url || p.image_url;

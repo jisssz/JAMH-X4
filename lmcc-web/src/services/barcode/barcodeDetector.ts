@@ -10,8 +10,10 @@ export interface BarcodeDetectionResult {
 
 /**
  * Maps known GS1 barcode prefix ranges to issuing national member organizations.
- * Under Legal Metrology Rule 6, understanding if the barcode is GS1 India (890 prefix)
- * provides valuable country of origin context.
+ * Under Legal Metrology Rule 6, understanding the GS1 country prefix provides context
+ * on the issuing GS1 national organization where the barcode was registered.
+ * NOTE: GS1 prefix assignment designates the company registration member organization,
+ * NOT conclusive proof of where the physical product was manufactured.
  */
 export function getGs1Country(barcode: string): string | undefined {
   const digits = barcode.replace(/\D/g, '');
@@ -20,22 +22,22 @@ export function getGs1Country(barcode: string): string | undefined {
   const prefix3 = parseInt(digits.substring(0, 3), 10);
   const prefix2 = parseInt(digits.substring(0, 2), 10);
 
-  if (prefix3 === 890) return 'India (GS1 India)';
-  if (prefix3 >= 891 && prefix3 <= 899) return 'South Asia / Regional GS1';
-  if (prefix2 >= 0 && prefix2 <= 13) return 'United States & Canada';
-  if (prefix3 >= 300 && prefix3 <= 379) return 'France';
-  if (prefix3 >= 400 && prefix3 <= 440) return 'Germany';
-  if (prefix3 >= 450 && prefix3 <= 459) return 'Japan';
-  if (prefix3 >= 490 && prefix3 <= 499) return 'Japan';
-  if (prefix3 >= 500 && prefix3 <= 509) return 'United Kingdom';
-  if (prefix3 >= 690 && prefix3 <= 699) return 'China';
-  if (prefix3 >= 760 && prefix3 <= 769) return 'Switzerland';
-  if (prefix3 >= 800 && prefix3 <= 839) return 'Italy';
-  if (prefix3 >= 840 && prefix3 <= 849) return 'Spain';
-  if (prefix3 >= 880 && prefix3 <= 880) return 'South Korea';
-  if (prefix3 >= 885 && prefix3 <= 885) return 'Thailand';
-  if (prefix3 >= 888 && prefix3 <= 888) return 'Singapore';
-  if (prefix3 >= 930 && prefix3 <= 939) return 'Australia';
+  if (prefix3 === 890) return 'GS1 India prefix (GS1 member assignment)';
+  if (prefix3 >= 891 && prefix3 <= 899) return 'GS1 South Asia / Regional prefix';
+  if (prefix2 >= 0 && prefix2 <= 13) return 'GS1 US & Canada prefix';
+  if (prefix3 >= 300 && prefix3 <= 379) return 'GS1 France prefix';
+  if (prefix3 >= 400 && prefix3 <= 440) return 'GS1 Germany prefix';
+  if (prefix3 >= 450 && prefix3 <= 459) return 'GS1 Japan prefix';
+  if (prefix3 >= 490 && prefix3 <= 499) return 'GS1 Japan prefix';
+  if (prefix3 >= 500 && prefix3 <= 509) return 'GS1 United Kingdom prefix';
+  if (prefix3 >= 690 && prefix3 <= 699) return 'GS1 China prefix';
+  if (prefix3 >= 760 && prefix3 <= 769) return 'GS1 Switzerland prefix';
+  if (prefix3 >= 800 && prefix3 <= 839) return 'GS1 Italy prefix';
+  if (prefix3 >= 840 && prefix3 <= 849) return 'GS1 Spain prefix';
+  if (prefix3 >= 880 && prefix3 <= 880) return 'GS1 South Korea prefix';
+  if (prefix3 >= 885 && prefix3 <= 885) return 'GS1 Thailand prefix';
+  if (prefix3 >= 888 && prefix3 <= 888) return 'GS1 Singapore prefix';
+  if (prefix3 >= 930 && prefix3 <= 939) return 'GS1 Australia prefix';
 
   return undefined;
 }

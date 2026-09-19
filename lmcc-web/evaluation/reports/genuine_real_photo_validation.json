@@ -1,0 +1,698 @@
+{
+  "timestamp": "2026-09-19T04:07:54.615Z",
+  "totalImages": 15,
+  "totalTargets": 16,
+  "totalCorrect": 6,
+  "extractionAccuracy": 37.5,
+  "fieldStats": {
+    "mrp": {
+      "target": 0,
+      "correct": 0,
+      "ocrFailures": 0,
+      "parserFailures": 0
+    },
+    "netQuantity": {
+      "target": 2,
+      "correct": 2,
+      "ocrFailures": 0,
+      "parserFailures": 0
+    },
+    "manufacturer": {
+      "target": 5,
+      "correct": 1,
+      "ocrFailures": 2,
+      "parserFailures": 2
+    },
+    "address": {
+      "target": 8,
+      "correct": 3,
+      "ocrFailures": 4,
+      "parserFailures": 1
+    },
+    "date": {
+      "target": 0,
+      "correct": 0,
+      "ocrFailures": 0,
+      "parserFailures": 0
+    },
+    "consumerCare": {
+      "target": 1,
+      "correct": 0,
+      "ocrFailures": 0,
+      "parserFailures": 1
+    }
+  },
+  "falsePassCount": 0,
+  "falseReviewCount": 0,
+  "averageProcessingMs": 3066,
+  "results": [
+    {
+      "filename": "real_01_mdh_garam_masala.jpg",
+      "productName": "MDH Garam Masala (Packaging Back)",
+      "category": "Spices",
+      "processingTimeMs": 5241,
+      "ocrConfidence": 38,
+      "ocrQuality": "POOR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 1386,
+      "rawOcrSnippet": "on am. vi os opie mans Kg ml rw eo J Cr ar § ae oy MAHASHIAN Of HATTI PVT. LTD. Pooe UR Pk ate a oots [errant SEmmme REC ECR pooner Com fh me Cs 5 printer by prewtmpidnivey [rats ——— freind a AASHAN O",
+      "rawOcrText": "on am. vi os opie mans Kg\nml rw eo J Cr\nar § ae oy MAHASHIAN Of HATTI PVT. LTD.\nPooe UR\nPk\nate a oots\n[errant\nSEmmme\nREC ECR\npooner Com fh me Cs 5\nprinter by\nprewtmpidnivey\n[rats ———\nfreind\na AASHAN OU ATIF LT, pg SER,\nEE LD pm:\noi smears smn\n——\n14 CELERRAT IN\neo\nFRA FER\n2 Q\nMID MASALA POWDER\nVa\nPRS\nPE RT TERE\nptr\ntke\nversed\nxa wl oa dF\n“re\nra\ntye ev F\nNey go) gow\nwasnt\nwas aa\nMonga: vies tinny Garam\nowas =\npre anrate ses 8 8\ncir\nKrraed © Tal quart ates Te 330 13\nies meat Or vegeadies 10 Deg LE TH Wy 30°\nEin\nrec ad 3 Over Pa wok\nIngredients : Cum Carano seats Back sepoer Ca\nia\nCardamom amomum Vedom chs Ferugres cams\non\n13% Mace Groen carcamom Cammy\n(Spe Content. Mewrum 99%)\nABorgen |The product 8 ManAChsed 1 8 Macher) Tat 337 {riedses oy\nstame secs bmuatard\nPagsorarvey\nopt Often : Wd Xd Nager nd Arve. New Det 1501\nArTRCWL CoLoun\nfat\nUc. Ma. 10910811005811\n8) meme:\nFor iy unt 60ress mad Pe 13 Peo Jeers Of Lf NO § we 8resse4 Dew\nOL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs\nVou, Prose 1, Gusgaon- 1 2201 HR | Lie No. 10010084001614 OR 16° Les\nVer Prams -1, Gurpeon- 122016 HR ) Lic. No. 1808001568 FD 31-12 Cem\nnd Youn, Scots. PO Tigaon, Farstubed -121101 (MR) Le No 100° W84)1858\n70 23. Coun Ink Town, Sidhcle,\nFondue 121901 ORL\nNo\n:Khaers No 832/73. 74, Pas Mwy Kuni.\n|oeed Lic Mo. NOUOMOTSNA M9 1.11122. 1123-134, RIO Ihr\n- 49001 OVAL) Lic. No. 1001801;",
+      "extractedFields": {
+        "manufacturer": "ar § ae oy MAHASHIAN Of HATTI PVT. LTD.",
+        "address": "OL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "HATTI",
+          "actual": "ar § ae oy MAHASHIAN Of HATTI PVT. LTD.",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "110015",
+          "actual": "OL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs",
+          "correct": true
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_02_amul_buttermilk.jpg",
+      "productName": "Amul Masti Spiced Buttermilk",
+      "category": "Beverages",
+      "processingTimeMs": 1915,
+      "ocrConfidence": 95,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 149,
+      "rawOcrSnippet": "nul. IAS Tet ne nbs 4 —] CV | Rowmad por puci®™— ~ 1% hal Bw) bla} 1] J RB bo IE faa TY pendy | 34 1 Te [edn imgf | Net Content; 200ml. 0 ma ALO lend",
+      "rawOcrText": "nul.\nIAS\nTet\nne nbs 4\n—]\nCV\n| Rowmad por puci®™— ~ 1%\nhal Bw)\nbla}\n1]\nJ RB\nbo\nIE\nfaa TY\npendy | 34 1\nTe\n[edn imgf |\nNet Content; 200ml.\n0 ma ALO\nlend",
+      "extractedFields": {
+        "netQuantity": "200 ml"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "200 ml",
+          "actual": "200 ml",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_03_saffola_masala_oats.jpg",
+      "productName": "Saffola Masala Oats Fine Print",
+      "category": "Cereals",
+      "processingTimeMs": 1514,
+      "ocrConfidence": 95,
+      "ocrQuality": "FAIR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 34,
+      "rawOcrSnippet": "Oat Products \\& oR NS on Frntiaben",
+      "rawOcrText": "Oat Products\n\\&\noR\nNS\non Frntiaben",
+      "extractedFields": {
+        "manufacturer": "Oat Products"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "MARICO",
+          "actual": "Oat Products",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "Santacruz",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_04_tata_tea_gemini.jpg",
+      "productName": "Tata Tea Gemini Regional Pack",
+      "category": "Tea/Beverages",
+      "processingTimeMs": 1913,
+      "ocrConfidence": 47,
+      "ocrQuality": "FAIR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 430,
+      "rawOcrSnippet": "& Packed AL: For identi ation of 1 Marta Un match Be fourth ler nthe Batch Cee TERE WEY MOTHS FROM PACAGING bcd: TG ; fn Back Ci ant ct bi 40430 peri osu PL Tor od a FAVA TEA INI * =e NEWT 5009 INGRE ",
+      "rawOcrText": "& Packed AL: For identi ation of 1 Marta\nUn match Be fourth ler nthe Batch Cee\nTERE WEY MOTHS FROM PACAGING\nbcd: TG ; fn Back Ci\nant ct bi 40430\nperi\nosu\nPL Tor od a\nFAVA TEA\nINI\n* =e\nNEWT\n5009\nINGRE\nBEST DEFONE TWELVE MONTHS FROM PACKAGING\nlessfactrsd For: Tata Gobi\nLimted, Kifosear Bsiress Pare 6a. © 3\n00a Benga; 560024\nat\nurs\nne of\nWhee OH ea Pe Ls, Survey No 49\n2 IDA Mwy\nGan 501359\nTHEY\nPA - Tumba Rag, Malonagathi\n47000091",
+      "extractedFields": {
+        "address": "00a Benga; 560024"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "TATA",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "address": {
+          "target": true,
+          "expected": "560024",
+          "actual": "00a Benga; 560024",
+          "correct": true
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_05_haldirams_mixture.jpg",
+      "productName": "Haldirams Mixture Snack",
+      "category": "Chips/Snack",
+      "processingTimeMs": 2986,
+      "ocrConfidence": 66,
+      "ocrQuality": "FAIR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 1033,
+      "rawOcrSnippet": "50y2). Colour (INS 141) & Asatoetida. g RAJASTHANI MIX INDIAN NAMKEEN Ingredients: egal Gram (Chana Dal) Refined Palme Gi a Fou Basan 10%), Red Lert (zs: Wo) Gunes {Peanlts 7%), Potato, Rice Fakes. Co",
+      "rawOcrText": "50y2). Colour (INS 141) & Asatoetida. g\nRAJASTHANI MIX\nINDIAN NAMKEEN\nIngredients:\negal Gram (Chana Dal) Refined Palme Gi\na Fou Basan 10%), Red Lert (zs: Wo)\nGunes {Peanlts 7%), Potato, Rice Fakes.\nCommon Sai, Red Chill Powder, Acidity\n14 320, ck Sal, Bick Pepar, Ppa Conder\n0 0 gr Pow, Cove Poggar, Cu, Power\nay Leal Tuer Powder, Dried Mango Po 4\nCanon, Garkc Powder,\ndrone\nNarn;\noan, yo,\n‘Contes Peanuts 8.\n-AMTond, Castiew, Mil, Sosar\nme Sood &\nFora\nquali\nHor af\n(410\nqual\n~ A\n+91-9\nEARIN?\nTasre or TRADITION\nCush\nEno\nplea\n>utce Bengal Gram (Chana Dal), Refined Palmowin 0\nram Flour (Besan)( 10%), Red Lentis (Masur Whole:\nLie\nGreunanat (Peanuts 7%). Potato, Rice Flakes,\nh. Ed\nommon Salt, Red Chilli Powder Acidity\n{INS 330), Black Salt, Black Pepper, Pipal Conander\nHi\nned Ginger Powder, Clove Powder, Cumin Powder\nBay Leaf, Turmeric Powder, Dried Mango Pg ‘er\n3. C-xamon, Garlic Powder,\nVe\nin (Soya), Colour (NS 141) & Asafoetida\nContains Peanuts &\nCorting\nWheat, Almond, Cashew, Milk, Sesame Seed &\nhl\n| Goren\nRo\nAdriaed Go SN",
+      "extractedFields": {
+        "address": "ay Leal Tuer Powder, Dried Mango Po 4, Canon, Garkc Powder,"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": true,
+          "expected": "Powder",
+          "actual": "ay Leal Tuer Powder, Dried Mango Po 4, Canon, Garkc Powder,",
+          "correct": true
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_06_haldirams_bhujia_angled.jpg",
+      "productName": "Haldirams Aloo Bhujia (Angled Fold)",
+      "category": "Chips/Snack",
+      "processingTimeMs": 2301,
+      "ocrConfidence": 95,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 545,
+      "rawOcrSnippet": "Powder, N 366. DATE por 1009 Po Sor 577.3 keal 51 97g Catonydrate aad Total Sugars 37g Added Sugars 000 Total Fat 40: 19 Saturated Fat 654 | 59 AL Trans Fat <5% 080mg | % ROA Values cri based on Servi",
+      "rawOcrText": "Powder, N\n366. DATE\npor 1009\nPo Sor\n577.3 keal\n51\n97g\nCatonydrate\naad\nTotal Sugars\n37g\nAdded Sugars\n000\nTotal Fat\n40:\n19\nSaturated Fat\n654 |\n59\nAL\nTrans Fat\n<5%\n080mg |\n% ROA Values cri based on\nServing\n{Pur Serve sizels 2d.\n# Umit of quantific\nREDIENTS: Potalo (447), £1\ntls Vegeid®\nround NJ\nand Rice Bran),\nOi {Cotton\nGram Pulse Flow, Rice Fiov\nPoy-iar Onion\nPowder, Red Chill Powder, Mace\nPowder, Ginger\nPowe, Tumenc Powder, Mn\nsme Powde\nrh\njalor (INS 3301\nil NS\n1)\nA ‘aud & Nature\nNS\nwl\nnavouritd\nsubstances.\nain Pecout\n{200g + RET)\nvei: 24%",
+      "extractedFields": {
+        "address": "Po Sor"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": true,
+          "expected": "Mohan",
+          "actual": "Po Sor",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_07_dettol_antiseptic.jpg",
+      "productName": "Dettol Antiseptic Pack",
+      "category": "OTC Consumer",
+      "processingTimeMs": 1438,
+      "ocrConfidence": 95,
+      "ocrQuality": "POOR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 27,
+      "rawOcrSnippet": "< Ro) (| Dettol 3X POWER Po",
+      "rawOcrText": "< Ro)\n(| Dettol\n3X POWER\nPo",
+      "extractedFields": {
+        "address": "Po"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": true,
+          "expected": "Plot No",
+          "actual": "Po",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_08_independence_oil.jpg",
+      "productName": "Independence Soyabean Oil 1L Pouch",
+      "category": "Cooking Oil",
+      "processingTimeMs": 2264,
+      "ocrConfidence": 95,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 384,
+      "rawOcrSnippet": "CARE CELL BATCH NO- MFD*; Jndence Fn, indef Kan Kan Mein oll ry, Eile (NN. Vos 9 7p, 5. Veo (man! ta ua Servings per Pack: 182 TODA\" POR Uc do 1527 [23 | FORwasc ~ [| worse Ze lsowncaw mame —o _ 1wom:",
+      "rawOcrText": "CARE CELL\nBATCH NO-\nMFD*;\nJndence\nFn,\nindef\nKan Kan Mein\noll\nry,\nEile\n(NN.\nVos 9 7p, 5.\nVeo\n(man!\nta ua\nServings per Pack: 182\nTODA\" POR Uc do 1527\n[23 | FORwasc ~\n[| worse\nZe\nlsowncaw\nmame\n—o _ 1wom:\nLi\nFagonia\nWl\nTARE\nnsw\nas FCDA\n| IE\nER\nSE WR 3\n=|\n0 a § ln\nT— EO\n| RUG0ED DETARY ALLOWANCE PER DAY\nep malions § hart whh M1 6\nNing\nEOL\n4 e oweesfhusaner of\nwd old\nusp?\npant!\nDEE al\nBg",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_09_cadbury_dairy_milk.jpg",
+      "productName": "Cadbury Dairy Milk (Ingredients Panel)",
+      "category": "Chocolate",
+      "processingTimeMs": 3196,
+      "ocrConfidence": 90,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 731,
+      "rawOcrSnippet": "Ingredients: Milk chocolate (milk, sugar, cocoa butter, skim milk, whole milk powder, unsweetened chocolate, butter oil, soy lecithin, artificial flavour). Contains: Milk, Soy. May contain: Peanut, Al",
+      "rawOcrText": "Ingredients: Milk chocolate (milk,\nsugar, cocoa butter, skim milk,\nwhole milk powder, unsweetened\nchocolate, butter oil, soy lecithin,\nartificial flavour).\nContains: Milk, Soy.\nMay contain: Peanut, Almond,\nCashew, Hazelnut.\ningrédients : Chocolat au fait {iait,\nsucre, beurre de cacao, lait écrémé,\nlait entier en poudre, chocolat non\nsucré, huile de beurre, lécithine de\nsoja, arbme artificiel).\nContient : Lait, Soja.\nPeut contenir © Arachides,\n‘amandes, Cajous, Noisettes.\nIngrédi\nents : Chocolat au lait (lait,\nsucre, beurre de\ncacao, lait écrémé,\nlait entier en\npou\ndre, chocolat non\nde beurre, 1écithine de\nsucré, huile\nsoja, ard\nme artificiel).\nContient : L\nait, Soja.\nPeut conte\nir - Arachides,\naAmandes,\nCajous, Noisettes.",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_10_haldiram_khatta_meetha.jpg",
+      "productName": "Haldiram Khatta Meetha (Foil Pouch)",
+      "category": "Foil Snack",
+      "processingTimeMs": 1976,
+      "ocrConfidence": 92,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 206,
+      "rawOcrSnippet": "Ingredients : Gram Pulses, Lentils, Flaked Rice, Sago, Com Chips, Peanuts, Edible Vegetable Oil, Curry Leaves, Red Chilli, Sugar, lodised Salt, Spices & Lemon Powder. Flaked Rice, Sago, Corn Chips, Pe",
+      "rawOcrText": "Ingredients : Gram Pulses, Lentils,\nFlaked Rice, Sago, Com Chips, Peanuts,\nEdible Vegetable Oil, Curry Leaves,\nRed Chilli, Sugar, lodised Salt, Spices\n& Lemon Powder.\nFlaked Rice, Sago, Corn Chips, Peanuts,",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_11_surf_excel.jpg",
+      "productName": "Surf Excel Quick Wash Pouch",
+      "category": "Detergent",
+      "processingTimeMs": 1401,
+      "ocrConfidence": 95,
+      "ocrQuality": "FAIR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 25,
+      "rawOcrSnippet": "vers | SOAR 100 surem ecu",
+      "rawOcrText": "vers | SOAR\n100\nsurem\necu",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_12_britannia_biscuit.jpg",
+      "productName": "Britannia 5050 Biscuit",
+      "category": "Biscuits",
+      "processingTimeMs": 1399,
+      "ocrConfidence": 42,
+      "ocrQuality": "POOR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 23,
+      "rawOcrSnippet": "TE BR Ld BRITANMA = 10%",
+      "rawOcrText": "TE BR Ld\nBRITANMA\n= 10%",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_13_tata_salt_care_address.jpg",
+      "productName": "Tata Salt (Consumer Care & Address Panel)",
+      "category": "Staples/Salt",
+      "processingTimeMs": 12510,
+      "ocrConfidence": 79,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 3241,
+      "rawOcrSnippet": "CONSUMER CARE DETAILS: CUSTOMER cAre fl EXECUTIVE, TATA CONSUMER PRODUCTS [1] TOLL FREE NUMBER: 1800 108 4488 EMAIL: Care@tataconsumer.com ~~ § Mkt by: Tata Consumer Products Limited, 3 1, Bishop Lefr",
+      "rawOcrText": "CONSUMER CARE DETAILS: CUSTOMER cAre fl\nEXECUTIVE, TATA CONSUMER PRODUCTS [1]\nTOLL FREE NUMBER: 1800 108 4488\nEMAIL: Care@tataconsumer.com ~~ §\nMkt by: Tata Consumer Products Limited, 3\n1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’\nMg by: Tata Chemicals Limited,\nRepacked by: For Packing unit details, parted\nletters of Batch No. (BN) and see below:\n3) pr 2 Mfg by: Tata Chemicals Limited, 4\nletters of Batch No. (BN) and see bejow:\n\" 2% IR, 4 1, Bishop Lefroy Road, Kolkata, ~~ _fssaf\ni Eo J) 3 9 Repacked by: For Packing unit details, patio! w\nDeine 2 niga g 5 (i\nN - kd ar\nREDUCE SODIUM EMAIL: (\n[RS gps PR RSIS LUT A ay\nTOLL FREE NUMBER: 18001084483 JS\nA Mkt by: Tata Consumer Products Limited, 1\n1, Bishop Lefroy Road, Kolkata, ~~ _fesaf 4\nMfg by: Tata Chemicals Limited, y\ng Repacked by: For Packing unit details, plo’ S.J\n4 letters of Batch No. (BN) and see bei: 44\n: p NATURALLY SOURCED\n| SEA SALT WITH PURITY\n| AND IGDINE ['UARANTEE\nBosurute\nREDUGE SODIUM\n. FOR ACTIVE HEALTH\nJoa: bo iy\nTATK Salt\n®ladine is required for normal gy,\nthyroid and brain function\ngenerally accepted that Iodine fio\nmental development of childye,\nTata Salt contains requisite am\nof iodine,\nKIRLOSKAR BUSINESS PARK, HEBBAL, |\nBENGALURU - 560 024, KARNATAKA.\nWest Bengal - 700 020. Lic. No. 100140310\n, P. 0. Mithapur - 361 345, District-Devbhumi Jj\n' Gujarat, Lic. No. 10012021000351 :\n(BG) Lic. No. 10020043003552\n£(C0) Lic. No. 1012042000187\n' (CH) Lic. No. 1014042001312\n{(HD) Lic. No. 10019047001488\n(VW) Lic. No. 10124006000116\nEy |\nf.\ni ay\n—_—\n{3\n—-\nAA 2\nTATA S\n“lodine is required for normal gy.\nTIATA\nSEA SALT W'TH PURITY\nmental development of children\ngenerally accepted that lodine /,.;\nisn IGDINE 'UARANTEE\nBN\nNF\n“)\nEe\n--\n0DUCTS | Di\nBBAL,\nLess SODIUMA\n)ssaj\nbw\nLic. No. 100140310\nWest Bengal - 700 020.\nRT eel\n(BG) Lic. No. 1002004300352\nYd\n(CO) Lic. No. 10012042000187\n(GH) Lic. No. 10014042001312\nHi\nUII 'C\nToy\nFat. 0.q'[0\nim\n[1]\n[ii\n[ HEN\nag P\n{ |\n66431501\nhe\n[D\nCS\nEo - P. 0. Mithapur - 361 345, District-Devbhumi (SE. ;\nTE Gujarat. Lic. No. 1012021000351 SE >\nEc A I leters of Balch No, (BN) and sceber. AR\nfation (Typical vaides) © (BE) Lic. No. 0020043003552 §\n=) Ena 000) ~~ F (CO) Lic. No. 0012042000167 4\nTE + A [ (CH) Lic. No. 0014042001312 ~~ [3\nwv BOR hn rion A J (HD) Lic. No. 1001904700148 fF\nMivicovizats BY SRG 1012400600016\nugar S00 0aTot: FELOTOL IE. A \\ Co\na = Il I Ae\nPy ARR\nis” all oko i 4\n- h ALSO EXPLORE i Co\nJF UTA SALT CRYSTAL\nral 11 4 NATURALLY SOURCED [>\ndeeb <8 SEA SALT WITH PURITY ow\na RESIN. AND IGDINE 'UAGANTEE ’\nLo NZ\nBON RY. CONSU\nRis Be eg o* EY EXECU\nap O0 : BENGA\nSRA SALT LITE BENGA\n| OB Mktby: Ta\n) | Less sovium 8 1 ci\nbh v \\ West Beng;\n€ FE 1 Mig by: Te\nee | Gujarat, Li\nEE ] i Repacked\na —1 letters of E\nBition (Typicalvakies) | (BG) Lic.\na Br path 10 Wy XE (CO) Lic.\nLeow BB Row\nMI 0 iiiog, MN BR(DLC\nRG 0 0eTot FatOg[0, BRE. SE cc\nRIbdine 2iniou14]—— i gf Hi\n- Bator\nTRE SN MP\nTAYTK Salt\n) i\nTY a\nTEE ¢ a\"\nP. 0. Mithapur - 361 345, District-Devbhumi (NEE.\nues) (BG) Lic. No. 1002004303552 §\nrd (CO) Lic. No. 0012042000187 rE\noA (CH) Lic. No. 10014042001312 : Fp\n5g, BN (HD) Lic. No. 1019047001488 8 a\npl [os SOUW |i #7\nagi Qo Lic No. 1012400600016 A\nssium ~~ abpIam ih Te\nCg) 8 eres\n» hier “soa * ¥",
+      "extractedFields": {
+        "manufacturer": "For Packing unit details, parted",
+        "address": "1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’, Mg by: Tata Chemicals Limited,",
+        "consumerCare": "1800 108 4488"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "TATA CONSUMER",
+          "actual": "For Packing unit details, parted",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "address": {
+          "target": true,
+          "expected": "HEBBAL",
+          "actual": "1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’, Mg by: Tata Chemicals Limited,",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "CUSTOMER CARE",
+          "actual": "1800 108 4488",
+          "correct": false,
+          "failureType": "PARSER"
+        }
+      }
+    },
+    {
+      "filename": "real_14_amul_taaza_milk.jpg",
+      "productName": "Amul Taaza Milk Carton",
+      "category": "Dairy",
+      "processingTimeMs": 1907,
+      "ocrConfidence": 85,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 191,
+      "rawOcrSnippet": "500 mL 2 ol ZF Net Content ra B22] [ Sanity 12) hu, [\"33] jad UCiseray | OF dy sca weno. 1001202100007 AESULTS, STORE CONTINUOUSLY YD<1 REFRIGERATION ors Wi 8*C UNTIL oti. [JIN ie if ==4 ~—=3",
+      "rawOcrText": "500 mL\n2 ol\nZF\nNet Content\nra\nB22]\n[ Sanity 12)\nhu, [\"33] jad\nUCiseray | OF\ndy sca\nweno. 1001202100007\nAESULTS, STORE\nCONTINUOUSLY YD<1 REFRIGERATION\nors\nWi 8*C UNTIL\noti.\n[JIN\nie\nif\n==4\n~—=3",
+      "extractedFields": {
+        "netQuantity": "500 ml"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "500 ml",
+          "actual": "500 ml",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "real_15_mdh_biryani_masala.jpg",
+      "productName": "MDH Biryani Masala (Packaging Back)",
+      "category": "Spices",
+      "processingTimeMs": 4034,
+      "ocrConfidence": 54,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 1582,
+      "rawOcrSnippet": "MAHASHIAN DI HATTI PVT.LTD, Lic Na 1001801100581 Regd Offce : 544K Hogar. Avs, % Allergen : Ths product 1s manufactured in @ machnery hal aiso poses sss 'MAHASHIAN DI HATTI PVT.LTD. LicNo.100180110058",
+      "rawOcrText": "MAHASHIAN DI HATTI PVT.LTD, Lic Na 1001801100581\nRegd Offce : 544K Hogar. Avs, %\nAllergen : Ths product 1s manufactured in @ machnery hal aiso poses sss\n'MAHASHIAN DI HATTI PVT.LTD. LicNo.10018011005811\nRegd. Office : 944 Ke Nagar ind. Area,\nOL: Rega Office : 9444 Ket Nagas Industrial Ares, New Del - 110015 GN 216\n0018064001564 RS. H1-116-122, M2-123-134 RICO\nfarh ween\nMOEO MASALA POWDER tus of ti\n8% 30 sae a3, gd end sag, he\nor 5 on de fo 5 207\nEEE EE\nvecten Meat cochng mtu, dBRL, lt 5\n0 508 Mula. Sheen peces 35 AE, ch 4 sll ©ner-\npoucandcaon usual\nIngrcne Black Pepper. C552, Rd Chis Debio Grrr\nmomen Coes, Caraway Groen Gatarmon Hice\n{Sa Carte Mum 100%)\nAbrgan: Tes roti mancfchresing osha 3 sce\nsoy sesame seeds ustnd\nas acy fizat\nfret ra | Motuity: 50g\nFord nt ahs vt Mb Lt fs vn\n[0] OOD 1919 CELEBRATING 70):\nMIXED MASALA POWDER\n‘.\nYears of aMinity 11\nBE Me wae TE)\nsud Hrd pind\ngu bomd aad & 0 Ae am Nba Brg 4\nwhgd draw d\nOvvection Heat cocking medium add Biryan: mass w\nek ASS mUlton chasen pieces as desired i un:\npowder and cook 3s usual\nIngredients : Black Pepper. Cassia. Red Chilkes (Degg: Murer\nAmomum. Cloves. Caraway Green Cardamom Mace\nSince Content Minemum 100%)\n$0y. 5653mMe 5600s & mustard\nMi. & Md by\nIi\nNew Debi-\nNot Quantity: 50g\nLL\nForklly unt acess read De frat hwo eters of Lor No § 308 accesses ew\nVier, Phase 1, Gurgaon- 122016 {HR ) Lc No 1001806400164 FO\n31-22. Crown ind.\nTown, Sidhola. PO Tigaon, Faridabad - 121101 (HR | Lic No\n1001:\n13084001558 SP\n131028(4R) Lic. No.\nKhasra No 632/73 - 74, Piau Manryan Kundh. Song -\n& Seki lal 1001801300169",
+      "extractedFields": {
+        "netQuantity": "50 g",
+        "address": "Regd. Office : 944 Ke Nagar ind. Area,, OL: Rega Office : 9444 Ket Nagas Industrial Ares, New Del - 110015 GN 216"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "MDH",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "Delhi",
+          "actual": "Regd. Office : 944 Ke Nagar ind. Area,, OL: Rega Office : 9444 Ket Nagas Industrial Ares, New Del - 110015 GN 216",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    }
+  ]
+}

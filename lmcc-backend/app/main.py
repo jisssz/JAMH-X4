@@ -111,17 +111,44 @@ def root():
     }
 
 
-@app.exception_handler(404)
-async def custom_404_handler(request: Request, exc):
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "OPTIONS", "HEAD"])
+async def catch_all_fallback(request: Request, full_path: str):
+    """
+    Guarantees that serverless rewrites (which may send varying URL structures)
+    never fail to resolve core health check and reporting endpoints.
+    """
+    clean_path = full_path.strip("/").lower()
+    
+    # Core health check fallback: matches health, api/health, api/index.py/api/health etc.
+    if clean_path.endswith("health") or "health" in clean_path:
+        return {"status": "ok"}
+        
+    # Reports list fallback: only exact match for reports or api/reports
+    if clean_path in ("reports", "api/reports") and request.method == "GET":
+        from app.db import SessionLocal
+        db = SessionLocal()
+        try:
+            return list_reports(limit=50, db=db)
+        finally:
+            db.close()
+            
+    # Root status fallback
+    if not clean_path or clean_path in ("api", "api/index", "api/index.py"):
+        return {
+            "service": "LMCC Reporting API",
+            "status": "online",
+            "docs": "/docs",
+            "health": "/api/health",
+        }
+        
     return JSONResponse(
         status_code=404,
         content={
             "detail": "Not Found",
-            "debug": {
-                "url_path": request.url.path,
-                "scope_path": request.scope.get("path"),
-                "headers": {k: v for k, v in request.headers.items() if "auth" not in k.lower() and "cookie" not in k.lower()},
-            },
+            "captured_path": full_path,
+            "scope_path": request.scope.get("path"),
         },
     )
+
+
 

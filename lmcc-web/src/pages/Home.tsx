@@ -10,7 +10,6 @@ import {
 import ZenoxNav from '../components/ui/ZenoxNav';
 import GlowBackground from '../components/ui/GlowBackground';
 import SectionLabel from '../components/ui/SectionLabel';
-import FloatingScanCard from '../components/ui/FloatingScanCard';
 import HowItWorksModal from '../components/ui/HowItWorksModal';
 
 export const Home: React.FC = () => {
@@ -68,8 +67,18 @@ export const Home: React.FC = () => {
         {/* ==================================================== */}
         {/* HERO SECTION */}
         {/* ==================================================== */}
-        <section className="relative pt-6 sm:pt-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+        <section className="relative pt-4 sm:pt-10">
+          {/* Subtle Left Environmental Foliage Accent */}
+          <div className="absolute -left-12 sm:-left-20 top-0 bottom-0 w-28 sm:w-36 pointer-events-none -z-10 opacity-70 overflow-hidden hidden sm:block">
+            <img
+              src="/hero_leaves_accent.png"
+              alt=""
+              aria-hidden="true"
+              className="h-full w-auto object-cover object-left opacity-60"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* Left Hero Column: Typographic Focus */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <SectionLabel className="mb-6">
@@ -77,7 +86,8 @@ export const Home: React.FC = () => {
               </SectionLabel>
 
               <h1 className="hero-display text-white tracking-tight">
-                Check before <br />
+                Check <br />
+                before <br />
                 you <span className="font-display-italic text-slate-300">buy.</span>
               </h1>
 
@@ -90,7 +100,7 @@ export const Home: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/scan')}
-                  className="flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full font-medium text-sm bg-white text-slate-950 hover:bg-slate-100 transition-all duration-200 active:scale-95 cursor-pointer font-sans"
+                  className="flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full font-medium text-sm bg-white text-slate-950 hover:bg-slate-100 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)] transition-all duration-200 active:scale-95 cursor-pointer font-sans"
                 >
                   <span>Scan package</span>
                   <span className="text-slate-400">→</span>
@@ -128,15 +138,26 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Hero Column: Refined Verification Sheet */}
+            {/* Right Hero Column: Cinematic Package Visual with Verification Sheet */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <FloatingScanCard />
+              <div className="relative w-full max-w-[460px] group">
+                {/* Ambient glow behind card/package */}
+                <div className="absolute -inset-4 bg-emerald-500/10 rounded-3xl blur-2xl -z-10 pointer-events-none opacity-40" />
+                <img
+                  src="/hero_package_visual.png"
+                  alt="LMCC Statutory Packaging Verification — Scanning 500g Commodity Package with Verification Sheet"
+                  className="w-full h-auto rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.7)] object-cover"
+                  width={428}
+                  height={424}
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
         </section>
 
         {/* ==================================================== */}
-        {/* HOW IT WORKS (EDITORIAL 4-STAGE FLOW) */}
+        {/* HOW LMCC WORKS (EDITORIAL 4-STAGE FLOW) */}
         {/* ==================================================== */}
         <section id="how-it-works" className="space-y-12">
           <div className="border-t border-white/[0.08] pt-12">
@@ -144,7 +165,7 @@ export const Home: React.FC = () => {
               Workflow pipeline
             </SectionLabel>
             <h2 className="section-display text-white tracking-tight">
-              From package to <span className="font-display-italic text-slate-300">verification.</span>
+              How LMCC <span className="font-display-italic text-slate-300">works.</span>
             </h2>
             <p className="mt-3 text-sm text-slate-400 max-w-md">
               A four-step on-device screening workflow designed for fast statutory evaluation.
@@ -154,7 +175,7 @@ export const Home: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="space-y-3 pt-4 border-t border-white/[0.08]">
               <span className="text-xs font-mono text-emerald-400 block">01</span>
-              <h3 className="text-sm font-medium text-white">Capture</h3>
+              <h3 className="text-sm font-medium text-white">Scan</h3>
               <p className="text-xs text-slate-400 leading-relaxed font-sans">
                 Photograph 1–5 packaging faces (Front, Back, Crimp/Seal, Sides) with camera or upload.
               </p>
@@ -162,7 +183,7 @@ export const Home: React.FC = () => {
 
             <div className="space-y-3 pt-4 border-t border-white/[0.08]">
               <span className="text-xs font-mono text-slate-500 block">02</span>
-              <h3 className="text-sm font-medium text-white">Read</h3>
+              <h3 className="text-sm font-medium text-white">Extract</h3>
               <p className="text-xs text-slate-400 leading-relaxed font-sans">
                 On-device OCR extracts typography and numbers locally without cloud transmission.
               </p>
@@ -170,7 +191,7 @@ export const Home: React.FC = () => {
 
             <div className="space-y-3 pt-4 border-t border-white/[0.08]">
               <span className="text-xs font-mono text-slate-500 block">03</span>
-              <h3 className="text-sm font-medium text-white">Check</h3>
+              <h3 className="text-sm font-medium text-white">Verify</h3>
               <p className="text-xs text-slate-400 leading-relaxed font-sans">
                 The deterministic rules engine verifies mandatory fields against Rule 6 criteria.
               </p>
@@ -187,7 +208,45 @@ export const Home: React.FC = () => {
         </section>
 
         {/* ==================================================== */}
-        {/* STATUTORY DECLARATIONS (EDITORIAL GAZETTE LIST) */}
+        {/* BUILT AROUND THE LABEL */}
+        {/* ==================================================== */}
+        <section className="border-t border-white/[0.08] pt-12 space-y-8">
+          <div className="max-w-xl">
+            <SectionLabel className="mb-3">
+              Packaging intelligence
+            </SectionLabel>
+            <h2 className="section-display text-white tracking-tight">
+              Built around the <span className="font-display-italic text-slate-300">label.</span>
+            </h2>
+            <p className="mt-3 text-sm text-slate-400 leading-relaxed font-sans">
+              Retail commodity packaging spreads mandatory disclosures across irregular pouches, crimped seals, and opposite panels. LMCC’s multi-panel engine stitches fragmented observations into one unified statutory dossier.
+            </p>
+          </div>
+
+          <div className="relative rounded-3xl bg-[#080c16]/80 border border-white/[0.08] p-6 sm:p-10 overflow-hidden">
+            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-emerald-500/[0.05] rounded-full blur-3xl pointer-events-none" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs font-sans">
+              <div className="space-y-2">
+                <span className="text-emerald-400 font-mono text-[11px] block">01 / DISPARATE FACES</span>
+                <h4 className="text-sm font-medium text-white">Multi-panel synthesis</h4>
+                <p className="text-slate-400 leading-relaxed">Merges Front, Back, Crimp, and Seal into a single commodity session without losing panel attribution.</p>
+              </div>
+              <div className="space-y-2">
+                <span className="text-emerald-400 font-mono text-[11px] block">02 / DETERMINISTIC CHECK</span>
+                <h4 className="text-sm font-medium text-white">Rule 6 verification</h4>
+                <p className="text-slate-400 leading-relaxed">Audits MRP tax clauses, metric net quantities, manufacturing dates, and consumer care compliance.</p>
+              </div>
+              <div className="space-y-2">
+                <span className="text-emerald-400 font-mono text-[11px] block">03 / GS1 CROSS-CHECK</span>
+                <h4 className="text-sm font-medium text-white">Barcode coherence</h4>
+                <p className="text-slate-400 leading-relaxed">Validates printed EAN/UPC barcodes against Open Food Facts catalog records for cross-verification.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==================================================== */}
+        {/* STATUTORY DECLARATIONS (LEGAL METROLOGY RULE 6) */}
         {/* ==================================================== */}
         <section id="what-we-check" className="space-y-10">
           <div className="border-t border-white/[0.08] pt-12">
@@ -195,10 +254,10 @@ export const Home: React.FC = () => {
               Statutory criteria
             </SectionLabel>
             <h2 className="section-display text-white tracking-tight">
-              Mandatory declarations we <span className="font-display-italic text-slate-300">examine.</span>
+              Legal Metrology <span className="font-display-italic text-slate-300">Rule 6.</span>
             </h2>
             <p className="mt-3 text-sm text-slate-400 max-w-md">
-              Implemented criteria aligned with Rule 6 of the Legal Metrology (Packaged Commodities) Rules, 2011.
+              Mandatory declarations evaluated under Rule 6 of the Legal Metrology (Packaged Commodities) Rules, 2011.
             </p>
           </div>
 
@@ -282,10 +341,10 @@ export const Home: React.FC = () => {
         {/* ==================================================== */}
         {/* SCANNER CALL TO ACTION */}
         {/* ==================================================== */}
-        <section className="relative rounded-3xl bg-[#090d16] border border-white/[0.08] p-10 sm:p-16 text-center shadow-xl">
+        <section className="relative rounded-3xl bg-[#080c16]/80 border border-white/[0.08] p-10 sm:p-16 text-center shadow-xl">
           <div className="max-w-xl mx-auto flex flex-col items-center space-y-6">
             <h2 className="section-display text-white tracking-tight">
-              Ready to verify a <span className="font-display-italic text-slate-300">package?</span>
+              Ready to check a <span className="font-display-italic text-slate-300">product?</span>
             </h2>
 
             <p className="text-sm text-slate-400 leading-relaxed font-sans max-w-md">
@@ -296,18 +355,19 @@ export const Home: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/scan')}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full font-medium text-sm bg-white text-slate-950 hover:bg-slate-100 transition-all duration-200 active:scale-95 cursor-pointer font-sans"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-full font-medium text-sm bg-white text-slate-950 hover:bg-slate-100 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)] transition-all duration-200 active:scale-95 cursor-pointer font-sans"
               >
-                <span>Scan product label</span>
+                <span>Scan package</span>
                 <span>→</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => navigate('/scan?mode=upload')}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-full font-medium text-xs bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08] transition cursor-pointer font-sans"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-medium text-xs bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08] transition cursor-pointer font-sans"
               >
-                <span>Upload image instead</span>
+                <UploadCloud className="w-3.5 h-3.5 text-slate-400" />
+                <span>Upload photo</span>
               </button>
             </div>
           </div>

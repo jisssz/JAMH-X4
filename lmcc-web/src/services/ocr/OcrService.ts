@@ -1,4 +1,5 @@
 import { OcrQuality } from './ocrQuality';
+import type { OcrPipelineDiagnostic } from './ocrDiagnostics';
 
 export type OcrProgressCallback = (progress: number, status: string) => void;
 
@@ -13,7 +14,8 @@ export interface OcrResult {
   quality: OcrQuality;
   language: string;
   attempts: number;
-  preprocessingMode: 'standard' | 'high_contrast';
+  preprocessingMode: 'standard' | 'high_contrast' | 'multi_scale_cascade';
+  diagnostics?: OcrPipelineDiagnostic;
 }
 
 export interface OcrService {

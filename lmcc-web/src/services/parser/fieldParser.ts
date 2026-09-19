@@ -160,11 +160,18 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // 2. Net Quantity Extraction (Rule 6(1)(c))
   // ----------------------------------------------------
   // Standard legal units: g, gm, grams, kg, ml, l, litre, litres, pieces, units, N, ग्राम, किग्रा, आदि
-  const qtyRegex = /(?:NET\s*(?:QTY|QUANTITY|WT\.?|WEIGHT|VOL\.?|VOLUME)?|शुद्ध\s*(?:मात्रा|वजन)|मात्रा|वजन|അളവ്|തൂക്കം|ನಿವ್ವಳ\s*ತೂಕ|ತೂಕ|నికర\s*పరిమాణం|நிகர\s*எடை)?\s*:?\s*[:\s-]*(\d+(?:\.\d+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litres?|mg|units?|pieces?|N|ग्राम|किग्रा|कि\.ग्रा\.|मि\.ली\.|लीटर)\b/iu;
+  const qtyRegex = /(?:NET\s*(?:QTY|QUANTITY|WT\.?|WEIGHT|VOL\.?|VOLUME|MASS|CONTENT)?|QUANTITY|शुद्ध\s*(?:मात्रा|वजन)|मात्रा|वजन|അളവ്|തൂക്കം|നിവ്വള\s*തൂക|തൂക|నికర\s*పరిమాణం|நிகர\s*எடை)?\s*:?\s*[:\s-]*(\d+(?:\.\d+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litres?|mg|units?|pieces?|N|ग्राम|किग्रा|कि\.ग्रा\.|मि\.ली\.|लीटर)\b(?:\s*\(?(?:WHEN\s*PACKED)?\)?)?/iu;
 
-  for (const line of lines) {
-    if (/(?:NET|QTY|QUANTITY|WEIGHT|VOLUME|gm|kg|ml|ltr|\bN\b|\bL\b|\bg\b|वजन|मात्रा|ग्राम|किग्रा|അളവ്|തൂക്കം|ನಿವ್ವಳ|ತೂಕ|నికర|పరిమాణం|நிகர|எடை)/iu.test(line)) {
-      const match = line.match(qtyRegex);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/(?:NET|QTY|QUANTITY|WEIGHT|VOLUME|MASS|CONTENT|gm|kg|ml|ltr|\bN\b|\bL\b|\bg\b|वजन|मात्रा|ग्राम|किग्रा|അളവ്|തൂക്കം|നിവ്വള|തൂക|నికర|పరిమాణం|நிகர|எடை)/iu.test(line)) {
+      let match = line.match(qtyRegex);
+      if ((!match || !match[1]) && i + 1 < lines.length) {
+        // Multi-line declaration: e.g. "NET WEIGHT:" followed by "1 KG"
+        const combined = `${line} ${lines[i + 1]}`;
+        match = combined.match(qtyRegex);
+      }
+
       if (match && match[1] && match[2]) {
         const num = match[1];
         let unit = match[2].toLowerCase();
@@ -183,11 +190,30 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // ----------------------------------------------------
   // 3. Date Declaration (Rule 6(1)(d))
   // ----------------------------------------------------
-  // Contextual date patterns with explicit prefixes
-  const contextualDateRegex = /(?:MONTH\s*(?:&|AND)?\s*YEAR\s*OF\s*(?:MFG|MANUFACTURE|PACKING|IMPORT)|DATE\s*OF\s*(?:PKD|PACKING|PACKED|MFG|MANUFACTURE|IMPORT)|(?:MFD|MFG|PKD|IMPORT)\s*DATE|IMPORTED|IMPORT|MFD|MFG|PKD|PACKED|MANUFACTURED|निर्माण|पैकिंग)\s*:?\s*[:\s-]*((?:0[1-9]|1[0-2]|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)[\/\-\.\s]+(?:20\d{2}|\d{2}))/iu;
-  const dayMonthYearRegex = /(?:MONTH\s*(?:&|AND)?\s*YEAR\s*OF\s*(?:MFG|MANUFACTURE|PACKING|IMPORT)|DATE\s*OF\s*(?:PKD|PACKING|PACKED|MFG|MANUFACTURE|IMPORT)|(?:MFD|MFG|PKD|IMPORT)\s*DATE|IMPORTED|IMPORT|MFD|MFG|PKD|PACKED|MANUFACTURED|निर्माण|पैकिंग)\s*:?\s*[:\s-]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.](?:20\d{2}|\d{2}))/iu;
+  // Contextual date patterns with explicit statutory prefixes
+  const dayMonthYearRegex = /(?:MONTH\s*(?:&|AND)?\s*YEAR\s*OF\s*(?:MFG|MANUFACTURE|PACKING|IMPORT)|DATE\s*OF\s*(?:PKD|PACKING|PACKED|MFG|MANUFACTURE|IMPORT)|(?:PACKED|MFD|MFG|PKD)\s*:?\s*(?:ON)?|(?:MFD|MFG|PKD|IMPORT)\s*DATE|BATCH\s*(?:\/|&)?\s*(?:PKD|MFD|MFG)|IMPORTED|IMPORT|MFD|MFG|PKD|PACKED|MANUFACTURED|निर्माण|पैकिंग)\s*:?\s*[:\s-]*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.](?:20\d{2}|\d{2}))/iu;
+  const contextualDateRegex = /(?:MONTH\s*(?:&|AND)?\s*YEAR\s*OF\s*(?:MFG|MANUFACTURE|PACKING|IMPORT)|DATE\s*OF\s*(?:PKD|PACKING|PACKED|MFG|MANUFACTURE|IMPORT)|(?:PACKED|MFD|MFG|PKD)\s*:?\s*(?:ON)?|(?:MFD|MFG|PKD|IMPORT)\s*DATE|BATCH\s*(?:\/|&)?\s*(?:PKD|MFD|MFG)|IMPORTED|IMPORT|MFD|MFG|PKD|PACKED|MANUFACTURED|निर्माण|पैकिंग)\s*:?\s*[:\s-]*((?:0[1-9]|1[0-2]|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)[\/\-\.\s]+(?:20\d{2}|\d{2}))(?![/\-.]\d)/iu;
 
   for (const line of lines) {
+    const dmyMatch = line.match(dayMonthYearRegex);
+    if (dmyMatch && dmyMatch[1]) {
+      const parts = dmyMatch[1].split(/[\/\-\.]/);
+      if (parts.length === 3) {
+        const monthNum = parseInt(parts[1], 10);
+        const yearNum = parseYear(parts[2]);
+        if (checkIsFutureDate(monthNum, yearNum)) {
+          isFutureDate = true;
+        }
+        if (/MFD|MFG|MANUFACTURED|DATE\s*OF\s*MANUFACTURE|निर्माण/iu.test(line)) {
+          manufactureDate = dmyMatch[1];
+        } else {
+          packingDate = dmyMatch[1];
+        }
+        dateEvidence = line.trim();
+        break;
+      }
+    }
+
     const contextMatch = line.match(contextualDateRegex);
     if (contextMatch && contextMatch[1]) {
       const fullDateStr = contextMatch[1].trim();
@@ -209,33 +235,31 @@ export function parseLabel(rawText: string): ExtractedLabel {
         break;
       }
     }
-
-    const dmyMatch = line.match(dayMonthYearRegex);
-    if (dmyMatch && dmyMatch[1]) {
-      const parts = dmyMatch[1].split(/[\/\-\.]/);
-      if (parts.length === 3) {
-        const monthNum = parseInt(parts[1], 10);
-        const yearNum = parseYear(parts[2]);
-        if (checkIsFutureDate(monthNum, yearNum)) {
-          isFutureDate = true;
-        }
-        if (/MFD|MFG|MANUFACTURED|DATE\s*OF\s*MANUFACTURE|निर्माण/iu.test(line)) {
-          manufactureDate = dmyMatch[1];
-        } else {
-          packingDate = dmyMatch[1];
-        }
-        dateEvidence = line.trim();
-        break;
-      }
-    }
   }
 
   // If no contextual date was found, look for isolated dates and mark as AMBIGUOUS
   if (!packingDate && !manufactureDate) {
-    const isolatedMonthYearRegex = /\b((?:0[1-9]|1[0-2])[\/\-](?:20\d{2}|\d{2}))\b/;
+    const isolatedDmyRegex = /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.](?:20\d{2}|\d{2}))\b/;
+    const isolatedMonthYearRegex = /\b((?:0[1-9]|1[0-2])[\/\-](?:20\d{2}|\d{2}))(?![/\-.]\d)\b/;
     for (const line of lines) {
       // Don't match dates inside URLs, emails, or phone numbers
       if (!line.includes('@') && !line.includes('http') && !line.includes('www')) {
+        const dmyIso = line.match(isolatedDmyRegex);
+        if (dmyIso && dmyIso[1]) {
+          const parts = dmyIso[1].split(/[\/\-\.]/);
+          if (parts.length === 3) {
+            const monthNum = parseInt(parts[1], 10);
+            const yearNum = parseYear(parts[2]);
+            if (checkIsFutureDate(monthNum, yearNum)) {
+              isFutureDate = true;
+            }
+            packingDate = dmyIso[1];
+            dateEvidence = line.trim();
+            isDateAmbiguous = true;
+            break;
+          }
+        }
+
         const isoMatch = line.match(isolatedMonthYearRegex);
         if (isoMatch && isoMatch[1]) {
           const parts = isoMatch[1].split(/[\/\-]/);
@@ -255,9 +279,10 @@ export function parseLabel(rawText: string): ExtractedLabel {
   }
 
   // ----------------------------------------------------
+  // ----------------------------------------------------
   // 4. Manufacturer, Packer & Importer (Rule 6(1)(a))
   // ----------------------------------------------------
-  const mfgPrefixRegex = /(?:(?:MFD|MFG|MANUFACTURED|PRODUCED|PACKED|PRE-?PACKED|MKTD|MARKETED)\s*(?:&|\+)?\s*(?:PKG|PACKED)?\s*:?\s*BY|MANUFACTURED\s*(?:&|\+)?\s*PACKED\s*BY|PACKED\s*BY|निर्माता|द्वारा\s*निर्मित|उत्पादक|पैकर)\s*:?\s*[:\s-]*(.*)/iu;
+  const mfgPrefixRegex = /(?:(?:MFD|MFG|MANUFACTURED|PRODUCED|PROCESSED|PACKED|PRE-?PACKED|MKTD|MARKETED|MADE)\s*(?:&|\+|\/|AND)?\s*(?:PKG|PACKED|MARKETED)?\s*:?\s*BY|MANUFACTURED\s*(?:&|\+|\/|AND)?\s*PACKED\s*BY|PACKED\s*BY|निर्माता|द्वारा\s*निर्मित|उत्पादक|पैकर)\s*:?\s*[:\s-]*(.*)/iu;
   const impPrefixRegex = /(?:IMPORTED\s*BY|IMPORTER|आयातक)\s*:?\s*[:\s-]*(.*)/iu;
 
   for (let i = 0; i < lines.length; i++) {
@@ -288,7 +313,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
 
   // Fallback: If no prefixed manufacturer declaration was detected, identify corporate legal entity headers
   if (!manufacturer) {
-    const corpSuffixRegex = /\b(?:PVT\.?\s*LTD\.?|PRIVATE\s*LIMITED|LIMITED|LTD\.?|LLP|ENTERPRISES|UDYOG|INDUSTRIES|CHEMICALS|LABS|BAKERS|FOODS|PRODUCTS|BEVERAGES|HERBALS|SNACKS|CONSUMER|CO\.?|CORP\.?)\b/i;
+    const corpSuffixRegex = /\b(?:PVT\.?\s*LTD\.?|PRIVATE\s*LIMITED|LIMITED|LTD\.?|LLP|FOOD\s*PRODUCTS|FOODS|AGRO\s*(?:FOODS|PRODUCTS)?|GRAINS|MILLS|SPICES|ENTERPRISES|UDYOG|INDUSTRIES|CHEMICALS|LABS|BAKERS|PRODUCTS|BEVERAGES|HERBALS|SNACKS|CONSUMER|CO\.?|CORP\.?)\b/i;
     const nonMfgLineGuard = /CONSUMER\s*(?:CARE|CELL|HELPLINE|FEEDBACK|COMPLAINT)|CUSTOMER\s*(?:CARE|SERVICE|CELL)|CARE\s*CELL|HELPLINE|FEEDBACK|COMPLAINT|EMAIL|PHONE|TOLL\s*FREE|BATCH|LIC|FSSAI|BARCODE|NET\s*(?:WEIGHT|QTY|QUANTITY|MASS|CONTENT)|MRP|PRICE|TAXES|EXP|BEST\s*BEFORE|PKD\s*DATE|MFD\s*DATE/i;
 
     for (const line of lines) {
@@ -309,7 +334,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // ----------------------------------------------------
   // 5. Address Cues (Rule 6(1)(a))
   // ----------------------------------------------------
-  const addressRegex = /(?:REGD\.?\s*OFFICE|AT\s*:|PLOT\s*NO|WORKS\s*:|VILLAGE|IND\.?\s*AREA|INDUSTRIAL\s*AREA|ESTATE|TALUKA|DIST\.?|SECTOR|ROAD|STREET|CITY|STATE|कार्यालय|प्लॉट|औद्योगिक|सड़क|मार्ग|जिला|पिन)\b/iu;
+  const addressRegex = /(?:REGD\.?\s*OFFICE|AT\s*:|DOOR\s*NO|BUILDING\s*NO|PLOT\s*NO|WORKS\s*:|POST\s*BOX|P\.?O\.?|VILLAGE|IND\.?\s*AREA|INDUSTRIAL\s*AREA|ESTATE|TALUKA|TALUK|DIST\.?|SECTOR|ROAD|STREET|CITY|STATE|NEAR|कार्यालय|प्लॉट|औद्योगिक|सड़क|मार्ग|जिला|पिन)\b/iu;
   const pinRegex = /\b([1-9][0-9]{5})\b/;
 
   for (const line of lines) {
@@ -324,12 +349,21 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // 6. Consumer Care Contact Details (Rule 6(1)(e))
   // ----------------------------------------------------
   const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
-  const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL|QUERIES|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|വാடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
+  const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL(?:\s*US)?|QUERIES|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|വാடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     if (/CUSTOMER|CONSUMER|FEEDBACK|COMPLAINT|CARE|HELPLINE|EMAIL|TOLL|QUERIES|CALL|CONTACT|TEL|PHONE|ग्राहक|उपभोक्ता|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|വാடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్/iu.test(line)) {
-      const emailMatch = line.match(emailRegex);
-      const phoneMatch = line.match(phoneRegex);
+      let emailMatch = line.match(emailRegex);
+      let phoneMatch = line.match(phoneRegex);
+
+      if (!emailMatch && i + 1 < lines.length) {
+        emailMatch = lines[i + 1].match(emailRegex);
+      }
+      if (!phoneMatch && i + 1 < lines.length) {
+        phoneMatch = lines[i + 1].match(phoneRegex);
+      }
+
       if (emailMatch && phoneMatch) {
         consumerCare = `${phoneMatch[1]}, ${emailMatch[1]}`;
         consumerCareEvidence = line.trim();

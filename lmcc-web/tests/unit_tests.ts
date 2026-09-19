@@ -3,6 +3,7 @@ import test from 'node:test';
 import { parseLabel } from '../src/services/parser/fieldParser';
 import { RulesEngine } from '../src/services/rules/rulesEngine';
 import { OcrService } from '../src/services/ocr/OcrService';
+import { mergeOcrStreams } from '../src/services/ocr/ocrTextMerger';
 
 // ----------------------------------------------------
 // Fixture 1: Biscuit / Snack Package (Compliant)
@@ -1447,6 +1448,116 @@ test('Phase 14: PASS concern flow retains optional consumer remarks without fabr
   assert.ok(!serialized.includes('lawbreaker'));
   assert.ok(!serialized.includes('guilty'));
 });
+
+// ----------------------------------------------------
+// Phase 15: Multi-Scale Cascade Stream Merger & Real Packaging Regression
+// ----------------------------------------------------
+test('Phase 15: OCR Stream Merger consolidates multi-pass lines and deduplicates fuzzy matches', () => {
+  const stageA = `
+    DELICIOUS HOMEMADE ATTA
+    100% WHOLE WHEAT
+    BATCH: ATTA-2024-09
+    BEST BEFORE SIX MONTHS
+    STORE IN A COOL DRY PLACE
+  `;
+
+  const stageB = `
+    NET WEIGHT: 1 KG
+    PKD ON: 12/09/2024
+    MRP RS. 65.00
+    INCL OF ALL TAXES
+  `;
+
+  const stageC = `
+    PROCESSED & PACKED BY:
+    KIRAN FOOD PRODUCTS PVT LTD
+    PLOT 42, INDUSTRIAL ESTATE, PUNJAB 141003
+    CUSTOMER CARE: 1800-180-2233, care@kiranfoods.in
+  `;
+
+  const merged = mergeOcrStreams([
+    { text: stageA, source: 'stage_a_standard', confidence: 75 },
+    { text: stageB, source: 'stage_b_upscaled', confidence: 85 },
+    { text: stageC, source: 'stage_c_bottom_panel', confidence: 90 },
+  ]);
+
+  // Merged output should prioritize statutory lines
+  assert.ok(merged.includes('NET WEIGHT: 1 KG'));
+  assert.ok(merged.includes('MRP RS. 65.00'));
+  assert.ok(merged.includes('KIRAN FOOD PRODUCTS'));
+
+  const parsed = parseLabel(merged);
+  assert.strictEqual(parsed.netQuantity, '1 kg');
+  assert.strictEqual(parsed.mrp, '₹65.00');
+  assert.strictEqual(parsed.packingDate, '12/09/2024');
+  assert.ok(parsed.manufacturer?.includes('KIRAN FOOD PRODUCTS'));
+  assert.ok(parsed.address?.includes('INDUSTRIAL ESTATE'));
+  assert.ok(parsed.consumerCare?.includes('1800-180-2233'));
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(parsed);
+  assert.strictEqual(verdict.overallStatus, 'PASS');
+  assert.strictEqual(verdict.flaggedChecks, 0);
+});
+
+test('Phase 15 Regression: Real packaging photograph with split declarations and multi-line Net Weight extracts all 6 statutory fields', () => {
+  // Real packaging scenario: Net weight on two lines, PACKED ON with DD/MM/YYYY, multi-line address
+  const realPackagingOcr = `
+    HYSON PREMIUM SPICES & CONDIMENTS
+    PROCESSED & PACKED BY
+    HYSON AGRO FOOD PRODUCTS PVT LTD
+    DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT
+    ALUVA, ERNAKULAM, KERALA 683106
+    NET WEIGHT
+    1 KG
+    PACKED ON : 18/08/2024
+    BATCH NO : HYS-2408
+    MAXIMUM RETAIL PRICE ₹ 210.00
+    (INCLUSIVE OF ALL TAXES)
+    CUSTOMER CARE CELL : 0484-2621000
+    FEEDBACK EMAIL : SUPPORT@HYSONFOODS.COM
+  `;
+
+  const parsed = parseLabel(realPackagingOcr);
+  assert.strictEqual(parsed.netQuantity, '1 kg', 'Net weight must be extracted as 1 kg even when label is split across lines');
+  assert.strictEqual(parsed.mrp, '₹210.00', 'MRP ₹ 210.00 must be extracted accurately');
+  assert.strictEqual(parsed.packingDate, '18/08/2024', 'PACKED ON : 18/08/2024 should extract complete date');
+  assert.ok(parsed.manufacturer?.includes('HYSON AGRO FOOD PRODUCTS'), 'Manufacturer name must be extracted');
+  assert.ok(parsed.address?.includes('INDUSTRIAL DEVELOPMENT PLOT'), 'Address must contain facility details');
+  assert.ok(parsed.consumerCare?.includes('0484-2621000'), 'Consumer care phone number must be extracted');
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(parsed);
+  assert.strictEqual(verdict.overallStatus, 'PASS');
+  assert.strictEqual(verdict.flaggedChecks, 0);
+  assert.strictEqual(verdict.potentialViolations.length, 0);
+});
+
+test('Phase 15 Regression: Missing statutory declaration strictly yields REVIEW (zero-false-PASS priority)', () => {
+  // Same product packaging, but MRP has been rubbed off or omitted
+  const missingMrpOcr = `
+    HYSON PREMIUM SPICES & CONDIMENTS
+    PROCESSED & PACKED BY
+    HYSON AGRO FOOD PRODUCTS PVT LTD
+    DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT
+    ALUVA, ERNAKULAM, KERALA 683106
+    NET WEIGHT : 1 KG
+    PACKED ON : 18/08/2024
+    CUSTOMER CARE CELL : 0484-2621000
+    FEEDBACK EMAIL : SUPPORT@HYSONFOODS.COM
+  `;
+
+  const parsed = parseLabel(missingMrpOcr);
+  assert.strictEqual(parsed.mrp, undefined);
+  assert.strictEqual(parsed.netQuantity, '1 kg');
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(parsed);
+  assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Must flag REVIEW when MRP is missing');
+  assert.ok(verdict.flaggedChecks >= 1);
+  assert.ok(verdict.potentialViolations.some((v) => v.field === 'mrp'));
+});
+
 
 
 

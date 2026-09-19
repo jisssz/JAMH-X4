@@ -114,30 +114,41 @@ export function assessOcrQuality(text: string, confidence: number): OcrQualityAs
     };
   }
 
-  // Strong keyword signals + decent confidence = GOOD
-  if (keywordHits.length >= 3 && confidence >= 55) {
+  // Strong statutory declaration signals + strong character confidence = GOOD
+  if ((keywordHits.length >= 3 && confidence >= 50) || (keywordHits.length >= 2 && confidence >= 60)) {
     return {
       quality: 'GOOD',
       confidence,
       textLength,
       keywordHits,
-      reason: `Clear declaration cues detected (${keywordHits.length} keywords) with strong character confidence.`,
+      reason: `Clear statutory declaration cues detected (${keywordHits.length} keywords) with strong character confidence (${Math.round(confidence)}%).`,
     };
   }
 
-  // High confidence + adequate length = GOOD
+  // High confidence (>= 75%) + adequate readable length (>= 40 chars) = GOOD technical readability
   if (confidence >= 75 && textLength >= 40) {
     return {
       quality: 'GOOD',
       confidence,
       textLength,
       keywordHits,
-      reason: `High recognition confidence (${Math.round(confidence)}%) across label text.`,
+      reason: `High recognition confidence (${Math.round(confidence)}%) across readable label text.`,
     };
   }
 
-  // Moderate confidence or some keywords = FAIR
-  if (keywordHits.length >= 1 || confidence >= 50) {
+  // Adequate text length with high confidence but only 1 keyword = FAIR (requires attention)
+  if (keywordHits.length >= 1 && confidence >= 45) {
+    return {
+      quality: 'FAIR',
+      confidence,
+      textLength,
+      keywordHits,
+      reason: `Limited declaration cues detected (${keywordHits.length} keyword) with ${Math.round(confidence)}% confidence. Multi-scale pass recommended.`,
+    };
+  }
+
+  // Moderate confidence = FAIR
+  if (confidence >= 50 && textLength >= 30) {
     return {
       quality: 'FAIR',
       confidence,
@@ -147,12 +158,16 @@ export function assessOcrQuality(text: string, confidence: number): OcrQualityAs
     };
   }
 
+
   // Fallback to POOR
   return {
     quality: 'POOR',
     confidence,
     textLength,
     keywordHits,
-    reason: 'Weak declaration signals and low character confidence.',
+    reason: keywordHits.length === 0
+      ? 'No recognizable statutory declaration cues detected in extracted text.'
+      : 'Weak declaration signals and low character confidence.',
   };
 }
+

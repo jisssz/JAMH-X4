@@ -43,11 +43,12 @@ export function normalizeText(text: string): string {
       .replace(/(?:पैकर|पैक्ड\s*बाय|പാക്ക്\s*ചെയ്തത്)\s*:?/gu, 'PKD BY:')
 
       // Standardize standalone MFD/MFG/PKD date prefixes (English & Hindi)
-      .replace(/\b(?:MFD|MFG|PKD)\s*DATE\s*:?/gi, 'MFD:')
-      .replace(/\bDATE\s*OF\s*(?:MFD|MFG|PKD|MANUFACTURE)\s*:?/gi, 'MFD:')
-      .replace(/\bM\s*\.?\s*F\s*\.?\s*D\s*\.?(?!\s*BY):?/gi, 'MFD:')
-      .replace(/\bM\s*\.?\s*F\s*\.?\s*G\s*\.?(?!\s*BY):?/gi, 'MFG:')
-      .replace(/\bP\s*\.?\s*K\s*\.?\s*D\s*\.?(?!\s*BY):?/gi, 'PKD:')
+      .replace(/\b(?:MFD|MFG)\s*(?:DATE|ON)\s*:?/gi, 'MFD:')
+      .replace(/\b(?:PKD|PACKED)\s*(?:DATE|ON)\s*:?/gi, 'PKD:')
+      .replace(/\bDATE\s*OF\s*(?:MFD|MFG|PKD|MANUFACTURE|PACKING)\s*:?/gi, 'MFD:')
+      .replace(/\bM\s*\.?\s*F\s*\.?\s*D\s*\.?(?!\s*(?:BY|ON)):?/gi, 'MFD:')
+      .replace(/\bM\s*\.?\s*F\s*\.?\s*G\s*\.?(?!\s*(?:BY|ON)):?/gi, 'MFG:')
+      .replace(/\bP\s*\.?\s*K\s*\.?\s*D\s*\.?(?!\s*(?:BY|ON)):?/gi, 'PKD:')
       .replace(/(?:निर्माण\s*तिथि|उत्पादन\s*तिथि|निर्माण\s*माह|தயாரிப்பு\s*தேதி|ದಿನಾಂಕ|తేదీ|തീയതി)\s*:?/gu, 'MFD:')
       .replace(/(?:पैकिंग\s*तिथि|पैकिंग\s*माह|பொருத்துதல்\s*தேதி|ಪ್ಯಾಕಿಂಗ್\s*ದಿನಾಂಕ|ప్యాకింగ్\s*తేదీ|പാക്ക്\s*ചെയ്ത\s*തീയതി)\s*:?/gu, 'PKD:')
 

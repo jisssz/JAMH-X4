@@ -142,7 +142,11 @@ async def catch_all_fallback(request: Request, full_path: str):
             "status": "online",
             "docs": "/docs",
             "health": "/api/health",
+            "clean_path": clean_path,
+            "scope_path": request.scope.get("path"),
+            "headers": {k: v for k, v in request.headers.items() if "auth" not in k.lower() and "cookie" not in k.lower()},
         }
+
         
     return JSONResponse(
         status_code=404,

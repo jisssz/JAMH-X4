@@ -57,6 +57,11 @@ export function normalizeText(text: string): string {
       .replace(/\bNET\s*(?:QUANTITY|WT\.?|WEIGHT|VOL\.?|VOLUME)\s*:?/gi, 'NET QTY:')
       .replace(/\b(?:NEWT|NETWT|NET\.WT)\s*:?/gi, 'NET QTY:')
       .replace(/(?:शुद्ध\s*(?:मात्रा|वजन)|कुल\s*(?:मात्रा|वजन)|नेट\s*वजन|நிகர\s*எடை|நிವ್ವಳ\s*ತೂಕ|నికర\s*పరిమాణం|അളവ്|തൂക്കം)\s*:?/gu, 'NET QTY:')
+      // Fix common OCR misrecognition where lowercase 'l' (liter) is parsed as digit '1' (e.g. "NET QTY: 11")
+      .replace(/\b(NET\s*(?:QTY|QUANTITY|VOL|CONTENT|WEIGHT|WT)\s*:?\s*)11\b/gi, '$1 1 l')
+
+      // Fix OCR currency symbol misreadings (e.g. "O00. 650.00" -> "₹650.00")
+      .replace(/\b(?:O00\.|00\.|Ro\.|Bs\.)\s*(?=\d{2,}\.\d{2})/gi, '₹')
 
       // Standardize Hindi metric units to standard symbols
       .replace(/(\d+(?:\.\d+)?)\s*(?:ग्राम|ग्रा\.)/gu, '$1 g')

@@ -337,10 +337,20 @@ export function parseLabel(rawText: string): ExtractedLabel {
   const addressRegex = /(?:REGD\.?\s*OFFICE|AT\s*:|DOOR\s*NO|BUILDING\s*NO|PLOT\s*NO|WORKS\s*:|POST\s*BOX|P\.?O\.?|VILLAGE|IND\.?\s*AREA|INDUSTRIAL\s*AREA|ESTATE|TALUKA|TALUK|DIST\.?|SECTOR|ROAD|STREET|CITY|STATE|NEAR|कार्यालय|प्लॉट|औद्योगिक|सड़क|मार्ग|जिला|पिन)\b/iu;
   const pinRegex = /\b([1-9][0-9]{5})\b/;
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     if (addressRegex.test(line) || (pinRegex.test(line) && !line.includes('1800') && !line.includes('MRP'))) {
-      address = line.trim();
-      addressEvidence = line.trim();
+      let fullAddress = line.trim();
+      // If line 1 does not contain the 6-digit postal PIN code, check if subsequent line(s) provide the city/state/PIN
+      if (!pinRegex.test(line) && i + 1 < lines.length) {
+        const nextLine = lines[i + 1].trim();
+        const nonAddressLineGuard = /CONSUMER|CARE|CUSTOMER|HELPLINE|FEEDBACK|MRP|BATCH|NET\s*(?:WT|QTY|WEIGHT)|PKD|MFD|LIC|FSSAI/i;
+        if (!nonAddressLineGuard.test(nextLine) && (pinRegex.test(nextLine) || /(?:KERALA|MAHARASHTRA|TAMIL\s*NADU|DELHI|KARNATAKA|GUJARAT|RAJASTHAN|UTTARAKHAND|INDIA)\b/i.test(nextLine) || (nextLine.length > 5 && nextLine.includes(',')))) {
+          fullAddress += ', ' + nextLine;
+        }
+      }
+      address = fullAddress;
+      addressEvidence = fullAddress;
       break;
     }
   }

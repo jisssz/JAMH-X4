@@ -1,0 +1,814 @@
+{
+  "timestamp": "2026-09-19T03:57:50.809Z",
+  "totalImages": 14,
+  "totalVisibleFields": 67,
+  "totalCorrectFields": 50,
+  "overallFieldAccuracy": 74.6,
+  "fieldStats": {
+    "mrp": {
+      "totalTarget": 10,
+      "correct": 8,
+      "parserFailures": 1,
+      "ocrFailures": 1
+    },
+    "netQuantity": {
+      "totalTarget": 11,
+      "correct": 8,
+      "parserFailures": 2,
+      "ocrFailures": 1
+    },
+    "manufacturer": {
+      "totalTarget": 13,
+      "correct": 8,
+      "parserFailures": 0,
+      "ocrFailures": 5
+    },
+    "address": {
+      "totalTarget": 13,
+      "correct": 8,
+      "parserFailures": 1,
+      "ocrFailures": 4
+    },
+    "date": {
+      "totalTarget": 10,
+      "correct": 9,
+      "parserFailures": 0,
+      "ocrFailures": 1
+    },
+    "consumerCare": {
+      "totalTarget": 10,
+      "correct": 9,
+      "parserFailures": 0,
+      "ocrFailures": 1
+    }
+  },
+  "falsePassCount": 1,
+  "falseReviewCount": 0,
+  "averageProcessingMs": 2192,
+  "results": [
+    {
+      "filename": "challenge_01_clean_rear_biscuit.png",
+      "productName": "Parle-G Glucose Biscuits (Clean Rear)",
+      "condition": "Clean rear packaging label",
+      "language": "eng",
+      "processingTimeMs": 3227,
+      "ocrConfidence": 94,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 232,
+      "rawOcrSnippet": "PARLE-G ORIGINAL GLUCOSE BISCUITS  MFD BY: PARLE PRODUCTS PVT LTD  PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400C NET WEIGHT: 250 g  MFD: 08/2024  MRP: Rs. 35.00 (INCL. OF ALL TAXES)  CONSUMER ",
+      "rawOcrText": "PARLE-G ORIGINAL GLUCOSE BISCUITS\n\nMFD BY: PARLE PRODUCTS PVT LTD\n\nPLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400C\nNET WEIGHT: 250 g\n\nMFD: 08/2024\n\nMRP: Rs. 35.00 (INCL. OF ALL TAXES)\n\nCONSUMER CARE: 1800222211, care@parle.biz",
+      "extractedFields": {
+        "mrp": "₹35.00",
+        "netQuantity": "250 g",
+        "manufacturer": "PARLE PRODUCTS PVT LTD",
+        "address": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400C",
+        "date": "08/2024",
+        "consumerCare": "1800222211, care@parle.biz"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "35",
+          "actual": "₹35.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "250 g",
+          "actual": "250 g",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "PARLE PRODUCTS",
+          "actual": "PARLE PRODUCTS PVT LTD",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "MUMBAI",
+          "actual": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400C",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "actual": "08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800222211",
+          "actual": "1800222211, care@parle.biz",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_02_hindi_ghee.png",
+      "productName": "Patanjali Cow Ghee (Hindi Label)",
+      "condition": "Hindi Devanagari + English packaging",
+      "language": "hin",
+      "processingTimeMs": 2426,
+      "ocrConfidence": 42,
+      "ocrQuality": "POOR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 433,
+      "rawOcrSnippet": "FATT. AAT FH AF, ERATE, STATE T 249401 OF STETf TTT HT IF F IT ET p— fama: TT Tf & TATA FTAHILCS TEA WIA: 1 Alex of afaf 08/2024 qAfFAw = 32 AAA: O00. 650.00 (A+ #7 gl) TE A AT; 18001804104, 000000000",
+      "rawOcrText": "FATT. AAT FH AF, ERATE, STATE T 249401\nOF STETf TTT HT IF F IT ET\np—\nfama: TT Tf & TATA FTAHILCS\nTEA WIA: 1 Alex\nof afaf 08/2024\nqAfFAw = 32 AAA: O00. 650.00 (A+ #7 gl)\nTE A AT; 18001804104, 0000000000000000000000000.000\nTA ST I AT 9 EAT 9A\nAHA: TA FAT aI 7F FT AHE T\nAAT: SEAT FT A7, 7 (ZA17, STAT 249401\nIFT HIATT: 1 Ale?\n7% 1 Aff 08/2024\nFIFA = ZT 9.77: 00. 650.00 (FHT Fv 7g)\nUFEL 9 9T: 18001804104, 0000000000000000000000000.000",
+      "extractedFields": {
+        "address": "FATT. AAT FH AF, ERATE, STATE T 249401",
+        "date": "08/2024",
+        "consumerCare": "18001804104"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "650",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "1",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "पतंजलि",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "249401",
+          "actual": "FATT. AAT FH AF, ERATE, STATE T 249401",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "actual": "08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "18001804104",
+          "actual": "18001804104",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_03_malayalam_oil.png",
+      "productName": "Kera Coconut Oil (Malayalam Label)",
+      "condition": "Malayalam regional packaging pouch",
+      "language": "mal",
+      "processingTimeMs": 1834,
+      "ocrConfidence": 81,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 205,
+      "rawOcrSnippet": "&3608 Weglalaeenism (PURE COCONUT OIL)  MFD BY: KERA AGRO OIL MILLS  INDUSTRIAL ESTATE, ALAPPUZHA 688001, KERALA NET QTY: 11  MFD: 07/2024  MRP: Rs. 230.00  CONSUMER CARE: 1800425425, kera@oilkerala.g",
+      "rawOcrText": "&3608 Weglalaeenism (PURE COCONUT OIL)\n\nMFD BY: KERA AGRO OIL MILLS\n\nINDUSTRIAL ESTATE, ALAPPUZHA 688001, KERALA\nNET QTY: 11\n\nMFD: 07/2024\n\nMRP: Rs. 230.00\n\nCONSUMER CARE: 1800425425, kera@oilkerala.gov.in",
+      "extractedFields": {
+        "mrp": "₹230.00",
+        "manufacturer": "KERA AGRO OIL MILLS",
+        "address": "INDUSTRIAL ESTATE, ALAPPUZHA 688001, KERALA",
+        "date": "07/2024",
+        "consumerCare": "1800425425, kera@oilkerala.gov.in"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "230",
+          "actual": "₹230.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "1",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "KERA AGRO",
+          "actual": "KERA AGRO OIL MILLS",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "ALAPPUZHA 688001",
+          "actual": "INDUSTRIAL ESTATE, ALAPPUZHA 688001, KERALA",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "07/2024",
+          "actual": "07/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800425425",
+          "actual": "1800425425, kera@oilkerala.gov.in",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_04_tamil_milk.png",
+      "productName": "Arokya Full Cream Milk (Tamil Label)",
+      "condition": "Tamil regional dairy pack",
+      "language": "tam",
+      "processingTimeMs": 1878,
+      "ocrConfidence": 89,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 218,
+      "rawOcrSnippet": "TGs Iw une (AROKYA FULL CREAM MILK) PACKED BY: HATSUN AGRO PRODUCT LTD  PLOT 14, CHENNAI 600001, TAMIL NADU  NET VOL: 500 ml  PKD: 08/2024  MRP: Rs. 34.00 (INCL OF ALL TAXES)  CUSTOMER CARE: 180012012",
+      "rawOcrText": "TGs Iw une (AROKYA FULL CREAM MILK)\nPACKED BY: HATSUN AGRO PRODUCT LTD\n\nPLOT 14, CHENNAI 600001, TAMIL NADU\n\nNET VOL: 500 ml\n\nPKD: 08/2024\n\nMRP: Rs. 34.00 (INCL OF ALL TAXES)\n\nCUSTOMER CARE: 1800120120, info@hatsun.com",
+      "extractedFields": {
+        "mrp": "₹34.00",
+        "netQuantity": "500 ml",
+        "manufacturer": "HATSUN AGRO PRODUCT LTD",
+        "address": "PLOT 14, CHENNAI 600001, TAMIL NADU",
+        "date": "08/2024",
+        "consumerCare": "1800120120, info@hatsun.com"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "34",
+          "actual": "₹34.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "500 ml",
+          "actual": "500 ml",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "HATSUN AGRO",
+          "actual": "HATSUN AGRO PRODUCT LTD",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "CHENNAI 600001",
+          "actual": "PLOT 14, CHENNAI 600001, TAMIL NADU",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "actual": "08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800120120",
+          "actual": "1800120120, info@hatsun.com",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_05_noisy_foil_snack.png",
+      "productName": "Roasted Masala Peanuts (Noisy Foil)",
+      "condition": "Textured foil pouch with small print",
+      "language": "eng",
+      "processingTimeMs": 2090,
+      "ocrConfidence": 87,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 223,
+      "rawOcrSnippet": "ROASTED MASALA PEANUTS  M.R.P : Rs. 30.00 ( INCL OF ALL TAXES)  NETWT : 70g  MFD : 06/2024  MFD BY : DESI CRUNCH AGRO FOODS  UNIT 3, INDUSTRIAL ESTATE, JAIPUR 302013, RAJASTHAN CARE CELL : 1800233445,",
+      "rawOcrText": "ROASTED MASALA PEANUTS\n\nM.R.P : Rs. 30.00 ( INCL OF ALL TAXES)\n\nNETWT : 70g\n\nMFD : 06/2024\n\nMFD BY : DESI CRUNCH AGRO FOODS\n\nUNIT 3, INDUSTRIAL ESTATE, JAIPUR 302013, RAJASTHAN\nCARE CELL : 1800233445, support@desicrunch.com",
+      "extractedFields": {
+        "mrp": "₹30.00",
+        "netQuantity": "70 g",
+        "manufacturer": "DESI CRUNCH AGRO FOODS",
+        "address": "UNIT 3, INDUSTRIAL ESTATE, JAIPUR 302013, RAJASTHAN",
+        "date": "06/2024",
+        "consumerCare": "1800233445, support@desicrunch.com"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "30",
+          "actual": "₹30.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "70 g",
+          "actual": "70 g",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "DESI CRUNCH",
+          "actual": "DESI CRUNCH AGRO FOODS",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "JAIPUR 302013",
+          "actual": "UNIT 3, INDUSTRIAL ESTATE, JAIPUR 302013, RAJASTHAN",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "06/2024",
+          "actual": "06/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800233445",
+          "actual": "1800233445, support@desicrunch.com",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_06_reflective_foil_glare.png",
+      "productName": "Parle-G (Specular Foil Glare)",
+      "condition": "Reflective foil pouch with flash glare hotspot",
+      "language": "eng",
+      "processingTimeMs": 1888,
+      "ocrConfidence": 91,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 219,
+      "rawOcrSnippet": "PARLE-G ORIGINAL GLUCOSE BISCUITS  MFD BY: PARLE PRODUCTS PVT LTD  PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057 NET WEIGHT: 250 g  MFD: 08/2024  MRP: Rs. 35.00 (Ine.  CONSUMER CARE: 1800222",
+      "rawOcrText": "PARLE-G ORIGINAL GLUCOSE BISCUITS\n\nMFD BY: PARLE PRODUCTS PVT LTD\n\nPLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057\nNET WEIGHT: 250 g\n\nMFD: 08/2024\n\nMRP: Rs. 35.00 (Ine.\n\nCONSUMER CARE: 1800222211, care@parle.biz",
+      "extractedFields": {
+        "mrp": "₹35.00",
+        "netQuantity": "250 g",
+        "manufacturer": "PARLE PRODUCTS PVT LTD",
+        "address": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057",
+        "date": "08/2024",
+        "consumerCare": "1800222211, care@parle.biz"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "35",
+          "actual": "₹35.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "250 g",
+          "actual": "250 g",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "PARLE PRODUCTS",
+          "actual": "PARLE PRODUCTS PVT LTD",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "MUMBAI",
+          "actual": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "actual": "08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800222211",
+          "actual": "1800222211, care@parle.biz",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_07_perspective_angled.png",
+      "productName": "Parle-G (Perspective Angled)",
+      "condition": "Perspective camera angle (pitch/yaw ~25°)",
+      "language": "eng",
+      "processingTimeMs": 1782,
+      "ocrConfidence": 91,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 232,
+      "rawOcrSnippet": "PARLE-G ORIGINAL GLUCOSE BISCUITS MFD BY: PARLE PRODUCTS PVT LTD  PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 40005 NET WEIGHT: 250 g  MFD: 08/2024  MRP: Rs. 35.00 (INCL. OF ALL TAXES) CONSUMER C",
+      "rawOcrText": "PARLE-G ORIGINAL GLUCOSE BISCUITS\nMFD BY: PARLE PRODUCTS PVT LTD\n\nPLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 40005\nNET WEIGHT: 250 g\n\nMFD: 08/2024\n\nMRP: Rs. 35.00 (INCL. OF ALL TAXES)\nCONSUMER CARE: 1800222211, care@parle. biz",
+      "extractedFields": {
+        "mrp": "₹35.00",
+        "netQuantity": "250 g",
+        "manufacturer": "PARLE PRODUCTS PVT LTD",
+        "address": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 40005",
+        "date": "08/2024",
+        "consumerCare": "1800222211"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "35",
+          "actual": "₹35.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "250 g",
+          "actual": "250 g",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "PARLE PRODUCTS",
+          "actual": "PARLE PRODUCTS PVT LTD",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "MUMBAI",
+          "actual": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 40005",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "actual": "08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800222211",
+          "actual": "1800222211",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_08_low_light_pantry.png",
+      "productName": "Parle-G (Low Light Pantry)",
+      "condition": "Low light / underexposed ambient lighting (42%)",
+      "language": "eng",
+      "processingTimeMs": 860,
+      "ocrConfidence": 0,
+      "ocrQuality": "UNKNOWN",
+      "verdict": "REVIEW",
+      "rawOcrLength": 0,
+      "rawOcrSnippet": "",
+      "rawOcrText": "",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "35",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "250 g",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "PARLE PRODUCTS",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "MUMBAI",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800222211",
+          "correct": false,
+          "failureType": "OCR"
+        }
+      }
+    },
+    {
+      "filename": "challenge_09_curved_cylindrical.png",
+      "productName": "Parle-G (Curved Container)",
+      "condition": "Curved bottle / can with edge compression",
+      "language": "eng",
+      "processingTimeMs": 1835,
+      "ocrConfidence": 89,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 232,
+      "rawOcrSnippet": "PARLE-G ORIGINAL GLUCOSE BISCUITS MFD BY: PARLE PRODUCTS PVT LTD PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057  N  ET WEIGHT: 250g  MFD: 08/2024 MRP: Rs. 35.00 (INCL. OF ALL TAXES) CONSUMER ",
+      "rawOcrText": "PARLE-G ORIGINAL GLUCOSE BISCUITS\nMFD BY: PARLE PRODUCTS PVT LTD\nPLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057\n\nN\n\nET WEIGHT: 250g\n\nMFD: 08/2024\nMRP: Rs. 35.00 (INCL. OF ALL TAXES)\nCONSUMER CARE: 1800222211, care@parle.biz",
+      "extractedFields": {
+        "mrp": "₹35.00",
+        "netQuantity": "250 g",
+        "manufacturer": "PARLE PRODUCTS PVT LTD",
+        "address": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057",
+        "date": "08/2024",
+        "consumerCare": "1800222211, care@parle.biz"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "35",
+          "actual": "₹35.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "250 g",
+          "actual": "250 g",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "PARLE PRODUCTS",
+          "actual": "PARLE PRODUCTS PVT LTD",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "MUMBAI",
+          "actual": "PLOT NO 14, INDUSTRIAL AREA, MUMBAI, MAHARASHTRA 400057",
+          "correct": true
+        },
+        "date": {
+          "target": true,
+          "expected": "08/2024",
+          "actual": "08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "1800222211",
+          "actual": "1800222211, care@parle.biz",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_10_defocus_dotmatrix.png",
+      "productName": "Parle-G (Defocus / Blur)",
+      "condition": "Blurred / motion blur stress test",
+      "language": "eng",
+      "processingTimeMs": 811,
+      "ocrConfidence": 0,
+      "ocrQuality": "UNKNOWN",
+      "verdict": "REVIEW",
+      "rawOcrLength": 0,
+      "rawOcrSnippet": "",
+      "rawOcrText": "",
+      "extractedFields": {},
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "PARLE",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "MUMBA",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "challenge_11_original_failure_1kg.png",
+      "productName": "Hyson Spices 1 KG (Original Bug Fixture)",
+      "condition": "Photographed package, Net Weight 1 KG, perspective & mixed light",
+      "language": "eng",
+      "processingTimeMs": 2326,
+      "ocrConfidence": 90,
+      "ocrQuality": "GOOD",
+      "verdict": "PASS",
+      "rawOcrLength": 462,
+      "rawOcrSnippet": "HYSON PREMIUM SPICES & CONDIMENTS  PROCESSED & PACKED BY  HYSON AGRO FOOD PRODUCTS PVT LTD  FACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT ALUVA, ERNAKULAM, KERALA 683106  FSSAILIC NO. 113180070",
+      "rawOcrText": "HYSON PREMIUM SPICES & CONDIMENTS\n\nPROCESSED & PACKED BY\n\nHYSON AGRO FOOD PRODUCTS PVT LTD\n\nFACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT\nALUVA, ERNAKULAM, KERALA 683106\n\nFSSAILIC NO. 11318007000245\n\nNET WEIGHT\n\nBATCH NO : HYS-2408\n1KG\n\nPACKED ON : 18/08/2024\n\nMAXIMUM RETAIL PRICE : Rs. 210.00\n[INCLUSIVE OF ALL TAXES)\n\nFOR FEEDBACK / CONSUMER COMPLAINTS CONTACT.\nCUSTOMER CARE CELL : 0484-2621000\nEMAIL : SUPPORT@HYSONFOODS.COM | WEB: WWW.HYSONFOODS.COM",
+      "extractedFields": {
+        "mrp": "₹210.00",
+        "netQuantity": "1 kg",
+        "manufacturer": "HYSON AGRO FOOD PRODUCTS PVT LTD",
+        "address": "FACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT",
+        "date": "18/08/2024",
+        "consumerCare": "0484-2621000"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": true,
+          "expected": "210",
+          "actual": "₹210.00",
+          "correct": true
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "1 kg",
+          "actual": "1 kg",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "HYSON AGRO FOOD",
+          "actual": "HYSON AGRO FOOD PRODUCTS PVT LTD",
+          "correct": true
+        },
+        "address": {
+          "target": true,
+          "expected": "ALUVA",
+          "actual": "FACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT",
+          "correct": false,
+          "failureType": "PARSER"
+        },
+        "date": {
+          "target": true,
+          "expected": "18/08/2024",
+          "actual": "18/08/2024",
+          "correct": true
+        },
+        "consumerCare": {
+          "target": true,
+          "expected": "0484-2621000",
+          "actual": "0484-2621000",
+          "correct": true
+        }
+      }
+    },
+    {
+      "filename": "challenge_12_spice_packet_real.jpg",
+      "productName": "MDH Garam Masala (Real Photo)",
+      "condition": "Real consumer packaging photo",
+      "language": "eng+hin",
+      "processingTimeMs": 5528,
+      "ocrConfidence": 38,
+      "ocrQuality": "POOR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 1386,
+      "rawOcrSnippet": "on am. vi os opie mans Kg ml rw eo J Cr ar § ae oy MAHASHIAN Of HATTI PVT. LTD. Pooe UR Pk ate a oots [errant SEmmme REC ECR pooner Com fh me Cs 5 printer by prewtmpidnivey [rats ——— freind a AASHAN O",
+      "rawOcrText": "on am. vi os opie mans Kg\nml rw eo J Cr\nar § ae oy MAHASHIAN Of HATTI PVT. LTD.\nPooe UR\nPk\nate a oots\n[errant\nSEmmme\nREC ECR\npooner Com fh me Cs 5\nprinter by\nprewtmpidnivey\n[rats ———\nfreind\na AASHAN OU ATIF LT, pg SER,\nEE LD pm:\noi smears smn\n——\n14 CELERRAT IN\neo\nFRA FER\n2 Q\nMID MASALA POWDER\nVa\nPRS\nPE RT TERE\nptr\ntke\nversed\nxa wl oa dF\n“re\nra\ntye ev F\nNey go) gow\nwasnt\nwas aa\nMonga: vies tinny Garam\nowas =\npre anrate ses 8 8\ncir\nKrraed © Tal quart ates Te 330 13\nies meat Or vegeadies 10 Deg LE TH Wy 30°\nEin\nrec ad 3 Over Pa wok\nIngredients : Cum Carano seats Back sepoer Ca\nia\nCardamom amomum Vedom chs Ferugres cams\non\n13% Mace Groen carcamom Cammy\n(Spe Content. Mewrum 99%)\nABorgen |The product 8 ManAChsed 1 8 Macher) Tat 337 {riedses oy\nstame secs bmuatard\nPagsorarvey\nopt Often : Wd Xd Nager nd Arve. New Det 1501\nArTRCWL CoLoun\nfat\nUc. Ma. 10910811005811\n8) meme:\nFor iy unt 60ress mad Pe 13 Peo Jeers Of Lf NO § we 8resse4 Dew\nOL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs\nVou, Prose 1, Gusgaon- 1 2201 HR | Lie No. 10010084001614 OR 16° Les\nVer Prams -1, Gurpeon- 122016 HR ) Lic. No. 1808001568 FD 31-12 Cem\nnd Youn, Scots. PO Tigaon, Farstubed -121101 (MR) Le No 100° W84)1858\n70 23. Coun Ink Town, Sidhcle,\nFondue 121901 ORL\nNo\n:Khaers No 832/73. 74, Pas Mwy Kuni.\n|oeed Lic Mo. NOUOMOTSNA M9 1.11122. 1123-134, RIO Ihr\n- 49001 OVAL) Lic. No. 1001801;",
+      "extractedFields": {
+        "manufacturer": "ar § ae oy MAHASHIAN Of HATTI PVT. LTD.",
+        "address": "OL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "MAHASHIAN DI HATTI",
+          "actual": "ar § ae oy MAHASHIAN Of HATTI PVT. LTD.",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "Kirti Nagar",
+          "actual": "OL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "challenge_13_beverage_pack_real.jpg",
+      "productName": "Amul Masti Buttermilk (Real Photo)",
+      "condition": "Real consumer packaging photo",
+      "language": "eng",
+      "processingTimeMs": 2493,
+      "ocrConfidence": 95,
+      "ocrQuality": "GOOD",
+      "verdict": "REVIEW",
+      "rawOcrLength": 149,
+      "rawOcrSnippet": "nul. IAS Tet ne nbs 4 —] CV | Rowmad por puci®™— ~ 1% hal Bw) bla} 1] J RB bo IE faa TY pendy | 34 1 Te [edn imgf | Net Content; 200ml. 0 ma ALO lend",
+      "rawOcrText": "nul.\nIAS\nTet\nne nbs 4\n—]\nCV\n| Rowmad por puci®™— ~ 1%\nhal Bw)\nbla}\n1]\nJ RB\nbo\nIE\nfaa TY\npendy | 34 1\nTe\n[edn imgf |\nNet Content; 200ml.\n0 ma ALO\nlend",
+      "extractedFields": {
+        "netQuantity": "200 ml"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": true,
+          "expected": "200 ml",
+          "actual": "200 ml",
+          "correct": true
+        },
+        "manufacturer": {
+          "target": false,
+          "correct": false
+        },
+        "address": {
+          "target": false,
+          "correct": false
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    },
+    {
+      "filename": "challenge_14_small_print_real.jpg",
+      "productName": "Saffola Masala Oats Fine Print (Real Photo)",
+      "condition": "Real consumer packaging fine print",
+      "language": "eng",
+      "processingTimeMs": 1711,
+      "ocrConfidence": 95,
+      "ocrQuality": "FAIR",
+      "verdict": "REVIEW",
+      "rawOcrLength": 34,
+      "rawOcrSnippet": "Oat Products \\& oR NS on Frntiaben",
+      "rawOcrText": "Oat Products\n\\&\noR\nNS\non Frntiaben",
+      "extractedFields": {
+        "manufacturer": "Oat Products"
+      },
+      "fieldResults": {
+        "mrp": {
+          "target": false,
+          "correct": false
+        },
+        "netQuantity": {
+          "target": false,
+          "correct": false
+        },
+        "manufacturer": {
+          "target": true,
+          "expected": "MARICO",
+          "actual": "Oat Products",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "address": {
+          "target": true,
+          "expected": "Santacruz",
+          "correct": false,
+          "failureType": "OCR"
+        },
+        "date": {
+          "target": false,
+          "correct": false
+        },
+        "consumerCare": {
+          "target": false,
+          "correct": false
+        }
+      }
+    }
+  ]
+}

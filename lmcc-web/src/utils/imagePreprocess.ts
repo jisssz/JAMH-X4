@@ -53,14 +53,46 @@ function applyPreprocessingFilters(
       }
       ctx.putImageData(imgData, 0, 0);
     } else if (enhanceContrast) {
-      // Standard balanced contrast adjustment (+15%)
-      const contrast = 1.15;
-      const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
+      // Sample image luminance to detect low-light / underexposed photography
+      let minLum = 255;
+      let maxLum = 0;
+      let totalLum = 0;
+      const step = 8; // fast sample every 8th pixel
+      let count = 0;
 
-      for (let i = 0; i < d.length; i += 4) {
-        d[i] = factor * (d[i] - 128) + 128;
-        d[i + 1] = factor * (d[i + 1] - 128) + 128;
-        d[i + 2] = factor * (d[i + 2] - 128) + 128;
+      for (let i = 0; i < d.length; i += 4 * step) {
+        const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        if (lum < minLum) minLum = lum;
+        if (lum > maxLum) maxLum = lum;
+        totalLum += lum;
+        count++;
+      }
+
+      const avgLum = count > 0 ? totalLum / count : 128;
+      const isLowLight = maxLum < 150 && avgLum < 80;
+
+      if (isLowLight && maxLum - minLum > 20) {
+        // Adaptive auto-exposure stretch for low-light camera captures
+        const range = maxLum - minLum;
+        for (let i = 0; i < d.length; i += 4) {
+          const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+          let stretched = ((lum - minLum) / range) * 235 + 15;
+          if (stretched < 0) stretched = 0;
+          if (stretched > 255) stretched = 255;
+          d[i] = stretched;
+          d[i + 1] = stretched;
+          d[i + 2] = stretched;
+        }
+      } else {
+        // Standard balanced contrast adjustment centered at mid-gray (128)
+        const contrast = 1.15;
+        const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
+
+        for (let i = 0; i < d.length; i += 4) {
+          d[i] = factor * (d[i] - 128) + 128;
+          d[i + 1] = factor * (d[i + 1] - 128) + 128;
+          d[i + 2] = factor * (d[i + 2] - 128) + 128;
+        }
       }
       ctx.putImageData(imgData, 0, 0);
     }

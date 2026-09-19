@@ -169,7 +169,58 @@ async def catch_all_fallback(request: Request, full_path: str):
             return list_reports(limit=50, db=db)
         finally:
             db.close()
-            
+
+    # Analytics fallbacks for serverless rewrites
+    if "analytics/summary" in clean_path:
+        from app.db import SessionLocal
+        db = SessionLocal()
+        try:
+            demo_param = request.query_params.get("demo")
+            demo_bool = None if demo_param is None else demo_param.lower() in ("true", "1", "yes")
+            return get_analytics_summary(demo=demo_bool, db=db)
+        finally:
+            db.close()
+
+    if "analytics/issues" in clean_path:
+        from app.db import SessionLocal
+        db = SessionLocal()
+        try:
+            demo_param = request.query_params.get("demo")
+            demo_bool = None if demo_param is None else demo_param.lower() in ("true", "1", "yes")
+            return get_issues_breakdown(demo=demo_bool, db=db)
+        finally:
+            db.close()
+
+    if "analytics/categories" in clean_path:
+        from app.db import SessionLocal
+        db = SessionLocal()
+        try:
+            demo_param = request.query_params.get("demo")
+            demo_bool = None if demo_param is None else demo_param.lower() in ("true", "1", "yes")
+            return get_categories_breakdown(demo=demo_bool, db=db)
+        finally:
+            db.close()
+
+    if "analytics/trends" in clean_path:
+        from app.db import SessionLocal
+        db = SessionLocal()
+        try:
+            demo_param = request.query_params.get("demo")
+            demo_bool = None if demo_param is None else demo_param.lower() in ("true", "1", "yes")
+            return get_trends(demo=demo_bool, db=db)
+        finally:
+            db.close()
+
+    if "analytics/brands" in clean_path:
+        from app.db import SessionLocal
+        db = SessionLocal()
+        try:
+            demo_param = request.query_params.get("demo")
+            demo_bool = None if demo_param is None else demo_param.lower() in ("true", "1", "yes")
+            return get_brands_surveillance(demo=demo_bool, db=db)
+        finally:
+            db.close()
+
     # Root status fallback
     if not clean_path or clean_path in ("api", "api/index", "api/index.py"):
         return {

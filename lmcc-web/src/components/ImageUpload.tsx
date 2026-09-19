@@ -134,18 +134,18 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       {/* 1. Preview Mode after Selection */}
       {selectedFile && previewUrl ? (
-        <div className="bg-slate-900 rounded-3xl p-5 border border-slate-700 flex flex-col items-center">
-          <div className="relative w-full aspect-[4/3] max-h-80 rounded-2xl overflow-hidden bg-black flex items-center justify-center mb-4">
+        <div className="bg-[#080c16]/90 rounded-3xl p-5 border border-white/[0.08] flex flex-col items-center shadow-xl">
+          <div className="relative w-full aspect-[4/3] max-h-80 rounded-2xl overflow-hidden bg-black flex items-center justify-center mb-4 border border-white/[0.06]">
             <img
               src={previewUrl}
               alt="Selected packaged commodity label"
               className="w-full h-full object-contain"
             />
-            <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-[11px] text-white font-medium border border-white/10">
+            <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-[11px] text-white font-sans font-medium border border-white/10">
               {dimensions ? `${dimensions.width} × ${dimensions.height}px` : 'Loading...'}
             </div>
             {dimensions && (dimensions.width < 350 || dimensions.height < 350) && (
-              <div className="absolute top-3 right-3 bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1">
+              <div className="absolute top-3 right-3 bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono font-medium flex items-center gap-1">
                 <AlertCircle className="w-3 h-3 text-amber-400" />
                 <span>Low Resolution</span>
               </div>
@@ -153,7 +153,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
 
           {dimensions && (dimensions.width < 350 || dimensions.height < 350) && (
-            <div className="w-full mb-3 flex items-start gap-2 text-[11px] text-amber-300/90 bg-amber-950/40 p-2.5 rounded-xl border border-amber-500/30 font-mono">
+            <div className="w-full mb-3 flex items-start gap-2 text-[11px] text-amber-300/90 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20 font-sans">
               <AlertCircle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
               <span>
                 Low resolution detected ({dimensions.width}×{dimensions.height}px). Ensure fine print (MRP, date, weight) is sharp and readable.
@@ -161,37 +161,37 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             </div>
           )}
 
-          <div className="w-full flex items-center justify-between mb-5 px-1 text-xs text-slate-300">
+          <div className="w-full flex items-center justify-between mb-5 px-1 text-xs text-slate-300 font-sans">
             <div className="truncate max-w-[200px]">
-              <span className="font-semibold block truncate text-slate-100">{selectedFile.name}</span>
+              <span className="font-medium block truncate text-slate-100">{selectedFile.name}</span>
               <span className="text-slate-400">{(selectedFile.size / 1024).toFixed(0)} KB</span>
             </div>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
+              className="text-slate-300 hover:text-white font-medium flex items-center gap-1 cursor-pointer transition"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              Change Image
+              <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
+              <span>Change</span>
             </button>
           </div>
 
-          <div className="flex gap-3 w-full">
+          <div className="flex gap-3 w-full font-sans">
             <button
               type="button"
               onClick={handleClearSelection}
-              className="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded-xl flex items-center justify-center gap-1.5 transition"
+              className="flex-1 py-3 px-4 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 text-xs font-medium rounded-full border border-white/[0.08] transition cursor-pointer"
             >
-              <X className="w-4 h-4 text-red-400" />
-              Clear
+              <X className="w-3.5 h-3.5 text-slate-400 inline mr-1" />
+              <span>Clear</span>
             </button>
             <button
               type="button"
               onClick={handleConfirm}
-              className="flex-2 py-3 px-6 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition active:scale-95"
+              className="flex-1 py-3 px-6 bg-white text-slate-950 hover:bg-slate-100 text-xs font-semibold rounded-full shadow-lg transition active:scale-95 cursor-pointer"
             >
-              <Check className="w-4 h-4" />
-              Use This Image
+              <Check className="w-3.5 h-3.5 inline mr-1" />
+              <span>Use This Image</span>
             </button>
           </div>
         </div>
@@ -205,28 +205,28 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 ${
+          className={`border border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 ${
             dragOver
-              ? 'border-emerald-400 bg-emerald-950/20 scale-[1.01]'
-              : 'border-slate-700 hover:border-emerald-500 hover:bg-slate-800/60 bg-slate-800/40'
+              ? 'border-emerald-400 bg-emerald-500/[0.06] scale-[1.01]'
+              : 'border-white/[0.12] hover:border-white/30 bg-[#080c16]/70 hover:bg-[#080c16]'
           }`}
         >
-          <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-emerald-400 border border-slate-700">
-            {dragOver ? <UploadCloud className="w-8 h-8 animate-bounce" /> : <ImageIcon className="w-8 h-8" />}
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-slate-300">
+            {dragOver ? <UploadCloud className="w-6 h-6 text-emerald-400 animate-bounce" /> : <ImageIcon className="w-6 h-6" />}
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-200">
-              Select or Drop Label Photograph
+            <p className="text-sm font-sans font-medium text-slate-200">
+              Select or drop packaging photograph
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs font-sans text-slate-400 mt-1">
               Supports JPG, JPEG, PNG, WebP (up to 15MB)
             </p>
           </div>
           <button
             type="button"
-            className="mt-2 px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition shadow-md"
+            className="mt-2 px-5 py-2.5 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold rounded-full transition shadow-md cursor-pointer"
           >
-            Browse Device Files
+            Browse files
           </button>
         </div>
       )}

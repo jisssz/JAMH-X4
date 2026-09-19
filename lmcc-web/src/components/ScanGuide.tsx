@@ -1,36 +1,46 @@
-import { Sun, Sparkles } from 'lucide-react';
+import React from 'react';
 
 export const ScanGuide: React.FC = () => {
   return (
-    <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-6 z-10">
-      {/* Top Header Tag */}
-      <div className="pt-2 text-center">
-        <span className="inline-flex items-center gap-1.5 bg-black/70 backdrop-blur-md text-emerald-300 text-xs font-bold px-3.5 py-1.5 rounded-full border border-emerald-500/30 shadow-lg">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-          Align Package Declarations (MRP, Qty, Date)
-        </span>
-      </div>
-
-      {/* Target Reticle */}
-      <div className="w-full max-w-sm aspect-[4/3] border-2 border-emerald-400/80 rounded-2xl relative shadow-[0_0_0_9999px_rgba(0,0,0,0.58)] my-auto">
-        {/* Corner Accents */}
-        <div className="absolute -top-1 -left-1 w-7 h-7 border-t-4 border-l-4 border-emerald-400 rounded-tl-xl" />
-        <div className="absolute -top-1 -right-1 w-7 h-7 border-t-4 border-r-4 border-emerald-400 rounded-tr-xl" />
-        <div className="absolute -bottom-1 -left-1 w-7 h-7 border-b-4 border-l-4 border-emerald-400 rounded-bl-xl" />
-        <div className="absolute -bottom-1 -right-1 w-7 h-7 border-b-4 border-r-4 border-emerald-400 rounded-br-xl" />
-
-        {/* Center alignment guide lines */}
-        <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-emerald-400/30 -translate-y-1/2" />
-        <div className="absolute top-4 bottom-4 left-1/2 w-0.5 bg-emerald-400/20 -translate-x-1/2" />
-      </div>
-
-      {/* Bottom Best Practice Tips */}
-      <div className="pb-16 flex flex-col items-center gap-1.5 text-center">
-        <div className="inline-flex items-center gap-2 bg-black/75 backdrop-blur-md text-white text-xs font-semibold px-4 py-2 rounded-2xl border border-white/15 shadow-xl">
-          <Sun className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <span>Hold steady • Good lighting • Avoid flash glare • Sharp focus</span>
+    <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-5 sm:p-6 z-10 select-none">
+      {/* Top Status Tag */}
+      <div className="w-full flex items-center justify-between pt-1">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/[0.08] shadow-lg">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex flex-col text-left">
+            <span className="text-[11px] font-sans font-medium text-white leading-tight">
+              Ready to scan
+            </span>
+            <span className="text-[9px] font-sans text-slate-400 leading-tight">
+              Position the label within the frame
+            </span>
+          </div>
         </div>
+      </div>
+
+      {/* Target Reticle Area */}
+      <div className="relative w-[76%] sm:w-[70%] aspect-[4/5] max-h-[380px] my-auto">
+        {/* Subtle Vignette Mask Outside Reticle */}
+        <div className="absolute -inset-10 bg-radial-gradient from-transparent via-transparent to-black/40 pointer-events-none" />
+
+        {/* Minimal Corner Brackets */}
+        <div className="absolute top-0 left-0 w-6 sm:w-7 h-6 sm:h-7 border-t-2 border-l-2 border-emerald-400 rounded-tl-lg shadow-[0_0_10px_rgba(52,211,153,0.35)]" />
+        <div className="absolute top-0 right-0 w-6 sm:w-7 h-6 sm:h-7 border-t-2 border-r-2 border-emerald-400 rounded-tr-lg shadow-[0_0_10px_rgba(52,211,153,0.35)]" />
+        <div className="absolute bottom-0 left-0 w-6 sm:w-7 h-6 sm:h-7 border-b-2 border-l-2 border-emerald-400 rounded-bl-lg shadow-[0_0_10px_rgba(52,211,153,0.35)]" />
+        <div className="absolute bottom-0 right-0 w-6 sm:w-7 h-6 sm:h-7 border-b-2 border-r-2 border-emerald-400 rounded-br-lg shadow-[0_0_10px_rgba(52,211,153,0.35)]" />
+
+        {/* Subtle Animated Scanning Beam */}
+        <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/75 to-transparent shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-scan-beam pointer-events-none" />
+      </div>
+
+      {/* Bottom Floating Minimal Instruction */}
+      <div className="pb-24 sm:pb-28 flex justify-center">
+        <span className="text-[11px] font-sans text-slate-300/90 bg-black/60 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/[0.06] tracking-wide shadow-md">
+          Good light · Keep label flat · Fill frame
+        </span>
       </div>
     </div>
   );
 };
+
+export default ScanGuide;

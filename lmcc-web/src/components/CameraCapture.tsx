@@ -175,7 +175,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[70vh] min-h-[480px] max-h-[640px] bg-black rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center">
+    <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] max-h-[580px] bg-[#05070a] rounded-[28px] sm:rounded-3xl overflow-hidden border border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.65)] flex flex-col items-center justify-center select-none">
       {/* 1. Captured Image Review State */}
       {capturedPreview ? (
         <div className="relative w-full h-full flex flex-col justify-between bg-black">
@@ -186,30 +186,30 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
           />
 
           <div className="absolute top-4 inset-x-4 flex items-center justify-center">
-            <span className="bg-black/75 backdrop-blur-md text-white text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20">
-              Review Label Image Clarity
+            <span className="bg-black/80 backdrop-blur-md text-white text-xs font-sans font-medium px-4 py-1.5 rounded-full border border-white/15 shadow-lg">
+              Review captured label
             </span>
           </div>
 
-          <div className="absolute bottom-6 inset-x-0 flex items-center justify-center gap-6 px-6 z-20">
+          <div className="absolute bottom-6 inset-x-0 flex items-center justify-center gap-4 px-6 z-20">
             {/* Retake Button */}
             <button
               type="button"
               onClick={handleRetake}
-              className="flex-1 max-w-[150px] flex items-center justify-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-sm font-bold py-3.5 px-4 rounded-2xl border border-slate-600 backdrop-blur-md transition active:scale-95 shadow-lg"
+              className="flex-1 max-w-[140px] flex items-center justify-center gap-2 bg-white/[0.08] hover:bg-white/[0.14] text-slate-200 text-xs font-sans font-medium py-3 px-4 rounded-full border border-white/10 backdrop-blur-md transition active:scale-95 cursor-pointer"
             >
-              <X className="w-4 h-4 text-red-400" />
-              Retake
+              <X className="w-3.5 h-3.5 text-slate-400" />
+              <span>Retake</span>
             </button>
 
             {/* Confirm & Proceed Button */}
             <button
               type="button"
               onClick={handleConfirmCapture}
-              className="flex-1 max-w-[180px] flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold py-3.5 px-5 rounded-2xl backdrop-blur-md transition active:scale-95 shadow-xl shadow-emerald-950/40"
+              className="flex-1 max-w-[160px] flex items-center justify-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold py-3 px-5 rounded-full backdrop-blur-md transition active:scale-95 cursor-pointer shadow-xl"
             >
-              <Check className="w-4 h-4" />
-              Use Photo
+              <Check className="w-3.5 h-3.5" />
+              <span>Use Photo</span>
             </button>
           </div>
         </div>
@@ -231,31 +231,31 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
           {/* Loading Overlay */}
           {isLoading && !error && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-white gap-3 z-20">
-              <div className="w-10 h-10 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm font-medium text-slate-300">Accessing device camera...</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#06080e] text-white gap-3 z-20">
+              <div className="w-9 h-9 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-sans text-slate-400">Accessing device camera...</p>
             </div>
           )}
 
           {/* Error / Fallback State */}
           {error && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/95 text-white p-6 text-center z-30">
-              <div className="w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mb-3">
-                {!isSecure ? <ShieldAlert className="w-8 h-8" /> : <CameraOff className="w-8 h-8" />}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#06080e]/95 text-white p-6 text-center z-30">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mb-3">
+                {!isSecure ? <ShieldAlert className="w-6 h-6" /> : <CameraOff className="w-6 h-6" />}
               </div>
-              <h3 className="text-lg font-bold text-slate-100 mb-1">
+              <h3 className="text-sm font-sans font-semibold text-slate-100 mb-1">
                 {!isSecure ? 'Insecure Context' : 'Camera Unavailable'}
               </h3>
-              <p className="text-xs text-slate-300 max-w-xs mb-6 leading-relaxed">{error}</p>
+              <p className="text-xs font-sans text-slate-400 max-w-xs mb-6 leading-relaxed">{error}</p>
 
               <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
                 {isSecure && (
                   <button
                     type="button"
                     onClick={() => startCamera()}
-                    className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold py-3 px-4 rounded-xl border border-slate-700 transition"
+                    className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 text-xs font-sans font-medium py-2.5 px-4 rounded-full border border-white/[0.08] transition cursor-pointer"
                   >
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className="w-3.5 h-3.5" />
                     Retry Camera
                   </button>
                 )}
@@ -266,9 +266,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     stopStream();
                     onFallbackToUpload();
                   }}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-900/40"
+                  className="w-full flex items-center justify-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold py-2.5 px-4 rounded-full transition cursor-pointer shadow-lg"
                 >
-                  <ImageIcon className="w-4 h-4" />
+                  <ImageIcon className="w-3.5 h-3.5" />
                   Upload Image Instead
                 </button>
               </div>
@@ -277,38 +277,50 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
           {/* Camera Controls Bar (Active Preview) */}
           {!isLoading && !error && (
-            <div className="absolute bottom-6 inset-x-0 flex items-center justify-around px-8 z-20">
-              {/* Switch Front/Rear Camera */}
-              <button
-                type="button"
-                onClick={toggleFacingMode}
-                className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center justify-center hover:bg-black/80 transition active:scale-95 shadow-md"
-                title="Switch Camera (Front/Rear)"
-              >
-                <RefreshCw className="w-5 h-5" />
-              </button>
-
-              {/* Shutter Capture Button */}
-              <button
-                type="button"
-                onClick={captureFrame}
-                className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center bg-white/20 backdrop-blur-md hover:scale-105 active:scale-95 transition shadow-2xl group"
-                title="Capture Product Label"
-              >
-                <div className="w-14 h-14 rounded-full bg-white group-hover:bg-emerald-400 transition" />
-              </button>
-
-              {/* Upload Fallback Switch */}
+            <div className="absolute bottom-5 inset-x-0 flex items-center justify-around px-8 z-20">
+              {/* Gallery / File Picker */}
               <button
                 type="button"
                 onClick={() => {
                   stopStream();
                   onFallbackToUpload();
                 }}
-                className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center justify-center hover:bg-black/80 transition active:scale-95 shadow-md"
-                title="Switch to Image Upload"
+                className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-white transition group cursor-pointer"
+                title="Choose from Gallery / Files"
               >
-                <ImageIcon className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center justify-center group-hover:border-white/30 group-hover:bg-black/80 transition active:scale-95 shadow-lg">
+                  <ImageIcon className="w-5 h-5 text-slate-300 group-hover:text-white" />
+                </div>
+                <span className="text-[10px] font-sans font-medium text-slate-400 group-hover:text-slate-200">
+                  Gallery
+                </span>
+              </button>
+
+              {/* Shutter Capture Button */}
+              <button
+                type="button"
+                onClick={captureFrame}
+                className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1.5 border-2 border-white/80 hover:border-white flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer shadow-2xl group"
+                title="Capture Product Label"
+              >
+                <div className="w-full h-full rounded-full bg-white group-hover:scale-95 transition-transform duration-150 flex items-center justify-center shadow-inner">
+                  <div className="w-14 h-14 rounded-full border border-slate-300/40" />
+                </div>
+              </button>
+
+              {/* Switch Front/Rear Camera */}
+              <button
+                type="button"
+                onClick={toggleFacingMode}
+                className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-white transition group cursor-pointer"
+                title="Switch Camera (Front/Rear)"
+              >
+                <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center justify-center group-hover:border-white/30 group-hover:bg-black/80 transition active:scale-95 shadow-lg">
+                  <RefreshCw className="w-5 h-5 text-slate-300 group-hover:text-white" />
+                </div>
+                <span className="text-[10px] font-sans font-medium text-slate-400 group-hover:text-slate-200">
+                  Flip
+                </span>
               </button>
             </div>
           )}

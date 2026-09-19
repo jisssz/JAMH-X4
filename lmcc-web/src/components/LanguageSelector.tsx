@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, CloudDownload, ChevronDown } from 'lucide-react';
+import { Globe, Check, ChevronDown } from 'lucide-react';
 import {
   SUPPORTED_LANGUAGES,
   OcrLanguageProfile,
@@ -31,53 +31,41 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   };
 
   return (
-    <div className="relative inline-block text-left w-full max-w-xs">
-      <div className="flex items-center justify-between mb-1.5 px-0.5">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <Globe className="w-3.5 h-3.5 text-gov-400" />
-          <span>OCR Language / Script</span>
-        </label>
+    <div className="relative inline-block text-left">
+      <div className="flex items-center gap-2.5">
+        {/* Trigger Button */}
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-white/[0.08] backdrop-blur-md transition text-xs font-sans font-medium cursor-pointer shadow-sm"
+          aria-expanded={isOpen}
+        >
+          <Globe className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-white">{selected.label}</span>
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {/* Quiet Offline Indicator */}
         <span
-          className={`text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1 ${
-            selected.offlineStatus === 'offline_ready'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-          }`}
+          className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-400"
           title={
             selected.offlineStatus === 'offline_ready'
               ? 'Cached on device - works fully offline'
               : 'Downloads ~4MB model once on first use, then cached'
           }
         >
-          {selected.offlineStatus === 'offline_ready' ? (
-            <>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              Offline Ready
-            </>
-          ) : (
-            <>
-              <CloudDownload className="w-2.5 h-2.5" />
-              1st use online
-            </>
-          )}
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              selected.offlineStatus === 'offline_ready' ? 'bg-emerald-400' : 'bg-amber-400'
+            }`}
+          />
+          <span>{selected.offlineStatus === 'offline_ready' ? 'Offline ready' : '1st use online'}</span>
         </span>
       </div>
-
-      {/* Trigger Button */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-slate-900/90 hover:bg-slate-800/90 text-white px-3.5 py-2.5 rounded-xl border border-slate-700/80 flex items-center justify-between shadow-sm transition text-xs font-medium focus:outline-none focus:ring-2 focus:ring-gov-500"
-        aria-expanded={isOpen}
-      >
-        <div className="flex items-center gap-2 truncate">
-          <span className="font-semibold text-slate-100">{selected.label}</span>
-          <span className="text-slate-400 text-[11px] truncate">({selected.nativeLabel})</span>
-        </div>
-        <ChevronDown
-          className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
 
       {/* Dropdown Options */}
       {isOpen && (
@@ -89,7 +77,10 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             aria-hidden="true"
           />
 
-          <div className="absolute right-0 mt-2 w-full min-w-[260px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden py-1 divide-y divide-slate-800">
+          <div className="absolute right-0 sm:left-0 sm:right-auto mt-2 w-72 bg-[#090d16]/95 border border-white/[0.1] rounded-2xl shadow-2xl z-50 overflow-hidden py-1 backdrop-blur-2xl divide-y divide-white/[0.04]">
+            <div className="px-3.5 py-2 text-[10px] font-sans font-medium uppercase tracking-wider text-slate-400">
+              Select OCR Language / Script
+            </div>
             <div className="max-h-60 overflow-y-auto">
               {SUPPORTED_LANGUAGES.map((lang) => {
                 const isCurrent = lang.code === selected.code;
@@ -98,10 +89,10 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     key={lang.code}
                     type="button"
                     onClick={() => handleSelect(lang)}
-                    className={`w-full px-3.5 py-2.5 text-left flex items-center justify-between text-xs transition ${
+                    className={`w-full px-3.5 py-2 text-left flex items-center justify-between text-xs transition cursor-pointer font-sans ${
                       isCurrent
-                        ? 'bg-gov-600/20 text-white'
-                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                        ? 'bg-white/[0.08] text-white'
+                        : 'text-slate-300 hover:bg-white/[0.04] hover:text-white'
                     }`}
                   >
                     <div className="flex flex-col">
@@ -109,30 +100,30 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                         <span>{lang.label}</span>
                         <span className="text-slate-400 text-[11px]">({lang.nativeLabel})</span>
                       </div>
-                      <span className="text-[10px] text-slate-400">
-                        {lang.script} script • {lang.offlineStatus === 'offline_ready' ? 'Precached' : 'CDN cached'}
+                      <span className="text-[10px] text-slate-500 font-sans">
+                        {lang.script} script
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 ml-2">
+                    <div className="flex items-center gap-2 ml-2">
                       {lang.offlineStatus === 'offline_ready' ? (
-                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">
                           Offline
                         </span>
                       ) : (
-                        <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full">
                           Online 1st
                         </span>
                       )}
-                      {isCurrent && <Check className="w-4 h-4 text-gov-400 flex-shrink-0" />}
+                      {isCurrent && <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="px-3 py-2 bg-slate-950/60 text-[10px] text-slate-400">
-              Honest status: English works completely offline. Regional models require network on first scan.
+            <div className="px-3.5 py-2 text-[10px] text-slate-500 font-sans">
+              English is precached locally. Regional scripts cache on first use.
             </div>
           </div>
         </>

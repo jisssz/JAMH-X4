@@ -479,6 +479,7 @@ export const Results: React.FC = () => {
               const detected = Boolean(field.value && field.value.trim().length > 0);
               const isAmbiguous = Boolean(field.isAmbiguous);
               const origin = multiPanelResult?.fieldOrigins?.[field.key];
+              const fieldStatus = extractedLabel.declarationCoverage?.fieldStatuses?.[field.key];
 
               return (
                 <div key={field.key} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -498,7 +499,11 @@ export const Results: React.FC = () => {
                         )}
                       </div>
                       <span className="text-sm font-bold text-white mt-0.5 block break-words max-w-md font-sans">
-                        {detected ? field.value : 'Not detected on scanned label'}
+                        {detected
+                          ? field.value
+                          : fieldStatus === 'present_ocr_failed'
+                          ? 'Cues visible on label but unreadable — retake photo with closer focus'
+                          : 'Not detected on scanned label'}
                       </span>
                     </div>
                   </div>
@@ -512,6 +517,10 @@ export const Results: React.FC = () => {
                       <span className="inline-flex items-center gap-1.5 bg-amber-500/15 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30">
                         <AlertTriangle className="w-3.5 h-3.5" /> Needs Review
                       </span>
+                    ) : fieldStatus === 'present_ocr_failed' ? (
+                      <span className="inline-flex items-center gap-1.5 bg-rose-500/15 text-rose-300 text-xs font-bold px-3 py-1 rounded-full border border-rose-500/30">
+                        <AlertTriangle className="w-3.5 h-3.5" /> Unclear / OCR Failed
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 bg-white/5 text-slate-400 text-xs font-bold px-3 py-1 rounded-full border border-white/10">
                         <AlertCircle className="w-3.5 h-3.5 text-slate-500" /> Not Detected
@@ -523,6 +532,60 @@ export const Results: React.FC = () => {
             })}
           </div>
         </div>
+
+        {/* Additional Visible Declarations (Ingredients, Batch, Expiry, Best Before) */}
+        {(extractedLabel.ingredients ||
+          extractedLabel.batchNumber ||
+          extractedLabel.bestBefore ||
+          extractedLabel.expiryDate ||
+          extractedLabel.nutritionInfo) && (
+          <div className="bg-slate-900/80 rounded-3xl p-6 border border-white/10 shadow-xl backdrop-blur-xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div>
+                <SectionLabel className="mb-1">/PACKAGE INFORMATION</SectionLabel>
+                <h3 className="text-lg font-black text-white tracking-tight">
+                  Additional Visible Declarations
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
+                Extracted Context
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+              {extractedLabel.batchNumber && (
+                <div className="p-3 bg-white/[0.02] rounded-xl border border-white/5 space-y-1">
+                  <span className="text-slate-400 uppercase text-[10px] block">Batch / Lot No.</span>
+                  <span className="text-white font-bold font-sans text-sm">{extractedLabel.batchNumber}</span>
+                </div>
+              )}
+              {extractedLabel.bestBefore && (
+                <div className="p-3 bg-white/[0.02] rounded-xl border border-white/5 space-y-1">
+                  <span className="text-slate-400 uppercase text-[10px] block">Best Before</span>
+                  <span className="text-white font-bold font-sans text-sm">{extractedLabel.bestBefore}</span>
+                </div>
+              )}
+              {extractedLabel.expiryDate && (
+                <div className="p-3 bg-white/[0.02] rounded-xl border border-white/5 space-y-1">
+                  <span className="text-slate-400 uppercase text-[10px] block">Expiry Date</span>
+                  <span className="text-white font-bold font-sans text-sm">{extractedLabel.expiryDate}</span>
+                </div>
+              )}
+              {extractedLabel.ingredients && (
+                <div className="p-3 bg-white/[0.02] rounded-xl border border-white/5 space-y-1 sm:col-span-2">
+                  <span className="text-slate-400 uppercase text-[10px] block">Ingredients / Product Composition</span>
+                  <span className="text-slate-200 font-sans text-xs leading-relaxed">{extractedLabel.ingredients}</span>
+                </div>
+              )}
+              {extractedLabel.nutritionInfo && (
+                <div className="p-3 bg-white/[0.02] rounded-xl border border-white/5 space-y-1 sm:col-span-2">
+                  <span className="text-slate-400 uppercase text-[10px] block">Nutrition Information</span>
+                  <span className="text-slate-200 font-sans text-xs leading-relaxed">{extractedLabel.nutritionInfo}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Detailed Review Items (Evidence-Based) */}
         {verdict.potentialViolations.length > 0 ? (

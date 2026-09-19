@@ -1997,6 +1997,191 @@ test('Phase 19 Multi-Panel Safety: Case E - Identical declarations on multiple p
   assert.strictEqual(verdict.overallStatus, 'PASS', 'Fully consistent multi-panel package must PASS');
 });
 
+// ============================================================================
+// PHASE 20: FORENSIC DEBUG & REAL PRODUCT EXTRACTION HARDENING
+// ============================================================================
+
+test('Phase 20 Forensic: Manufacturer Noise Decontamination strips PKD, prices, and OCR noise tokens', () => {
+  // Test the exact failure reported by user: "PKD: 550 — WN Foo / JuZeze HYSON Food Products ~~"
+  const rawOcrNoise = `
+PKD: 550 — WN Foo / JuZeze HYSON Food Products ~~
+Chira Bye Lane-1, Asokapuram, Aluva, Kerala - 683 101
+Customer Care No.: 0484-2621000
+E-mail: support@hysonfoods.com
+Retail Price: Rs. 145.00
+Net Quantity: 250 g
+PKD ON: 18/08/2024
+  `;
+
+  const parsed = parseLabel(rawOcrNoise);
+
+  // 1. Manufacturer must be cleanly isolated as "HYSON Food Products"
+  assert.strictEqual(parsed.manufacturer, 'HYSON Food Products', 'Manufacturer must be stripped of PKD, prices, and OCR noise');
+  assert.ok(!parsed.manufacturer?.includes('PKD'), 'PKD noise must not contaminate manufacturer');
+  assert.ok(!parsed.manufacturer?.includes('550'), 'Price or number noise must not contaminate manufacturer');
+  assert.ok(!parsed.manufacturer?.includes('~~'), 'Trailing punctuation must be stripped');
+  assert.ok(!parsed.manufacturer?.includes('JuZeze'), 'OCR prefix noise must be stripped');
+
+  // 2. Address must be extracted
+  assert.ok(parsed.address?.includes('683 101') || parsed.address?.includes('Aluva'), 'Address with postal PIN must be extracted');
+
+  // 3. Consumer Care must include landline with STD code 0484 and email
+  assert.ok(parsed.consumerCare?.includes('0484-2621000'), 'STD landline must be detected in consumer care');
+  assert.ok(parsed.consumerCare?.includes('support@hysonfoods.com'), 'Email must be detected in consumer care');
+
+  // 4. Retail Price / MRP must be detected
+  assert.strictEqual(parsed.mrp, '₹145.00', 'Retail Price: Rs. 145.00 must be parsed as ₹145.00');
+
+  // 5. Net Quantity must be detected
+  assert.strictEqual(parsed.netQuantity, '250 g', 'Net quantity 250 g must be detected');
+
+  // 6. Packing Date must be detected
+  assert.strictEqual(parsed.packingDate, '18/08/2024', 'Packing date 18/08/2024 must be detected');
+
+  // 7. Overall compliance rule evaluation must PASS
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(parsed);
+  assert.strictEqual(verdict.overallStatus, 'PASS', 'Decontaminated package with all declarations must produce PASS');
+});
+
+test('Phase 20 Forensic: Hyson Instant Tea complete package extraction with ingredients, batch & nutrition', () => {
+  const teaPackageText = `
+HYSON PREMIUM INSTANT TEA
+WITH DAIRY WHITENER & NATURAL CARDAMOM
+Ingredients: Instant Tea, Dairy Whitener, Natural Cardamom, Sugar
+Nutritional Information: Energy 380 kcal, Protein 8.5g, Carbs 65g
+Batch No: HYS-TEA-04
+Manufactured by: HYSON Food Products
+Chira Bye Lane-1, Asokapuram, Aluva, Kerala - 683 101
+Customer Care No.: 0484-2621000
+E-mail: support@hysonfoods.com
+Retail Price: Rs. 145.00 (Inclusive of all taxes)
+Net Quantity: 250 g
+PKD ON: 18/08/2024
+BEST BEFORE TWELVE MONTHS FROM PACKAGING
+  `;
+
+  const parsed = parseLabel(teaPackageText);
+
+  assert.strictEqual(parsed.manufacturer, 'HYSON Food Products');
+  assert.ok(parsed.address?.includes('Chira Bye Lane-1') && parsed.address?.includes('683 101'));
+  assert.ok(parsed.consumerCare?.includes('0484-2621000'));
+  assert.ok(parsed.consumerCare?.includes('support@hysonfoods.com'));
+  assert.strictEqual(parsed.mrp, '₹145.00');
+  assert.strictEqual(parsed.netQuantity, '250 g');
+  assert.strictEqual(parsed.packingDate, '18/08/2024');
+  assert.strictEqual(parsed.batchNumber, 'HYS-TEA-04');
+  assert.strictEqual(parsed.ingredients, 'Instant Tea, Dairy Whitener, Natural Cardamom, Sugar');
+  assert.ok(parsed.bestBefore?.includes('TWELVE MONTHS'));
+  assert.ok(parsed.nutritionInfo?.includes('380 kcal'));
+
+  // Verify 4-State Diagnostic Coverage
+  assert.ok(parsed.declarationCoverage);
+  assert.strictEqual(parsed.declarationCoverage.totalAssessed, 6);
+  assert.strictEqual(parsed.declarationCoverage.detectedCount, 6);
+  assert.strictEqual(parsed.declarationCoverage.coveragePercentage, 100);
+  assert.strictEqual(parsed.declarationCoverage.fieldStatuses.mrp, 'present_readable');
+  assert.strictEqual(parsed.declarationCoverage.fieldStatuses.netQuantity, 'present_readable');
+  assert.strictEqual(parsed.declarationCoverage.fieldStatuses.date, 'present_readable');
+  assert.strictEqual(parsed.declarationCoverage.fieldStatuses.manufacturer, 'present_readable');
+  assert.strictEqual(parsed.declarationCoverage.fieldStatuses.address, 'present_readable');
+  assert.strictEqual(parsed.declarationCoverage.fieldStatuses.consumerCare, 'present_readable');
+
+  // Verify evidence records
+  assert.ok(parsed.fieldEvidenceRecords);
+  assert.strictEqual(parsed.fieldEvidenceRecords.mrp.status, 'present_readable');
+  assert.strictEqual(parsed.fieldEvidenceRecords.consumerCare.status, 'present_readable');
+  assert.strictEqual(parsed.fieldEvidenceRecords.manufacturer.status, 'present_readable');
+});
+
+test('Phase 20 Forensic: Multi-line Retail Price and Multi-line Packing Date', () => {
+  const multilineLabel = `
+RETAIL PRICE (INCLUSIVE OF ALL TAXES):
+Rs. 85.00
+DATE OF PACKING:
+09/2024
+NET WEIGHT:
+500 g
+MANUFACTURED BY:
+ABC AGRO FOODS LTD
+PLOT 12, GIDC, AHMEDABAD 382330
+CUSTOMER CARE NO:
+079-22880000
+  `;
+
+  const parsed = parseLabel(multilineLabel);
+
+  assert.strictEqual(parsed.mrp, '₹85.00', 'Multi-line retail price must be captured');
+  assert.strictEqual(parsed.packingDate, '09/2024', 'Multi-line packing date must be captured');
+  assert.strictEqual(parsed.netQuantity, '500 g', 'Multi-line net quantity must be captured');
+  assert.strictEqual(parsed.manufacturer, 'ABC AGRO FOODS LTD');
+  assert.ok(parsed.consumerCare?.includes('079-22880000'), 'Multi-line landline care number must be captured');
+});
+
+test('Phase 20 Forensic: 4-State Diagnostic distinguishes absent, OCR failed, readable, and ambiguous', () => {
+  // Scenario 1: Customer Care keyword present, but phone number is unreadable OCR garble
+  const ocrFailedLabel = `
+NET WEIGHT: 200 g
+MRP: Rs. 50.00
+PKD: 07/2024
+MANUFACTURED BY: ABC FOODS PVT LTD
+MUMBAI 400001
+CUSTOMER CARE NO:
+[unreadable noise %$#@]
+  `;
+
+  const parsed = parseLabel(ocrFailedLabel);
+  assert.strictEqual(parsed.declarationCoverage?.fieldStatuses.consumerCare, 'present_ocr_failed',
+    'When customer care header is present but OCR failed to decipher digits, status must be present_ocr_failed');
+
+  // Scenario 2: Isolated date without statutory prefix is present_ambiguous
+  const ambiguousDateLabel = `
+NET WEIGHT: 200 g
+MRP: Rs. 50.00
+MANUFACTURED BY: ABC FOODS PVT LTD
+MUMBAI 400001
+18/08/2024
+CUSTOMER CARE: 1800222211
+  `;
+
+  const parsed2 = parseLabel(ambiguousDateLabel);
+  assert.strictEqual(parsed2.declarationCoverage?.fieldStatuses.date, 'present_ambiguous',
+    'Isolated date lacking MFD/PKD statutory label must be present_ambiguous');
+
+  // Scenario 3: Missing statutory field is not_present
+  const missingCareLabel = `
+NET WEIGHT: 200 g
+MRP: Rs. 50.00
+PKD: 07/2024
+MANUFACTURED BY: ABC FOODS PVT LTD
+MUMBAI 400001
+  `;
+
+  const parsed3 = parseLabel(missingCareLabel);
+  assert.strictEqual(parsed3.declarationCoverage?.fieldStatuses.consumerCare, 'not_present',
+    'When no consumer care keywords exist, status must be not_present');
+});
+
+test('Phase 20 Forensic: Strict Zero False PASS guarantee on unreadable or corrupted declarations', () => {
+  const engine = new RulesEngine();
+
+  // Corrupted packaging text where MRP is missing and date is ambiguous
+  const corruptedPackage = `
+NET WEIGHT: 100 g
+MANUFACTURED BY: XYZ FOODS PVT LTD
+PUNE 411001
+05/2025
+CUSTOMER CARE: 1800112233
+  `;
+
+  const parsed = parseLabel(corruptedPackage);
+  const verdict = engine.evaluate(parsed);
+
+  assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Missing MRP and ambiguous date must NEVER produce false PASS');
+  assert.ok(verdict.checks.some((c) => c.field === 'mrp' && !c.passed), 'Rule 6(1)(da) must fail check');
+  assert.ok(verdict.checks.some((c) => c.field === 'packingDate' && !c.passed), 'Rule 6(1)(d) must fail check');
+});
+
 
 
 

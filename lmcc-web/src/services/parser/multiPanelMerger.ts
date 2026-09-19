@@ -150,6 +150,24 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
   let importer: string | undefined;
   let importerEvidence: string | undefined;
 
+  let expiryDate: string | undefined;
+  let expiryEvidence: string | undefined;
+
+  let bestBefore: string | undefined;
+  let bestBeforeEvidence: string | undefined;
+
+  let batchNumber: string | undefined;
+  let batchEvidence: string | undefined;
+
+  let email: string | undefined;
+  let emailEvidence: string | undefined;
+
+  let ingredients: string | undefined;
+  let ingredientsEvidence: string | undefined;
+
+  let nutritionInfo: string | undefined;
+  let nutritionEvidence: string | undefined;
+
   // Track field presence per panel
   for (const item of parsedPanels) {
     const fieldsFound: string[] = [];
@@ -310,6 +328,32 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       }
     }
 
+    // 8. Batch / Expiry / Best Before / Ingredients / Product Declarations
+    if (p.batchNumber && !batchNumber) {
+      batchNumber = p.batchNumber;
+      batchEvidence = `[${label}]: ${p.batchEvidence || p.batchNumber}`;
+    }
+    if (p.expiryDate && !expiryDate) {
+      expiryDate = p.expiryDate;
+      expiryEvidence = `[${label}]: ${p.expiryEvidence || p.expiryDate}`;
+    }
+    if (p.bestBefore && !bestBefore) {
+      bestBefore = p.bestBefore;
+      bestBeforeEvidence = `[${label}]: ${p.bestBeforeEvidence || p.bestBefore}`;
+    }
+    if (p.email && !email) {
+      email = p.email;
+      emailEvidence = `[${label}]: ${p.emailEvidence || p.email}`;
+    }
+    if (p.ingredients && !ingredients) {
+      ingredients = p.ingredients;
+      ingredientsEvidence = `[${label}]: ${p.ingredientsEvidence || p.ingredients}`;
+    }
+    if (p.nutritionInfo && !nutritionInfo) {
+      nutritionInfo = p.nutritionInfo;
+      nutritionEvidence = `[${label}]: ${p.nutritionEvidence || p.nutritionInfo}`;
+    }
+
     panelContributions.push({
       panelId: item.input.panelId,
       panelLabel: label,
@@ -328,6 +372,40 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
   const allGood = inputs.every((inp) => inp.quality === 'GOOD');
   const overallQuality: 'GOOD' | 'FAIR' | 'POOR' = allGood ? 'GOOD' : hasPoor ? 'POOR' : 'FAIR';
 
+  // Merge field evidence records across panels
+  const unifiedFieldEvidenceRecords: Record<string, import('../../models/ExtractedLabel').FieldEvidenceRecord> = {};
+  for (const item of parsedPanels) {
+    if (item.parsed.fieldEvidenceRecords) {
+      for (const [k, ev] of Object.entries(item.parsed.fieldEvidenceRecords)) {
+        if (!unifiedFieldEvidenceRecords[k] || unifiedFieldEvidenceRecords[k].status !== 'present_readable') {
+          unifiedFieldEvidenceRecords[k] = {
+            ...ev,
+            sourcePanel: item.input.panelLabel,
+          };
+        }
+      }
+    }
+  }
+
+  const statutoryKeys = ['mrp', 'netQuantity', 'date', 'manufacturer', 'address', 'consumerCare'];
+  const fieldStatuses: Record<string, import('../../models/ExtractedLabel').DeclarationStatus> = {};
+  fieldStatuses.mrp = mrp ? 'present_readable' : /MRP|RETAIL\s*PRICE|Rs\./i.test(unifiedRawText) ? 'present_ocr_failed' : 'not_present';
+  fieldStatuses.netQuantity = netQuantity ? 'present_readable' : /NET|QTY|WEIGHT/i.test(unifiedRawText) ? 'present_ocr_failed' : 'not_present';
+  const activeDate = packingDate || manufactureDate;
+  fieldStatuses.date = activeDate ? (isDateAmbiguous ? 'present_ambiguous' : 'present_readable') : /PKD|MFD|DATE/i.test(unifiedRawText) ? 'present_ocr_failed' : 'not_present';
+  fieldStatuses.manufacturer = manufacturer ? 'present_readable' : /MANUFACTURED|MFD|PACKED\s*BY/i.test(unifiedRawText) ? 'present_ocr_failed' : 'not_present';
+  fieldStatuses.address = address ? 'present_readable' : /OFFICE|FACTORY|PLOT|ROAD|PIN/i.test(unifiedRawText) ? 'present_ocr_failed' : 'not_present';
+  fieldStatuses.consumerCare = consumerCare ? 'present_readable' : /CUSTOMER\s*CARE|FEEDBACK|HELPLINE/i.test(unifiedRawText) ? 'present_ocr_failed' : 'not_present';
+
+  const detectedCount = statutoryKeys.filter((k) => fieldStatuses[k] === 'present_readable' || fieldStatuses[k] === 'present_ambiguous').length;
+
+  const declarationCoverage = {
+    totalAssessed: statutoryKeys.length,
+    detectedCount,
+    coveragePercentage: Math.round((detectedCount / statutoryKeys.length) * 100),
+    fieldStatuses,
+  };
+
   const unifiedLabel: ExtractedLabel = {
     rawText: unifiedRawText,
     mrp,
@@ -336,7 +414,19 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     netQuantityEvidence,
     packingDate: packingDate || manufactureDate,
     manufactureDate,
+    expiryDate,
+    bestBefore,
+    batchNumber,
+    email,
+    ingredients,
+    nutritionInfo,
     dateEvidence,
+    expiryEvidence,
+    bestBeforeEvidence,
+    batchEvidence,
+    emailEvidence,
+    ingredientsEvidence,
+    nutritionEvidence,
     manufacturer,
     manufacturerEvidence,
     address,
@@ -349,6 +439,8 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     isFutureDate,
     hasConflict,
     conflictDetails,
+    fieldEvidenceRecords: unifiedFieldEvidenceRecords,
+    declarationCoverage,
   };
 
   return {

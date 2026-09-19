@@ -102,13 +102,16 @@ app.add_api_route("/reports/{report_id}", get_report, methods=["GET"], response_
 
 
 @app.get("/")
-def root():
+def root(request: Request):
     return {
         "service": "LMCC Reporting API",
         "status": "online",
         "docs": "/docs",
         "health": "/api/health",
+        "scope_path": request.scope.get("path"),
+        "headers": {k: v for k, v in request.headers.items() if "auth" not in k.lower() and "cookie" not in k.lower()},
     }
+
 
 
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "OPTIONS", "HEAD"])

@@ -160,7 +160,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // 2. Net Quantity Extraction (Rule 6(1)(c))
   // ----------------------------------------------------
   // Standard legal units: g, gm, grams, kg, ml, l, litre, litres, pieces, units, N, ग्राम, किग्रा, आदि
-  const qtyRegex = /(?:NET\s*(?:QTY|QUANTITY|WT\.?|WEIGHT|VOL\.?|VOLUME|MASS|CONTENT)?|QUANTITY|शुद्ध\s*(?:मात्रा|वजन)|मात्रा|वजन|അളവ്|തൂക്കം|നിവ്വള\s*തൂക|തൂക|నికర\s*పరిమాణం|நிகர\s*எடை)?\s*:?\s*[:\s-]*(\d+(?:\.\d+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litres?|mg|units?|pieces?|N|ग्राम|किग्रा|कि\.ग्रा\.|मि\.ली\.|लीटर)\b(?:\s*\(?(?:WHEN\s*PACKED)?\)?)?/iu;
+  const qtyRegex = /(?:NET\s*(?:QTY|QUANTITY|WT\.?|WEIGHT|VOL\.?|VOLUME|MASS|CONTENT)?|QUANTITY|शुद्ध\s*(?:मात्रा|वजन)|मात्रा|वजन|അളവ്|തൂക്കം|നിവ്വള\s*തൂക|തൂക|నికర\s*పరిమాణం|நிகர\s*எடை)?\s*:?\s*[:\s-]*[({[\s]*(\d+(?:\.\d+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litres?|mg|units?|pieces?|N|ग्राम|किग्रा|कि\.ग्रा\.|मि\.ली\.|लीटर)\b(?:\s*\(?(?:WHEN\s*PACKED)?\)?)?/iu;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -282,7 +282,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // ----------------------------------------------------
   // 4. Manufacturer, Packer & Importer (Rule 6(1)(a))
   // ----------------------------------------------------
-  const mfgPrefixRegex = /(?:(?:MFD|MFG|MANUFACTURED|PRODUCED|PROCESSED|PACKED|PRE-?PACKED|MKTD|MARKETED|MADE)\s*(?:&|\+|\/|AND)?\s*(?:PKG|PACKED|MARKETED)?\s*:?\s*BY|MANUFACTURED\s*(?:&|\+|\/|AND)?\s*PACKED\s*BY|PACKED\s*BY|निर्माता|द्वारा\s*निर्मित|उत्पादक|पैकर)\s*:?\s*[:\s-]*(.*)/iu;
+  const mfgPrefixRegex = /(?:(?:MFD|MFG|MANUFACTURED|PRODUCED|PROCESSED|PACKED|PRE-?PACKED|MKTD|MARKETED|MADE)\s*(?:&|\+|\/|AND)?\s*(?:PKG|PACKED|MARKETED)?\s*:?\s*(?:BY|FOR)|MANUFACTURED\s*(?:&|\+|\/|AND)?\s*PACKED\s*(?:BY|FOR)|PACKED\s*(?:BY|FOR)|निर्माता|द्वारा\s*निर्मित|उत्पादक|पैकर)\s*:?\s*[:\s-]*(.*)/iu;
   const impPrefixRegex = /(?:IMPORTED\s*BY|IMPORTER|आयातक)\s*:?\s*[:\s-]*(.*)/iu;
 
   for (let i = 0; i < lines.length; i++) {
@@ -349,11 +349,11 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // 6. Consumer Care Contact Details (Rule 6(1)(e))
   // ----------------------------------------------------
   const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
-  const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL(?:\s*US)?|QUERIES|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|വാடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
+  const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL(?:\s*US)?|QUERIES|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (/CUSTOMER|CONSUMER|FEEDBACK|COMPLAINT|CARE|HELPLINE|EMAIL|TOLL|QUERIES|CALL|CONTACT|TEL|PHONE|ग्राहक|उपभोक्ता|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|വാடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్/iu.test(line)) {
+    if (/CUSTOMER|CONSUMER|FEEDBACK|COMPLAINT|CARE|HELPLINE|EMAIL|TOLL|QUERIES|CALL|CONTACT|TEL|PHONE|ग्राहक|उपभोक्ता|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్/iu.test(line)) {
       let emailMatch = line.match(emailRegex);
       let phoneMatch = line.match(phoneRegex);
 
@@ -374,6 +374,26 @@ export function parseLabel(rawText: string): ExtractedLabel {
         break;
       } else if (phoneMatch && phoneMatch[1]) {
         consumerCare = phoneMatch[1];
+        consumerCareEvidence = line.trim();
+        break;
+      }
+    }
+  }
+
+  // Fallback: If no contextual consumer care line was found, look for explicit customer care contacts
+  if (!consumerCare) {
+    for (const line of lines) {
+      if (line.includes('@') && !line.includes('http')) {
+        const emailMatch = line.match(emailRegex);
+        if (emailMatch) {
+          consumerCare = emailMatch[1];
+          consumerCareEvidence = line.trim();
+          break;
+        }
+      }
+      const directPhone = line.match(/(?:\+91[\s-]?[6-9]\d{4}[\s-]?\d{5}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b)/);
+      if (directPhone) {
+        consumerCare = directPhone[0];
         consumerCareEvidence = line.trim();
         break;
       }

@@ -106,14 +106,37 @@ async def vercel_routing_middleware(request: Request, call_next):
 
 
 
+from app.routers.analytics import (
+    router as analytics_router,
+    get_analytics_summary,
+    get_issues_breakdown,
+    get_categories_breakdown,
+    get_trends,
+    get_brands_surveillance,
+)
+from app.schemas.analytics import (
+    AnalyticsSummary,
+    IssuesBreakdown,
+    CategoriesBreakdown,
+    TrendsResponse,
+    BrandsResponse,
+)
+
 # Register API Routers (under /api prefix)
 app.include_router(report_router)
+app.include_router(analytics_router)
 
 # Direct aliases without /api prefix to support environments where prefix is stripped
 app.add_api_route("/health", health_check, methods=["GET"], tags=["health"])
 app.add_api_route("/report", submit_report, methods=["POST"], response_model=ReportResponse, status_code=201, tags=["reports"])
 app.add_api_route("/reports", list_reports, methods=["GET"], response_model=List[ReportRead], tags=["reports"])
 app.add_api_route("/reports/{report_id}", get_report, methods=["GET"], response_model=ReportRead, tags=["reports"])
+
+app.add_api_route("/analytics/summary", get_analytics_summary, methods=["GET"], response_model=AnalyticsSummary, tags=["analytics"])
+app.add_api_route("/analytics/issues", get_issues_breakdown, methods=["GET"], response_model=IssuesBreakdown, tags=["analytics"])
+app.add_api_route("/analytics/categories", get_categories_breakdown, methods=["GET"], response_model=CategoriesBreakdown, tags=["analytics"])
+app.add_api_route("/analytics/trends", get_trends, methods=["GET"], response_model=TrendsResponse, tags=["analytics"])
+app.add_api_route("/analytics/brands", get_brands_surveillance, methods=["GET"], response_model=BrandsResponse, tags=["analytics"])
 
 
 @app.get("/")

@@ -4,9 +4,11 @@ import { ArrowLeft, RefreshCw, AlertCircle, HelpCircle, UploadCloud, RotateCcw }
 import { useImage } from '../context/ImageContext';
 import { defaultOcrService } from '../services/ocr/TesseractOcrService';
 import { getSelectedLanguage } from '../services/ocr/ocrLanguages';
-import { parseLabel } from '../services/parser/fieldParser';
 import { mergeMultiPanelDeclarations, PanelOcrInput } from '../services/parser/multiPanelMerger';
 import { defaultRulesEngine } from '../services/rules/rulesEngine';
+import { detectBarcodeAcrossPanels } from '../services/barcode/barcodeDetector';
+import { lookupProductByBarcode } from '../services/barcode/productDatabaseService';
+import { performBarcodeCrossCheck } from '../services/barcode/barcodeCrossCheck';
 import { ProcessingIndicator } from '../components/ProcessingIndicator';
 import GlowBackground from '../components/ui/GlowBackground';
 
@@ -24,7 +26,22 @@ export const Processing: React.FC = () => {
   const isProcessingRef = useRef(false);
 
   const runOcrPipeline = async () => {
-    if (!capturedImage && panels.length === 0) return;
+    const activePanels =
+      panels.length > 0
+        ? panels
+        : capturedImage
+        ? [
+            {
+              id: 'primary',
+              type: 'front' as const,
+              label: 'Front / Main Label',
+              blob: capturedImage,
+              previewUrl: imagePreviewUrl || '',
+            },
+          ]
+        : [];
+
+    if (activePanels.length === 0) return;
 
     setError(null);
     setEmptyOcr(false);
@@ -32,145 +49,121 @@ export const Processing: React.FC = () => {
     setProgress(0.08);
 
     try {
-      if (panels.length > 1) {
-        // Multi-Panel OCR Pipeline
-        const panelInputs: PanelOcrInput[] = [];
+      // 1. Kick off Barcode Detection concurrently across all active panels
+      const barcodeDetectionPromise = detectBarcodeAcrossPanels(
+        activePanels.map((p) => ({ id: p.id, label: p.label, blob: p.blob }))
+      );
 
-        for (let idx = 0; idx < panels.length; idx++) {
-          const panel = panels[idx];
-          setStatusMessage(`Scanning panel ${idx + 1} of ${panels.length}: ${panel.label}...`);
+      // 2. Multi-Panel / Multi-Image OCR Cascade
+      const panelInputs: PanelOcrInput[] = [];
 
-          const panelOcr = await defaultOcrService.recognizeWithQuality(
-            panel.blob,
-            (prog, msg) => {
-              const base = idx / panels.length;
-              const slice = 1 / panels.length;
-              setProgress(base * 0.85 + prog * slice * 0.85);
-              setStatusMessage(`Panel ${idx + 1}/${panels.length} (${panel.label}): ${msg}`);
-            },
-            { language: selectedLang.tesseractCode }
-          );
+      for (let idx = 0; idx < activePanels.length; idx++) {
+        const panel = activePanels[idx];
+        setStatusMessage(`Scanning panel ${idx + 1} of ${activePanels.length}: ${panel.label}...`);
 
-          panelInputs.push({
-            panelId: panel.id,
-            panelType: panel.type,
-            panelLabel: panel.label,
-            rawText: panelOcr.text || '',
-            confidence: panelOcr.confidence,
-            quality: panelOcr.quality,
-          });
-        }
-
-        const merged = mergeMultiPanelDeclarations(panelInputs);
-
-        if (!merged.unifiedRawText || merged.unifiedRawText.trim().length === 0) {
-          setEmptyOcr(true);
-          return;
-        }
-
-        setStep('parsing');
-        setStatusMessage('Merging multi-panel declarations & cross-checking consistency...');
-        setProgress(0.92);
-        await new Promise((r) => setTimeout(r, 200));
-
-        setStep('rules');
-        setStatusMessage('Evaluating Legal Metrology Rule 6 across panels...');
-        setProgress(0.98);
-        await new Promise((r) => setTimeout(r, 150));
-
-        const verdict = defaultRulesEngine.evaluate(merged.unifiedLabel);
-
-        // Phase 6 Safety: If panels conflict on price, dates, or quantity, strictly mandate REVIEW
-        if (merged.hasConflict) {
-          verdict.overallStatus = 'REVIEW';
-          verdict.summary = 'Needs Review: Conflicting statutory declarations detected across package panels.';
-          for (const conflictMsg of merged.conflictDetails) {
-            verdict.potentialViolations.unshift({
-              ruleId: 'MULTI_PANEL_CONFLICT',
-              field: 'conflict',
-              title: 'Multi-Panel Declaration Discrepancy',
-              severity: 'high',
-              explanation: conflictMsg,
-              evidence: conflictMsg,
-              recommendation: 'The packaging panels display conflicting statutory values. Inspection required.',
-              source: 'Multi-Panel Screening Cross-Check',
-              gazetteReference: 'Rule 6 Consistency across Package Faces',
-            });
-          }
-        }
-
-        setStep('done');
-        setProgress(1.0);
-        setStatusMessage('Unified package analysis complete! Opening results...');
-        await new Promise((r) => setTimeout(r, 200));
-
-        navigate('/results', {
-          replace: true,
-          state: {
-            extractedLabel: merged.unifiedLabel,
-            verdict,
-            imageBlob: panels[0]?.blob || capturedImage,
-            ocrQuality: merged.overallQuality,
-            ocrConfidence: merged.averageConfidence,
-            ocrLanguage: selectedLang.label,
-            ocrAttempts: panels.length,
-            multiPanelResult: merged,
-            isMultiPanel: true,
-          },
-        });
-      } else {
-        // Single Image OCR Pipeline
-        const activeBlob = panels[0]?.blob || capturedImage;
-        if (!activeBlob) return;
-
-        setStatusMessage(`Loading OCR engine (${selectedLang.label})...`);
-        const ocrResult = await defaultOcrService.recognizeWithQuality(
-          activeBlob,
+        const panelOcr = await defaultOcrService.recognizeWithQuality(
+          panel.blob,
           (prog, msg) => {
-            setProgress(prog);
-            setStatusMessage(msg);
+            const base = idx / activePanels.length;
+            const slice = 1 / activePanels.length;
+            setProgress(base * 0.75 + prog * slice * 0.75);
+            setStatusMessage(`Panel ${idx + 1}/${activePanels.length} (${panel.label}): ${msg}`);
           },
           { language: selectedLang.tesseractCode }
         );
 
-        const rawOcrText = ocrResult.text;
-
-        if (!rawOcrText || rawOcrText.trim().length === 0) {
-          setEmptyOcr(true);
-          return;
-        }
-
-        setStep('parsing');
-        setStatusMessage('Detecting mandatory label declarations...');
-        setProgress(0.92);
-        await new Promise((r) => setTimeout(r, 200));
-        const extractedLabel = parseLabel(rawOcrText);
-
-        setStep('rules');
-        setStatusMessage('Checking Legal Metrology (Packaged Commodities) Rules, 2011...');
-        setProgress(0.98);
-        await new Promise((r) => setTimeout(r, 150));
-        const verdict = defaultRulesEngine.evaluate(extractedLabel);
-
-        setStep('done');
-        setProgress(1.0);
-        setStatusMessage('Analysis complete! Opening results...');
-        await new Promise((r) => setTimeout(r, 200));
-
-        navigate('/results', {
-          replace: true,
-          state: {
-            extractedLabel,
-            verdict,
-            imageBlob: activeBlob,
-            ocrQuality: ocrResult.quality,
-            ocrConfidence: ocrResult.confidence,
-            ocrLanguage: selectedLang.label,
-            ocrAttempts: ocrResult.attempts,
-            isMultiPanel: false,
-          },
+        panelInputs.push({
+          panelId: panel.id,
+          panelType: panel.type,
+          panelLabel: panel.label,
+          rawText: panelOcr.text || '',
+          confidence: panelOcr.confidence,
+          quality: panelOcr.quality,
         });
       }
+
+      // Merge evidence across all panels
+      const merged = mergeMultiPanelDeclarations(panelInputs);
+
+      if (!merged.unifiedRawText || merged.unifiedRawText.trim().length === 0) {
+        setEmptyOcr(true);
+        return;
+      }
+
+      setStep('parsing');
+      setStatusMessage('Merging multi-panel declarations & resolving barcodes...');
+      setProgress(0.82);
+
+      // 3. Await Barcode Detection result
+      let barcodeResult = null;
+      try {
+        barcodeResult = await barcodeDetectionPromise;
+      } catch {
+        // Barcode detection failure is non-fatal
+      }
+
+      let referenceProduct = null;
+      if (barcodeResult && barcodeResult.rawValue) {
+        setStatusMessage(`Barcode ${barcodeResult.rawValue} detected. Querying public reference database...`);
+        try {
+          referenceProduct = await lookupProductByBarcode(barcodeResult.rawValue, 3500);
+        } catch {
+          // Public DB lookup failure is non-fatal
+        }
+      }
+
+      const crossCheck = performBarcodeCrossCheck(merged.unifiedLabel, barcodeResult, referenceProduct);
+
+      setProgress(0.92);
+      await new Promise((r) => setTimeout(r, 150));
+
+      // 4. Evaluate Legal Metrology Rule 6 Rules Engine
+      setStep('rules');
+      setStatusMessage('Evaluating Legal Metrology Rule 6 across package evidence...');
+      setProgress(0.96);
+      await new Promise((r) => setTimeout(r, 150));
+
+      const verdict = defaultRulesEngine.evaluate(merged.unifiedLabel);
+
+      // Multi-Panel Conflict Safety: If panels conflict on price, dates, or quantity, mandate REVIEW
+      if (merged.hasConflict) {
+        verdict.overallStatus = 'REVIEW';
+        verdict.summary = 'Needs Review: Conflicting statutory declarations detected across package panels.';
+        for (const conflictMsg of merged.conflictDetails) {
+          verdict.potentialViolations.unshift({
+            ruleId: 'MULTI_PANEL_CONFLICT',
+            field: 'conflict',
+            title: 'Multi-Panel Declaration Discrepancy',
+            severity: 'high',
+            explanation: conflictMsg,
+            evidence: conflictMsg,
+            recommendation: 'The packaging panels display conflicting statutory values. Visual verification required.',
+            source: 'Multi-Panel Evidence Fusion',
+            gazetteReference: 'Rule 6 Uniformity across Package Faces',
+          });
+        }
+      }
+
+      setStep('done');
+      setProgress(1.0);
+      setStatusMessage('Unified package analysis complete! Opening results...');
+      await new Promise((r) => setTimeout(r, 200));
+
+      navigate('/results', {
+        replace: true,
+        state: {
+          extractedLabel: merged.unifiedLabel,
+          verdict,
+          imageBlob: activePanels[0]?.blob || capturedImage,
+          ocrQuality: merged.overallQuality,
+          ocrConfidence: merged.averageConfidence,
+          ocrLanguage: selectedLang.label,
+          ocrAttempts: activePanels.length,
+          multiPanelResult: merged,
+          isMultiPanel: activePanels.length > 1,
+          barcodeCrossCheck: crossCheck,
+        },
+      });
     } catch (err: unknown) {
       console.error('OCR pipeline failure:', err);
       setError(
@@ -184,7 +177,7 @@ export const Processing: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!capturedImage) {
+    if (!capturedImage && panels.length === 0) {
       navigate('/scan', { replace: true });
       return;
     }
@@ -193,7 +186,7 @@ export const Processing: React.FC = () => {
     isProcessingRef.current = true;
 
     runOcrPipeline();
-  }, [capturedImage, navigate]);
+  }, [capturedImage, panels.length, navigate]);
 
   const handleRetake = () => {
     clearImage();
@@ -220,7 +213,7 @@ export const Processing: React.FC = () => {
           <span>CANCEL</span>
         </button>
         <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 uppercase">
-          LMCC Automated Screening
+          LMCC Package Screening
         </span>
       </header>
 
@@ -232,9 +225,7 @@ export const Processing: React.FC = () => {
             <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
               <AlertCircle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">
-              No Readable Text Detected
-            </h3>
+            <h3 className="text-xl font-bold text-white mb-2">No Readable Text Detected</h3>
             <p className="text-xs text-slate-400 mb-6 leading-relaxed font-mono">
               Tesseract.js scanned the image but could not detect readable characters. This commonly occurs if the label is out of focus, has reflections/glare, or has text that is too distant.
             </p>
@@ -315,9 +306,9 @@ export const Processing: React.FC = () => {
               step={step}
             />
 
-            {/* Thumbnail Preview below progress */}
-            {imagePreviewUrl && (
-              <div className="mt-5 flex items-center gap-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 px-4 py-2.5 rounded-2xl shadow-lg">
+            {/* Panel Count Badge / Preview */}
+            <div className="mt-5 flex items-center gap-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 px-4 py-2.5 rounded-2xl shadow-lg">
+              {imagePreviewUrl && (
                 <div className="w-10 h-10 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/10">
                   <img
                     src={imagePreviewUrl}
@@ -325,12 +316,14 @@ export const Processing: React.FC = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="text-left text-xs font-mono">
-                  <span className="font-semibold text-white block">Processing label photo</span>
-                  <span className="text-slate-400 text-[11px]">Local browser Web Worker</span>
-                </div>
+              )}
+              <div className="text-left text-xs font-mono">
+                <span className="font-semibold text-white block">
+                  {panels.length > 1 ? `Analyzing ${panels.length} Package Panels` : 'Screening Commodity Package'}
+                </span>
+                <span className="text-slate-400 text-[11px]">Local browser Web Worker • Zero cloud upload</span>
               </div>
-            )}
+            </div>
           </div>
         )}
       </main>
@@ -338,7 +331,7 @@ export const Processing: React.FC = () => {
       {/* Footer */}
       <footer className="relative z-10 text-center py-3 text-xs text-slate-500 flex items-center justify-center gap-1.5 font-mono">
         <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-        <span>Tesseract.js runs 100% locally in your browser • Zero cloud upload</span>
+        <span>Tesseract.js + Barcode Detector • 100% Client-Side Evaluation</span>
       </footer>
     </div>
   );

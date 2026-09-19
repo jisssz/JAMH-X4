@@ -21,10 +21,12 @@ import {
   Scale,
   DollarSign,
   MapPin,
-  Sparkles,
   Camera,
   Layers,
   Plus,
+  Barcode,
+  ShieldCheck,
+  Info,
 } from 'lucide-react';
 import { ExtractedLabel } from '../models/ExtractedLabel';
 import { Verdict } from '../models/Verdict';
@@ -32,6 +34,7 @@ import { VerdictCard } from '../components/VerdictCard';
 import { ViolationCard } from '../components/ViolationCard';
 import { useImage } from '../context/ImageContext';
 import { MultiPanelMergeResult } from '../services/parser/multiPanelMerger';
+import { BarcodeCrossCheckResult } from '../services/barcode/barcodeCrossCheck';
 import GlowBackground from '../components/ui/GlowBackground';
 import SectionLabel from '../components/ui/SectionLabel';
 
@@ -50,6 +53,7 @@ export const Results: React.FC = () => {
     ocrAttempts?: number;
     multiPanelResult?: MultiPanelMergeResult;
     isMultiPanel?: boolean;
+    barcodeCrossCheck?: BarcodeCrossCheckResult;
   } | null;
 
   const extractedLabel = state?.extractedLabel;
@@ -60,14 +64,13 @@ export const Results: React.FC = () => {
   const ocrLanguage = state?.ocrLanguage;
   const ocrAttempts = state?.ocrAttempts;
   const multiPanelResult = state?.multiPanelResult;
+  const barcodeCrossCheck = state?.barcodeCrossCheck;
 
   const [showRawOcr, setShowRawOcr] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
 
-  // ----------------------------------------------------
   // Empty / Failure State Handling
-  // ----------------------------------------------------
   if (!extractedLabel || !verdict) {
     return (
       <div className="min-h-screen bg-[#05070b] text-white flex flex-col items-center justify-center p-6 text-center selection:bg-emerald-500">
@@ -101,7 +104,7 @@ export const Results: React.FC = () => {
   const declarationFields: {
     label: string;
     value?: string;
-    key: keyof ExtractedLabel;
+    key: 'mrp' | 'netQuantity' | 'manufacturer' | 'address' | 'date' | 'consumerCare';
     icon: React.ReactNode;
     isAmbiguous?: boolean;
   }[] = [
@@ -132,7 +135,7 @@ export const Results: React.FC = () => {
     {
       label: 'Date of Mfg / Packing',
       value: extractedLabel.packingDate || extractedLabel.manufactureDate,
-      key: 'packingDate',
+      key: 'date',
       icon: <Calendar className="w-4 h-4 text-amber-400" />,
       isAmbiguous: extractedLabel.isDateAmbiguous || extractedLabel.isFutureDate,
     },
@@ -148,9 +151,7 @@ export const Results: React.FC = () => {
     <div className="min-h-screen bg-[#05070b] text-slate-100 flex flex-col justify-between pb-12 selection:bg-emerald-500 selection:text-black">
       <GlowBackground variant="subtle" />
 
-      {/* ---------------------------------------------------- */}
-      {/* A. Floating Header */}
-      {/* ---------------------------------------------------- */}
+      {/* Floating Header */}
       <header className="sticky top-3 sm:top-5 z-40 max-w-4xl w-full mx-auto px-4">
         <div className="px-4 py-3 rounded-full bg-slate-950/80 border border-white/10 backdrop-blur-2xl shadow-xl flex items-center justify-between">
           <button
@@ -164,7 +165,7 @@ export const Results: React.FC = () => {
 
           <div className="text-center">
             <h1 className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">
-              Compliance Screening Result
+              Package Compliance Result
             </h1>
             <span className="text-[10px] text-slate-400 font-mono hidden sm:block">
               Rule 6 (Packaged Commodities) Rules, 2011
@@ -185,9 +186,7 @@ export const Results: React.FC = () => {
 
       {/* Main Body */}
       <main className="relative z-10 max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
-        {/* ---------------------------------------------------- */}
-        {/* B. Main Verdict Banner */}
-        {/* ---------------------------------------------------- */}
+        {/* Main Verdict Banner */}
         <VerdictCard verdict={verdict} />
 
         {/* Multi-Panel Conflict Alert */}
@@ -207,15 +206,13 @@ export const Results: React.FC = () => {
           </div>
         )}
 
-        {/* ---------------------------------------------------- */}
-        {/* Scanned Image Card / Multi-Panel Gallery */}
-        {/* ---------------------------------------------------- */}
+        {/* Multi-Panel Package Session Gallery */}
         {panels.length > 1 ? (
           <div className="bg-slate-900/80 rounded-3xl p-5 border border-white/10 shadow-xl backdrop-blur-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <Layers className="w-4 h-4 text-emerald-400" />
-                Scanned Package Panels ({panels.length})
+                <span>Unified Package Session ({panels.length} Panels Analyzed)</span>
               </h3>
               <button
                 type="button"
@@ -227,19 +224,41 @@ export const Results: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {panels.map((p, idx) => (
-                <div key={p.id} className="bg-slate-950/80 rounded-2xl p-2.5 border border-white/5 flex flex-col items-center text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {panels.map((p, idx) => {
+                const contrib = multiPanelResult?.panelContributions.find((c) => c.panelId === p.id);
+                return (
                   <div
-                    className="w-full h-28 rounded-xl overflow-hidden bg-black mb-2 border border-white/10 cursor-pointer hover:opacity-90 transition"
-                    onClick={() => setIsImageExpanded(true)}
+                    key={p.id}
+                    className="bg-slate-950/80 rounded-2xl p-2.5 border border-white/5 flex flex-col items-center text-center"
                   >
-                    <img src={p.previewUrl} alt={p.label} className="w-full h-full object-contain" />
+                    <div
+                      className="w-full h-24 rounded-xl overflow-hidden bg-black mb-2 border border-white/10 cursor-pointer hover:opacity-90 transition"
+                      onClick={() => setIsImageExpanded(true)}
+                    >
+                      <img src={p.previewUrl} alt={p.label} className="w-full h-full object-contain" />
+                    </div>
+                    <span className="text-[11px] font-bold text-white font-sans truncate w-full">
+                      {p.label}
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-mono mb-1">Panel #{idx + 1}</span>
+                    {contrib && contrib.fieldsFound.length > 0 ? (
+                      <div className="flex flex-wrap justify-center gap-1 mt-1">
+                        {contrib.fieldsFound.map((f) => (
+                          <span
+                            key={f}
+                            className="text-[8px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-md"
+                          >
+                            {f}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[9px] text-slate-500 font-mono">No unique fields</span>
+                    )}
                   </div>
-                  <span className="text-[11px] font-bold text-white font-sans truncate w-full">{p.label}</span>
-                  <span className="text-[10px] text-slate-400 font-mono">Panel #{idx + 1}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : imagePreviewUrl ? (
@@ -257,7 +276,7 @@ export const Results: React.FC = () => {
                   title="Scan back or other panel"
                 >
                   <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Add Next Side</span>
+                  <span>Add Back / Crimp Panel</span>
                 </button>
                 <button
                   type="button"
@@ -284,9 +303,134 @@ export const Results: React.FC = () => {
           </div>
         ) : null}
 
-        {/* ---------------------------------------------------- */}
-        {/* Multi-Panel Smart Guidance Card (Phase 5) */}
-        {/* ---------------------------------------------------- */}
+        {/* Product Identification & Barcode Reference Cross-Check */}
+        {barcodeCrossCheck && (
+          <section className="bg-slate-900/80 rounded-3xl p-5 sm:p-6 border border-white/10 shadow-xl backdrop-blur-xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                  <Barcode className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <span>Product Identification & Reference Cross-Check</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    Independent secondary evidence via public product reference database
+                  </p>
+                </div>
+              </div>
+
+              {barcodeCrossCheck.barcode && (
+                <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-[11px]">
+                  <span className="bg-sky-500/10 text-sky-300 border border-sky-500/20 px-2.5 py-0.5 rounded-full font-bold">
+                    {barcodeCrossCheck.barcode.format}: {barcodeCrossCheck.barcode.rawValue}
+                  </span>
+                  {barcodeCrossCheck.barcode.gs1Country && (
+                    <span className="bg-white/5 text-slate-300 border border-white/10 px-2 py-0.5 rounded-full">
+                      {barcodeCrossCheck.barcode.gs1Country}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Comparison Matrix or Not Detected Card */}
+            {barcodeCrossCheck.overallStatus === 'NO_BARCODE_DETECTED' ? (
+              <div className="p-3.5 bg-white/[0.02] rounded-2xl border border-white/5 flex items-start gap-2.5 text-xs text-slate-400 font-mono">
+                <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>
+                  No 1D/2D barcode was detected on the scanned panel(s). This does not affect OCR-based Legal Metrology compliance screening.
+                </span>
+              </div>
+            ) : barcodeCrossCheck.overallStatus === 'REFERENCE_NOT_FOUND' ? (
+              <div className="p-3.5 bg-white/[0.02] rounded-2xl border border-white/5 flex items-start gap-2.5 text-xs text-slate-400 font-mono">
+                <Info className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <span>
+                  Barcode <strong>{barcodeCrossCheck.barcode?.rawValue}</strong> was identified. No matching public record was found in the reference catalog (Open Food Facts).
+                </span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Reference Product Identity */}
+                {barcodeCrossCheck.referenceData?.productName && (
+                  <div className="bg-slate-950/70 p-3 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+                    <span className="text-slate-400">Reference Catalog Title:</span>
+                    <span className="text-white font-bold font-sans text-sm">
+                      {barcodeCrossCheck.referenceData.productName}
+                    </span>
+                  </div>
+                )}
+
+                {/* Side-by-side Field Comparison Matrix */}
+                <div className="divide-y divide-white/5 bg-slate-950/50 rounded-2xl border border-white/5 overflow-hidden">
+                  {barcodeCrossCheck.comparisons.map((comp) => (
+                    <div
+                      key={comp.field}
+                      className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono"
+                    >
+                      <div className="space-y-1">
+                        <span className="text-slate-400 uppercase text-[10px] block">
+                          {comp.label}
+                        </span>
+                        <div className="flex items-center gap-4 text-slate-200">
+                          <span>
+                            Label OCR: <strong className="text-white">{comp.ocrValue || 'Not detected'}</strong>
+                          </span>
+                          <span>•</span>
+                          <span>
+                            Reference DB: <strong className="text-sky-300">{comp.referenceValue || 'N/A'}</strong>
+                          </span>
+                        </div>
+                        {comp.note && <span className="text-[10px] text-slate-400 block">{comp.note}</span>}
+                      </div>
+
+                      <div className="self-end sm:self-center">
+                        {comp.status === 'MATCH' ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            <CheckCircle2 className="w-3 h-3" /> Matched
+                          </span>
+                        ) : comp.status === 'PARTIAL_MATCH' ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                            <Info className="w-3 h-3" /> Partial Match
+                          </span>
+                        ) : comp.status === 'DISCREPANCY' ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                            <AlertTriangle className="w-3 h-3" /> Discrepancy
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-500">Unavailable</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Status Callout Banner */}
+                <div
+                  className={`p-3 rounded-xl border text-xs font-mono flex items-start gap-2 ${
+                    barcodeCrossCheck.overallStatus === 'VERIFIED_MATCH'
+                      ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300'
+                      : 'bg-amber-950/20 border-amber-500/30 text-amber-300'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block font-sans text-xs">{barcodeCrossCheck.statusTitle}</strong>
+                    <span>{barcodeCrossCheck.statusMessage}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Disclaimer */}
+            <p className="text-[10px] text-slate-500 font-mono leading-relaxed pt-1">
+              <strong>Reference Source Notice:</strong> {barcodeCrossCheck.disclaimer}
+            </p>
+          </section>
+        )}
+
+        {/* Multi-Panel Smart Guidance Card */}
         {verdict.overallStatus === 'REVIEW' &&
           (!extractedLabel.mrp || !(extractedLabel.packingDate || extractedLabel.manufactureDate)) && (
             <div className="bg-gradient-to-r from-amber-500/10 via-slate-900 to-amber-500/10 border border-amber-500/30 rounded-3xl p-5 backdrop-blur-xl shadow-xl">
@@ -294,7 +438,7 @@ export const Results: React.FC = () => {
                 <div>
                   <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 uppercase flex items-center gap-1.5 mb-1">
                     <Layers className="w-3.5 h-3.5" />
-                    Multi-Panel Package Scanning
+                    Multi-Panel Package Guidance
                   </span>
                   <h4 className="text-sm sm:text-base font-bold text-white">
                     Missing {!extractedLabel.mrp && !extractedLabel.packingDate ? 'MRP & Date' : !extractedLabel.mrp ? 'MRP' : 'Date'}? Scan Package Crimp / Seal
@@ -315,9 +459,7 @@ export const Results: React.FC = () => {
             </div>
           )}
 
-        {/* ---------------------------------------------------- */}
-        {/* Detected Declarations Grid */}
-        {/* ---------------------------------------------------- */}
+        {/* Detected Declarations Grid with Source Panel Badges */}
         <div className="bg-slate-900/80 rounded-3xl p-6 border border-white/10 shadow-xl backdrop-blur-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-white/10">
             <div>
@@ -327,7 +469,7 @@ export const Results: React.FC = () => {
               </h3>
             </div>
             <span className="text-[10px] font-mono font-semibold text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/10 self-start sm:self-auto">
-              Statutory Matching
+              Statutory Matching & Source Attribution
             </span>
           </div>
 
@@ -335,6 +477,7 @@ export const Results: React.FC = () => {
             {declarationFields.map((field) => {
               const detected = Boolean(field.value && field.value.trim().length > 0);
               const isAmbiguous = Boolean(field.isAmbiguous);
+              const origin = multiPanelResult?.fieldOrigins?.[field.key];
 
               return (
                 <div key={field.key} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -343,9 +486,16 @@ export const Results: React.FC = () => {
                       {field.icon}
                     </div>
                     <div>
-                      <span className="text-[11px] font-mono text-slate-400 block uppercase">
-                        {field.label}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono text-slate-400 block uppercase">
+                          {field.label}
+                        </span>
+                        {origin && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            ✓ {origin.panelLabel}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-sm font-bold text-white mt-0.5 block break-words max-w-md font-sans">
                         {detected ? field.value : 'Not detected on scanned label'}
                       </span>
@@ -373,9 +523,7 @@ export const Results: React.FC = () => {
           </div>
         </div>
 
-        {/* ---------------------------------------------------- */}
         {/* Detailed Review Items (Evidence-Based) */}
-        {/* ---------------------------------------------------- */}
         {verdict.potentialViolations.length > 0 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -408,9 +556,7 @@ export const Results: React.FC = () => {
           </div>
         )}
 
-        {/* ---------------------------------------------------- */}
-        {/* OCR Quality & Language Assessment Pill */}
-        {/* ---------------------------------------------------- */}
+        {/* OCR Signal Quality Pill */}
         {ocrQuality && (
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-slate-900/80 rounded-2xl border border-white/10 text-xs font-mono shadow-xl backdrop-blur-xl">
             <div className="flex items-center gap-2.5">
@@ -443,16 +589,14 @@ export const Results: React.FC = () => {
               )}
               {ocrAttempts && (
                 <span>
-                  Passes: <strong className="text-white">{ocrAttempts}</strong>
+                  Panels: <strong className="text-white">{ocrAttempts}</strong>
                 </span>
               )}
             </div>
           </div>
         )}
 
-        {/* ---------------------------------------------------- */}
         {/* Raw Scanned OCR Text Inspector */}
-        {/* ---------------------------------------------------- */}
         <div className="bg-slate-900/80 rounded-2xl border border-white/10 overflow-hidden shadow-xl backdrop-blur-xl">
           <button
             type="button"
@@ -488,34 +632,17 @@ export const Results: React.FC = () => {
           )}
         </div>
 
-        {/* ---------------------------------------------------- */}
-        {/* OCR Quality Notice & Legal Disclaimer */}
-        {/* ---------------------------------------------------- */}
+        {/* Legal Disclaimer */}
         <div className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 text-xs text-slate-400 space-y-2 font-mono">
           <div className="flex items-start gap-2">
             <HelpCircle className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
             <p>
-              <strong>OCR Quality Notice:</strong> Results are based on text detected from the scanned image. Poor lighting, glare, blur, curved packaging, or partially visible labels may affect accuracy.
-            </p>
-          </div>
-          <div className="flex items-start gap-2 pt-2 border-t border-white/5 text-[11px] text-slate-500">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
-            <p>
-              <strong>Automated Screening Notice:</strong> This application is an automated consumer assistance screening tool and does not issue legal certifications or official regulatory determinations.
+              <strong>Screening Notice:</strong> Results are based on text detected from the scanned images and independent reference databases. Automated screening does not constitute legal certification.
             </p>
           </div>
         </div>
 
-        {/* ---------------------------------------------------- */}
         {/* Primary Action Buttons */}
-        {/* ---------------------------------------------------- */}
-        {verdict.overallStatus === 'PASS' && (
-          <div className="p-3.5 bg-emerald-950/20 rounded-2xl border border-emerald-500/20 flex items-center gap-2.5 text-xs font-mono text-emerald-300">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>No potential declaration issues detected during automated screening.</span>
-          </div>
-        )}
-
         <div className="pt-2 flex flex-col sm:flex-row gap-3">
           {verdict.overallStatus === 'REVIEW' ? (
             <button
@@ -548,54 +675,43 @@ export const Results: React.FC = () => {
                   },
                 })
               }
-              className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-semibold py-4 px-6 rounded-full flex items-center justify-center gap-2 border border-white/15 transition active:scale-[0.98] cursor-pointer text-xs font-mono"
+              className="flex-1 bg-white/10 hover:bg-white/15 text-white font-bold py-4 px-6 rounded-full flex items-center justify-center gap-2 border border-white/10 transition active:scale-[0.98] cursor-pointer"
             >
-              <Flag className="w-4 h-4 text-slate-400" />
-              <span>Report a Concern</span>
+              <Flag className="w-5 h-5 text-slate-400" />
+              <span>Flag a Packaging Concern</span>
             </button>
           )}
 
           <button
             type="button"
             onClick={() => navigate('/scan')}
-            className="flex-1 bg-white hover:bg-slate-100 text-slate-950 font-bold py-4 px-6 rounded-full flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(255,255,255,0.3)] transition active:scale-[0.98] cursor-pointer"
+            className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-4 px-6 rounded-full flex items-center justify-center gap-2 transition active:scale-[0.98] border border-slate-700 cursor-pointer"
           >
             <RotateCcw className="w-5 h-5" />
-            <span>Scan Another Product</span>
+            <span>Scan Another Package</span>
           </button>
         </div>
       </main>
 
-      {/* ---------------------------------------------------- */}
-      {/* Expanded Image Modal / Lightbox */}
-      {/* ---------------------------------------------------- */}
-      {isImageExpanded && imagePreviewUrl && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col justify-between p-4 sm:p-6">
-          <div className="flex justify-between items-center text-white pb-2 max-w-4xl w-full mx-auto">
-            <span className="text-xs font-mono font-semibold text-slate-300">Original Package Photo</span>
-            <button
-              type="button"
-              onClick={() => setIsImageExpanded(false)}
-              className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition cursor-pointer"
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
-          </div>
-          <div className="flex-1 flex items-center justify-center overflow-hidden max-w-4xl w-full mx-auto">
+      {/* Expanded Image Modal */}
+      {isImageExpanded && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-xl animate-fade-in"
+          onClick={() => setIsImageExpanded(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setIsImageExpanded(false)}
+            className="absolute top-5 right-5 z-10 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition border border-white/15"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-3xl max-h-[85vh] w-full flex items-center justify-center">
             <img
-              src={imagePreviewUrl}
-              alt="Expanded package label"
-              className="max-h-full max-w-full object-contain rounded-2xl border border-white/10"
+              src={imagePreviewUrl || (panels.length > 0 ? panels[0].previewUrl : '')}
+              alt="Enlarged packaging photograph"
+              className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10"
             />
-          </div>
-          <div className="text-center pt-3">
-            <button
-              type="button"
-              onClick={() => setIsImageExpanded(false)}
-              className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold rounded-full border border-white/15 cursor-pointer"
-            >
-              Close Viewer
-            </button>
           </div>
         </div>
       )}

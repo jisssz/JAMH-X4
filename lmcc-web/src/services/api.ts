@@ -176,4 +176,124 @@ export async function getReport(id: string): Promise<ReportRead> {
   }
 }
 
+export interface AnalyticsSummary {
+  totalScans: number;
+  passCount: number;
+  reviewCount: number;
+  passRate: number;
+  totalIssues: number;
+  isDemonstrationData: boolean;
+  lastUpdated: string;
+  disclaimer: string;
+}
+
+export interface IssueFrequencyItem {
+  field: string;
+  ruleReference: string;
+  count: number;
+  percentage: number;
+}
+
+export interface IssuesBreakdown {
+  items: IssueFrequencyItem[];
+  totalIssues: number;
+  isDemonstrationData: boolean;
+}
+
+export interface CategoryBreakdownItem {
+  category: string;
+  screenings: number;
+  reviewCount: number;
+  reviewRate: number;
+}
+
+export interface CategoriesBreakdown {
+  items: CategoryBreakdownItem[];
+  isDemonstrationData: boolean;
+}
+
+export interface TrendItem {
+  period: string;
+  scans: number;
+  reviews: number;
+}
+
+export interface TrendsResponse {
+  items: TrendItem[];
+  isDemonstrationData: boolean;
+}
+
+export interface BrandSurveillanceItem {
+  manufacturer: string;
+  screenings: number;
+  reviewCount: number;
+  reviewRate: number;
+}
+
+export interface BrandsResponse {
+  items: BrandSurveillanceItem[];
+  isDemonstrationData: boolean;
+  notice: string;
+}
+
+export async function getAnalyticsSummary(demo?: boolean): Promise<AnalyticsSummary> {
+  const query = demo !== undefined ? `?demo=${demo}` : '';
+  const response = await fetch(`${API_BASE_URL}/api/analytics/summary${query}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch analytics summary (${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getAnalyticsIssues(demo?: boolean): Promise<IssuesBreakdown> {
+  const query = demo !== undefined ? `?demo=${demo}` : '';
+  const response = await fetch(`${API_BASE_URL}/api/analytics/issues${query}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch issues breakdown (${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getAnalyticsCategories(demo?: boolean): Promise<CategoriesBreakdown> {
+  const query = demo !== undefined ? `?demo=${demo}` : '';
+  const response = await fetch(`${API_BASE_URL}/api/analytics/categories${query}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch categories breakdown (${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getAnalyticsTrends(demo?: boolean): Promise<TrendsResponse> {
+  const query = demo !== undefined ? `?demo=${demo}` : '';
+  const response = await fetch(`${API_BASE_URL}/api/analytics/trends${query}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch analytics trends (${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getAnalyticsBrands(demo?: boolean): Promise<BrandsResponse> {
+  const query = demo !== undefined ? `?demo=${demo}` : '';
+  const response = await fetch(`${API_BASE_URL}/api/analytics/brands${query}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch brand surveillance (${response.status})`);
+  }
+  return response.json();
+}
+
 

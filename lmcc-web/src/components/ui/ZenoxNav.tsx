@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Camera, Scale, History, Menu, X, ChevronRight } from 'lucide-react';
+import { Camera, Scale, History, Menu, X, ChevronRight, BarChart3 } from 'lucide-react';
 
 interface ZenoxNavProps {
   onOpenHowItWorks?: () => void;
@@ -78,6 +78,14 @@ export const ZenoxNav: React.FC<ZenoxNavProps> = ({ onOpenHowItWorks }) => {
           >
             <History className="w-3.5 h-3.5 text-emerald-400" />
             <span>History</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/authority-dashboard')}
+            className="hover:text-white transition flex items-center gap-1.5 cursor-pointer text-emerald-300"
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-sky-400" />
+            <span>Analytics</span>
           </button>
         </div>
 
@@ -161,6 +169,20 @@ export const ZenoxNav: React.FC<ZenoxNavProps> = ({ onOpenHowItWorks }) => {
             className="w-full text-left py-2 px-3 rounded-xl hover:bg-white/5 text-slate-200 flex items-center justify-between"
           >
             <span>SCAN HISTORY</span>
+            <ChevronRight className="w-4 h-4 text-slate-500" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate('/authority-dashboard');
+            }}
+            className="w-full text-left py-2 px-3 rounded-xl hover:bg-white/5 text-emerald-300 flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-sky-400" />
+              AUTHORITY ANALYTICS
+            </span>
             <ChevronRight className="w-4 h-4 text-slate-500" />
           </button>
           <button

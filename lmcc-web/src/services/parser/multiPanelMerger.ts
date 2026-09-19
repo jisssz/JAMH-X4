@@ -12,6 +12,12 @@ export interface PanelOcrInput {
   quality?: 'GOOD' | 'FAIR' | 'POOR';
 }
 
+export interface FieldOrigin {
+  panelId: string;
+  panelLabel: string;
+  value: string;
+}
+
 export interface MultiPanelMergeResult {
   unifiedLabel: ExtractedLabel;
   unifiedRawText: string;
@@ -19,6 +25,7 @@ export interface MultiPanelMergeResult {
   overallQuality: 'GOOD' | 'FAIR' | 'POOR';
   hasConflict: boolean;
   conflictDetails: string[];
+  fieldOrigins: Partial<Record<'mrp' | 'netQuantity' | 'date' | 'manufacturer' | 'address' | 'consumerCare' | 'importer', FieldOrigin>>;
   panelContributions: {
     panelId: string;
     panelLabel: string;
@@ -74,6 +81,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       overallQuality: 'POOR',
       hasConflict: false,
       conflictDetails: [],
+      fieldOrigins: {},
       panelContributions: [],
     };
   }
@@ -86,6 +94,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
 
   const panelContributions: MultiPanelMergeResult['panelContributions'] = [];
   const conflictDetails: string[] = [];
+  const fieldOrigins: MultiPanelMergeResult['fieldOrigins'] = {};
   let hasConflict = false;
 
   let mrp: string | undefined;
@@ -128,6 +137,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
         mrp = p.mrp;
         mrpEvidence = `[${label}]: ${p.mrpEvidence || p.mrp}`;
         mrpPanelLabel = label;
+        fieldOrigins.mrp = { panelId: item.input.panelId, panelLabel: label, value: p.mrp };
       } else {
         const numA = normalizeMrpNumber(mrp);
         const numB = normalizeMrpNumber(p.mrp);
@@ -147,6 +157,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
         netQuantity = p.netQuantity;
         netQuantityEvidence = `[${label}]: ${p.netQuantityEvidence || p.netQuantity}`;
         netQtyPanelLabel = label;
+        fieldOrigins.netQuantity = { panelId: item.input.panelId, panelLabel: label, value: p.netQuantity };
       } else {
         const qtyA = normalizeQty(netQuantity);
         const qtyB = normalizeQty(p.netQuantity);
@@ -171,6 +182,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
         manufactureDate = p.manufactureDate;
         dateEvidence = `[${label}]: ${p.dateEvidence || itemDate}`;
         datePanelLabel = label;
+        fieldOrigins.date = { panelId: item.input.panelId, panelLabel: label, value: itemDate };
       } else {
         const currentDate = manufactureDate || packingDate;
         if (currentDate && currentDate !== itemDate) {
@@ -188,6 +200,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       if (!manufacturer) {
         manufacturer = p.manufacturer;
         manufacturerEvidence = `[${label}]: ${p.manufacturerEvidence || p.manufacturer}`;
+        fieldOrigins.manufacturer = { panelId: item.input.panelId, panelLabel: label, value: p.manufacturer };
       }
     }
 
@@ -197,9 +210,11 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       if (!address) {
         address = p.address;
         addressEvidence = `[${label}]: ${p.addressEvidence || p.address}`;
+        fieldOrigins.address = { panelId: item.input.panelId, panelLabel: label, value: p.address };
       } else if (!address.includes(p.address) && p.address.length > address.length) {
         address = p.address;
         addressEvidence = `[${label}]: ${p.addressEvidence || p.address}`;
+        fieldOrigins.address = { panelId: item.input.panelId, panelLabel: label, value: p.address };
       }
     }
 
@@ -209,6 +224,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       if (!consumerCare) {
         consumerCare = p.consumerCare;
         consumerCareEvidence = `[${label}]: ${p.consumerCareEvidence || p.consumerCare}`;
+        fieldOrigins.consumerCare = { panelId: item.input.panelId, panelLabel: label, value: p.consumerCare };
       }
     }
 
@@ -218,6 +234,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       if (!importer) {
         importer = p.importer;
         importerEvidence = `[${label}]: ${p.importerEvidence || p.importer}`;
+        fieldOrigins.importer = { panelId: item.input.panelId, panelLabel: label, value: p.importer };
       }
     }
 
@@ -267,6 +284,8 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     overallQuality,
     hasConflict,
     conflictDetails,
+    fieldOrigins,
     panelContributions,
   };
 }
+

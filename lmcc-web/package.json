@@ -15,6 +15,7 @@
     "benchmark:all": "tsx evaluation/runners/parserBenchmark.ts && tsx evaluation/runners/rulesBenchmark.ts"
   },
   "dependencies": {
+    "@zxing/library": "^0.23.0",
     "lucide-react": "^1.16.0",
     "ogl": "^1.0.11",
     "react": "^18.3.1",

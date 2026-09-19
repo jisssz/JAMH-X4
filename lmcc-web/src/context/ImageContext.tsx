@@ -23,12 +23,23 @@ interface ImageContextType {
   panels: ScanPanel[];
   currentPanelType: PanelType;
   setCurrentPanelType: (type: PanelType) => void;
-  addPanel: (fileOrBlob: Blob | File, type?: PanelType, customLabel?: string) => void;
+  addPanel: (fileOrBlob: Blob | File, type?: PanelType, customLabel?: string) => boolean;
+  addPanels: (filesOrBlobs: (Blob | File)[]) => number;
+  updatePanelType: (id: string, type: PanelType, customLabel?: string) => void;
   removePanel: (id: string) => void;
   clearPanels: () => void;
   setCapturedImage: (fileOrBlob: Blob | File | null, fileName?: string) => void;
   clearImage: () => void;
 }
+
+const MAX_PANELS = 5;
+
+const labelMap: Record<PanelType, string> = {
+  front: 'Front / Main Label',
+  back: 'Back Declaration Panel',
+  crimp: 'Crimp / Seal / Base',
+  other: 'Side / Additional Panel',
+};
 
 const ImageContext = createContext<ImageContextType | undefined>(undefined);
 
@@ -39,15 +50,13 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [panels, setPanels] = useState<ScanPanel[]>([]);
   const [currentPanelType, setCurrentPanelType] = useState<PanelType>('front');
 
-  const addPanel = (fileOrBlob: Blob | File, type: PanelType = 'front', customLabel?: string) => {
+  const addPanel = (fileOrBlob: Blob | File, type: PanelType = 'front', customLabel?: string): boolean => {
+    if (panels.length >= MAX_PANELS) {
+      return false;
+    }
+
     const objectUrl = URL.createObjectURL(fileOrBlob);
     const id = `panel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const labelMap: Record<PanelType, string> = {
-      front: 'Front / Main Label',
-      back: 'Back Declaration Panel',
-      crimp: 'Crimp / Seal / Base',
-      other: 'Additional Panel',
-    };
     const label = customLabel || labelMap[type] || 'Package Panel';
 
     const newPanel: ScanPanel = {
@@ -63,7 +72,57 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // Also update primary capturedImage for single-panel views
     setCapturedImageState(fileOrBlob);
     setImagePreviewUrl(objectUrl);
+    return true;
   };
+
+  const addPanels = (filesOrBlobs: (Blob | File)[]): number => {
+    const defaultSequence: PanelType[] = ['front', 'back', 'crimp', 'other', 'other'];
+    let addedCount = 0;
+
+    setPanels((prev) => {
+      const remainingSlots = MAX_PANELS - prev.length;
+      if (remainingSlots <= 0) return prev;
+
+      const toAdd = filesOrBlobs.slice(0, remainingSlots);
+      const newPanels: ScanPanel[] = toAdd.map((fileOrBlob, idx) => {
+        const slotIdx = prev.length + idx;
+        const type = defaultSequence[slotIdx] || 'other';
+        const objectUrl = URL.createObjectURL(fileOrBlob);
+        const id = `panel_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 7)}`;
+        return {
+          id,
+          type,
+          label: labelMap[type] || 'Package Panel',
+          blob: fileOrBlob,
+          previewUrl: objectUrl,
+        };
+      });
+
+      addedCount = newPanels.length;
+      if (newPanels.length > 0) {
+        setCapturedImageState(newPanels[0].blob);
+        setImagePreviewUrl(newPanels[0].previewUrl);
+      }
+      return [...prev, ...newPanels];
+    });
+
+    return addedCount;
+  };
+
+  const updatePanelType = (id: string, type: PanelType, customLabel?: string) => {
+    setPanels((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              type,
+              label: customLabel || labelMap[type] || p.label,
+            }
+          : p
+      )
+    );
+  };
+
 
   const removePanel = (id: string) => {
     setPanels((prev) => {
@@ -173,6 +232,8 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         currentPanelType,
         setCurrentPanelType,
         addPanel,
+        addPanels,
+        updatePanelType,
         removePanel,
         clearPanels,
         setCapturedImage,

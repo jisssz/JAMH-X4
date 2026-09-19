@@ -1748,6 +1748,112 @@ test('Phase 17 Multi-Panel: Incomplete multi-panel scan safely yields REVIEW whe
   assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Missing MRP and Date must strictly yield REVIEW');
 });
 
+// ----------------------------------------------------
+// Phase 18: Barcode & Product Database Cross-Check Tests
+// ----------------------------------------------------
+import { getGs1Country } from '../src/services/barcode/barcodeDetector';
+import { performBarcodeCrossCheck } from '../src/services/barcode/barcodeCrossCheck';
+import { ReferenceProductInfo } from '../src/services/barcode/productDatabaseService';
+
+test('Phase 18 Barcode: GS1 Country Prefix identification identifies India (890), UK (500), USA (000-019)', () => {
+  assert.strictEqual(getGs1Country('8901234567890'), 'India (GS1 India)');
+  assert.strictEqual(getGs1Country('8901030383848'), 'India (GS1 India)');
+  assert.strictEqual(getGs1Country('5000128001000'), 'United Kingdom');
+  assert.strictEqual(getGs1Country('012345678905'), 'United States & Canada');
+  assert.strictEqual(getGs1Country('9999999999999'), undefined);
+  assert.strictEqual(getGs1Country('12'), undefined);
+});
+
+test('Phase 18 Barcode: Cross-check logic identifies MATCH when OCR and DB match', () => {
+  const ocrLabel = {
+    manufacturer: 'Parle Products Private Limited',
+    netQuantity: '250 g',
+    productName: 'Parle-G Glucose Biscuits',
+  };
+
+  const barcode = {
+    rawValue: '8901030383848',
+    format: 'EAN_13',
+    gs1Country: 'India (GS1 India)',
+  };
+
+  const refData: ReferenceProductInfo = {
+    found: true,
+    barcode: '8901030383848',
+    productName: 'Parle-G Glucose Biscuits',
+    brands: 'Parle Products Pvt Ltd',
+    quantity: '250g',
+    source: 'Open Food Facts',
+    disclaimer: 'Advisory reference only',
+  };
+
+  const check = performBarcodeCrossCheck(ocrLabel, barcode, refData);
+  assert.strictEqual(check.overallStatus, 'VERIFIED_MATCH');
+  assert.strictEqual(check.isAdvisoryOnly, true);
+  assert.ok(check.comparisons.some((c) => c.field === 'manufacturer' && (c.status === 'MATCH' || c.status === 'PARTIAL_MATCH')));
+  assert.ok(check.comparisons.some((c) => c.field === 'netQuantity' && c.status === 'MATCH'));
+});
+
+test('Phase 18 Barcode: Cross-check logic identifies DISCREPANCY when OCR net quantity disagrees with barcode reference', () => {
+  const ocrLabel = {
+    manufacturer: 'Parle Products Pvt Ltd',
+    netQuantity: '500 g', // Discrepant quantity
+  };
+
+  const barcode = {
+    rawValue: '8901030383848',
+    format: 'EAN_13',
+  };
+
+  const refData: ReferenceProductInfo = {
+    found: true,
+    barcode: '8901030383848',
+    quantity: '100 g',
+    brands: 'Parle',
+    source: 'Open Food Facts',
+    disclaimer: 'Advisory reference only',
+  };
+
+  const check = performBarcodeCrossCheck(ocrLabel, barcode, refData);
+  assert.strictEqual(check.overallStatus, 'REFERENCE_DISCREPANCY');
+  const qtyComp = check.comparisons.find((c) => c.field === 'netQuantity');
+  assert.strictEqual(qtyComp?.status, 'DISCREPANCY');
+});
+
+test('Phase 18 Barcode: Reference not found handles missing DB record gracefully without failing compliance', () => {
+  const ocrLabel = {
+    manufacturer: 'Local Farmer Co',
+    netQuantity: '1 kg',
+  };
+
+  const barcode = {
+    rawValue: '8909999999999',
+    format: 'EAN_13',
+    gs1Country: 'India (GS1 India)',
+  };
+
+  const refData: ReferenceProductInfo = {
+    found: false,
+    barcode: '8909999999999',
+    source: 'Unrecognized',
+    disclaimer: 'Advisory reference only',
+  };
+
+  const check = performBarcodeCrossCheck(ocrLabel, barcode, refData);
+  assert.strictEqual(check.overallStatus, 'REFERENCE_NOT_FOUND');
+  assert.ok(check.statusMessage.includes('no matching public record was found'));
+});
+
+test('Phase 18 Barcode: No barcode detected produces clean unverified advisory status', () => {
+  const ocrLabel = {
+    netQuantity: '100 g',
+  };
+
+  const check = performBarcodeCrossCheck(ocrLabel, undefined, undefined);
+  assert.strictEqual(check.overallStatus, 'NO_BARCODE_DETECTED');
+  assert.strictEqual(check.comparisons.length, 0);
+});
+
 
 
 

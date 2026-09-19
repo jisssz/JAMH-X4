@@ -3,13 +3,20 @@ import { UploadCloud, Image as ImageIcon, AlertCircle, Check, X, RefreshCw } fro
 
 interface ImageUploadProps {
   onImageSelected: (image: File) => void;
+  onImagesSelected?: (images: File[]) => void;
+  multiple?: boolean;
   className?: string;
 }
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 15 * 1024 * 1024; // 15MB
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, className = '' }) => {
+export const ImageUpload: React.FC<ImageUploadProps> = ({
+  onImageSelected,
+  onImagesSelected,
+  multiple = true,
+  className = '',
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,9 +65,32 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, class
     img.src = url;
   };
 
+  const handleFiles = (fileList: FileList) => {
+    const files = Array.from(fileList);
+    if (files.length === 0) return;
+
+    if (files.length > 1 && onImagesSelected) {
+      // Validate all files
+      const validFiles: File[] = [];
+      for (const file of files) {
+        const fileType = file.type.toLowerCase();
+        const isExtensionValid = /\.(jpe?g|png|webp)$/i.test(file.name);
+        if ((ALLOWED_TYPES.includes(fileType) || isExtensionValid) && file.size <= MAX_SIZE_BYTES) {
+          validFiles.push(file);
+        }
+      }
+      if (validFiles.length > 0) {
+        onImagesSelected(validFiles);
+        return;
+      }
+    }
+
+    validateAndProcessFile(files[0]);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      validateAndProcessFile(e.target.files[0]);
+      handleFiles(e.target.files);
     }
   };
 
@@ -68,7 +98,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, class
     e.preventDefault();
     setDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      validateAndProcessFile(e.dataTransfer.files[0]);
+      handleFiles(e.dataTransfer.files);
     }
   };
 
@@ -96,6 +126,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, class
       <input
         type="file"
         ref={fileInputRef}
+        multiple={multiple}
         accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleFileChange}

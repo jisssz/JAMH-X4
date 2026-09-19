@@ -8,6 +8,7 @@ import { Results } from './pages/Results';
 import { Report } from './pages/Report';
 import { History } from './pages/History';
 import { ReportDetail } from './pages/ReportDetail';
+import { AuthorityDashboard } from './pages/AuthorityDashboard';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
@@ -37,6 +38,8 @@ export const App: React.FC = () => {
           <Route path="/report" element={<Report />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:id" element={<ReportDetail />} />
+          <Route path="/authority-dashboard" element={<AuthorityDashboard />} />
+          <Route path="/dashboard" element={<AuthorityDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

@@ -59,14 +59,28 @@ app.add_middleware(
 )
 
 
+from urllib.parse import urlencode
+
+
 @app.middleware("http")
 async def vercel_routing_middleware(request: Request, call_next):
     """
     Normalizes request paths for serverless hosting environments (e.g. Vercel)
-    where rewrites direct traffic to /api/index.py or strip the /api prefix.
+    where rewrites direct traffic to /api/index.py?path=$1 or strip the /api prefix.
     """
-    path = request.scope.get("path", "")
-    if path == "/api/index.py" or path.startswith("/api/index.py") or path.startswith("/api/index"):
+    path_param = request.query_params.get("path")
+    if path_param is not None:
+        clean_path = path_param.strip()
+        if clean_path:
+            request.scope["path"] = "/" + clean_path.lstrip("/")
+        else:
+            request.scope["path"] = "/"
+            
+        # Clean internal 'path' query param so endpoint dependencies aren't polluted
+        clean_params = [(k, v) for k, v in request.query_params.multi_items() if k != "path"]
+        request.scope["query_string"] = urlencode(clean_params).encode("latin1")
+    else:
+        path = request.scope.get("path", "")
         orig = (
             request.headers.get("x-matched-path")
             or request.headers.get("x-vercel-matched-path")
@@ -91,6 +105,7 @@ async def vercel_routing_middleware(request: Request, call_next):
     return await call_next(request)
 
 
+
 # Register API Routers (under /api prefix)
 app.include_router(report_router)
 
@@ -102,16 +117,13 @@ app.add_api_route("/reports/{report_id}", get_report, methods=["GET"], response_
 
 
 @app.get("/")
-def root(request: Request):
+def root():
     return {
         "service": "LMCC Reporting API",
         "status": "online",
         "docs": "/docs",
         "health": "/api/health",
-        "scope_path": request.scope.get("path"),
-        "headers": {k: v for k, v in request.headers.items() if "auth" not in k.lower() and "cookie" not in k.lower()},
     }
-
 
 
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "OPTIONS", "HEAD"])
@@ -142,10 +154,8 @@ async def catch_all_fallback(request: Request, full_path: str):
             "status": "online",
             "docs": "/docs",
             "health": "/api/health",
-            "clean_path": clean_path,
-            "scope_path": request.scope.get("path"),
-            "headers": {k: v for k, v in request.headers.items() if "auth" not in k.lower() and "cookie" not in k.lower()},
         }
+
 
         
     return JSONResponse(

@@ -236,64 +236,156 @@ export interface BrandsResponse {
   notice: string;
 }
 
+export const FALLBACK_DEMO_SUMMARY: AnalyticsSummary = {
+  totalScans: 1420,
+  passCount: 1048,
+  reviewCount: 372,
+  passRate: 73.8,
+  totalIssues: 565,
+  isDemonstrationData: true,
+  lastUpdated: new Date().toISOString(),
+  disclaimer:
+    'Screening observations are advisory consumer indicators. Does not constitute official judicial non-compliance.',
+};
+
+export const FALLBACK_DEMO_ISSUES: IssuesBreakdown = {
+  items: [
+    { field: 'MRP / Unit Sale Price', ruleReference: 'Rule 6(1)(e)', count: 184, percentage: 32.6 },
+    { field: 'Date of Mfg / Expiry', ruleReference: 'Rule 6(1)(d)', count: 112, percentage: 19.8 },
+    { field: 'Consumer Care Helpline', ruleReference: 'Rule 6(1)(g)', count: 98, percentage: 17.3 },
+    { field: 'Net Quantity & Fonts', ruleReference: 'Rule 6(1)(c) & R-7', count: 76, percentage: 13.5 },
+    { field: 'Manufacturer / Packer Address', ruleReference: 'Rule 6(1)(a)-(b)', count: 64, percentage: 11.3 },
+    { field: 'Multi-Panel Discrepancy', ruleReference: 'Rule 6 Consistency', count: 31, percentage: 5.5 },
+  ],
+  totalIssues: 565,
+  isDemonstrationData: true,
+};
+
+export const FALLBACK_DEMO_CATEGORIES: CategoriesBreakdown = {
+  items: [
+    { category: 'Packaged Foods & Staples', screenings: 520, reviewCount: 126, reviewRate: 24.2 },
+    { category: 'Snacks & Confectionery', screenings: 380, reviewCount: 108, reviewRate: 28.4 },
+    { category: 'Beverages & Dairy', screenings: 240, reviewCount: 52, reviewRate: 21.7 },
+    { category: 'Personal Care & Toiletries', screenings: 180, reviewCount: 56, reviewRate: 31.1 },
+    { category: 'Household & Cleaning', screenings: 100, reviewCount: 30, reviewRate: 30.0 },
+  ],
+  isDemonstrationData: true,
+};
+
+export const FALLBACK_DEMO_TRENDS: TrendsResponse = {
+  items: [
+    { period: 'Apr 2024', scans: 140, reviews: 42 },
+    { period: 'May 2024', scans: 185, reviews: 51 },
+    { period: 'Jun 2024', scans: 220, reviews: 58 },
+    { period: 'Jul 2024', scans: 265, reviews: 69 },
+    { period: 'Aug 2024', scans: 310, reviews: 78 },
+    { period: 'Sep 2024', scans: 300, reviews: 74 },
+  ],
+  isDemonstrationData: true,
+};
+
+export const FALLBACK_DEMO_BRANDS: BrandsResponse = {
+  items: [
+    { manufacturer: 'Britannia Industries Ltd', screenings: 142, reviewCount: 28, reviewRate: 19.7 },
+    { manufacturer: 'Parle Products Pvt Ltd', screenings: 128, reviewCount: 24, reviewRate: 18.8 },
+    { manufacturer: 'ITC Limited', screenings: 115, reviewCount: 22, reviewRate: 19.1 },
+    { manufacturer: 'Nestle India Ltd', screenings: 98, reviewCount: 19, reviewRate: 19.4 },
+    { manufacturer: 'Hindustan Unilever Ltd', screenings: 86, reviewCount: 16, reviewRate: 18.6 },
+    { manufacturer: 'Regional / Local Packers', screenings: 310, reviewCount: 148, reviewRate: 47.7 },
+  ],
+  isDemonstrationData: true,
+  notice:
+    'Screening counts represent automated consumer observations and do not reflect official judicial or regulatory violations.',
+};
+
 export async function getAnalyticsSummary(demo?: boolean): Promise<AnalyticsSummary> {
   const query = demo !== undefined ? `?demo=${demo}` : '';
-  const response = await fetch(`${API_BASE_URL}/api/analytics/summary${query}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch analytics summary (${response.status})`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/summary${query}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      if (demo) return FALLBACK_DEMO_SUMMARY;
+      throw new Error(`Failed to fetch analytics summary (${response.status})`);
+    }
+    return response.json();
+  } catch (err) {
+    if (demo) return FALLBACK_DEMO_SUMMARY;
+    throw err;
   }
-  return response.json();
 }
 
 export async function getAnalyticsIssues(demo?: boolean): Promise<IssuesBreakdown> {
   const query = demo !== undefined ? `?demo=${demo}` : '';
-  const response = await fetch(`${API_BASE_URL}/api/analytics/issues${query}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch issues breakdown (${response.status})`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/issues${query}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      if (demo) return FALLBACK_DEMO_ISSUES;
+      throw new Error(`Failed to fetch issues breakdown (${response.status})`);
+    }
+    return response.json();
+  } catch (err) {
+    if (demo) return FALLBACK_DEMO_ISSUES;
+    throw err;
   }
-  return response.json();
 }
 
 export async function getAnalyticsCategories(demo?: boolean): Promise<CategoriesBreakdown> {
   const query = demo !== undefined ? `?demo=${demo}` : '';
-  const response = await fetch(`${API_BASE_URL}/api/analytics/categories${query}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch categories breakdown (${response.status})`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/categories${query}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      if (demo) return FALLBACK_DEMO_CATEGORIES;
+      throw new Error(`Failed to fetch categories breakdown (${response.status})`);
+    }
+    return response.json();
+  } catch (err) {
+    if (demo) return FALLBACK_DEMO_CATEGORIES;
+    throw err;
   }
-  return response.json();
 }
 
 export async function getAnalyticsTrends(demo?: boolean): Promise<TrendsResponse> {
   const query = demo !== undefined ? `?demo=${demo}` : '';
-  const response = await fetch(`${API_BASE_URL}/api/analytics/trends${query}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch analytics trends (${response.status})`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/trends${query}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      if (demo) return FALLBACK_DEMO_TRENDS;
+      throw new Error(`Failed to fetch analytics trends (${response.status})`);
+    }
+    return response.json();
+  } catch (err) {
+    if (demo) return FALLBACK_DEMO_TRENDS;
+    throw err;
   }
-  return response.json();
 }
 
 export async function getAnalyticsBrands(demo?: boolean): Promise<BrandsResponse> {
   const query = demo !== undefined ? `?demo=${demo}` : '';
-  const response = await fetch(`${API_BASE_URL}/api/analytics/brands${query}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch brand surveillance (${response.status})`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/analytics/brands${query}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      if (demo) return FALLBACK_DEMO_BRANDS;
+      throw new Error(`Failed to fetch brand surveillance (${response.status})`);
+    }
+    return response.json();
+  } catch (err) {
+    if (demo) return FALLBACK_DEMO_BRANDS;
+    throw err;
   }
-  return response.json();
 }
 
 

@@ -137,16 +137,16 @@ export class TesseractOcrService implements OcrService {
         (detectedCount >= 4 && conf1 >= 80);
 
       // =========================================================================
-      // STAGE B: 2x Bicubic Upscale for Fine-Print Declarations (PSM 11 / SPARSE_TEXT)
+      // STAGE B: Multi-Scale Upscale for Fine-Print Declarations (PSM 6 / SINGLE_BLOCK)
       // =========================================================================
       if (!canSkipFurtherPasses && maxAttempts >= 2) {
         if (onProgress) {
-          onProgress(0.55, 'Running Stage B: Fine-print declaration scan (2x multi-scale)...');
+          onProgress(0.55, 'Running Stage B: Fine-print declaration scan (multi-scale resolution)...');
         }
 
         try {
           const pass2Start = Date.now();
-          await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+          await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
           const upscaledImage = await createUpscaledImage(image, 2.0);
           const ret2 = await worker.recognize(upscaledImage);
           const pass2Duration = Date.now() - pass2Start;
@@ -162,8 +162,8 @@ export class TesseractOcrService implements OcrService {
             });
 
             diagSession.recordPass({
-              passName: 'Stage B: 2x Upscaled Fine-Print',
-              psm: 11,
+              passName: 'Stage B: Upscaled Fine-Print',
+              psm: 6,
               inputDimensions: { width: 0, height: 0 },
               characterCount: text2.length,
               confidence: Math.round(conf2),
@@ -198,7 +198,7 @@ export class TesseractOcrService implements OcrService {
           if (priorityTiles.length > 0) {
             await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
 
-            for (const tile of priorityTiles.slice(0, 3)) {
+            for (const tile of priorityTiles.slice(0, 2)) {
               const tileStart = Date.now();
               const tileRet = await worker.recognize(tile.blob);
               const tileDuration = Date.now() - tileStart;

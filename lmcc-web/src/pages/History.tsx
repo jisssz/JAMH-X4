@@ -6,15 +6,9 @@ import {
   AlertTriangle,
   FileText,
   ChevronRight,
-  Copy,
-  Check,
   PlusCircle,
   Clock,
-  ShieldAlert,
-  ShieldCheck,
   WifiOff,
-  CloudUpload,
-  CheckCheck,
   Search,
   RotateCw,
 } from 'lucide-react';
@@ -336,23 +330,26 @@ export const History: React.FC = () => {
         </div>
 
         {/* Analytics Summary Bar */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-2xl bg-slate-900/80 p-4 border border-white/10 backdrop-blur-xl text-center font-mono">
-            <span className="text-[10px] uppercase text-slate-400 block mb-1">Total Scanned</span>
-            <span className="text-2xl font-black text-white">{items.length}</span>
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#090d16] border border-white/[0.08] text-xs font-sans">
+          <div className="flex items-center gap-6">
+            <div>
+              <span className="text-slate-400">Total screened: </span>
+              <strong className="text-white font-semibold">{items.length}</strong>
+            </div>
+            <div>
+              <span className="text-slate-400">Compliant: </span>
+              <strong className="text-emerald-400 font-semibold">{passCount}</strong>
+            </div>
+            <div>
+              <span className="text-slate-400">Review flagged: </span>
+              <strong className="text-amber-400 font-semibold">{reviewCount}</strong>
+            </div>
           </div>
-          <div className="rounded-2xl bg-slate-900/80 p-4 border border-white/10 backdrop-blur-xl text-center font-mono">
-            <span className="text-[10px] uppercase text-slate-400 block mb-1">Compliant</span>
-            <span className="text-2xl font-black text-emerald-400">{passCount}</span>
-          </div>
-          <div className="rounded-2xl bg-slate-900/80 p-4 border border-white/10 backdrop-blur-xl text-center font-mono">
-            <span className="text-[10px] uppercase text-slate-400 block mb-1">Review Flagged</span>
-            <span className="text-2xl font-black text-amber-400">{reviewCount}</span>
-          </div>
+          <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">Rule 6 screening history</span>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-slate-900/80 p-3 rounded-2xl border border-white/10 backdrop-blur-xl">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-[#090d16] p-3 rounded-2xl border border-white/[0.08]">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -360,55 +357,55 @@ export const History: React.FC = () => {
               placeholder="Search by product, price, or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-white/30"
+              className="w-full bg-[#06080e] border border-white/[0.08] rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-white/20 font-sans"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 font-mono text-[11px] overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-1.5 font-sans text-xs overflow-x-auto pb-1 sm:pb-0">
             <button
               type="button"
               onClick={() => setFilterVerdict('ALL')}
-              className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl border transition cursor-pointer font-medium ${
                 filterVerdict === 'ALL'
-                  ? 'bg-white text-slate-950 font-bold border-white'
-                  : 'bg-white/5 text-slate-400 border-white/10 hover:text-white'
+                  ? 'bg-white text-slate-950 font-semibold border-white'
+                  : 'bg-white/[0.03] text-slate-400 border-white/[0.08] hover:text-white'
               }`}
             >
-              ALL
+              All
             </button>
             <button
               type="button"
               onClick={() => setFilterVerdict('PASS')}
-              className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl border transition cursor-pointer font-medium ${
                 filterVerdict === 'PASS'
-                  ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400'
-                  : 'bg-white/5 text-slate-400 border-white/10 hover:text-emerald-400'
+                  ? 'bg-emerald-500 text-slate-950 font-semibold border-emerald-400'
+                  : 'bg-white/[0.03] text-slate-400 border-white/[0.08] hover:text-emerald-400'
               }`}
             >
-              PASS
+              Passed
             </button>
             <button
               type="button"
               onClick={() => setFilterVerdict('REVIEW')}
-              className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl border transition cursor-pointer font-medium ${
                 filterVerdict === 'REVIEW'
-                  ? 'bg-amber-500 text-slate-950 font-bold border-amber-400'
-                  : 'bg-white/5 text-slate-400 border-white/10 hover:text-amber-400'
+                  ? 'bg-amber-500 text-slate-950 font-semibold border-amber-400'
+                  : 'bg-white/[0.03] text-slate-400 border-white/[0.08] hover:text-amber-400'
               }`}
             >
-              REVIEW
+              Review
             </button>
             {pendingSyncCount > 0 && (
               <button
                 type="button"
                 onClick={() => setFilterVerdict('UNSYNCED')}
-                className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl border transition cursor-pointer font-medium ${
                   filterVerdict === 'UNSYNCED'
-                    ? 'bg-sky-500 text-slate-950 font-bold border-sky-400'
+                    ? 'bg-sky-500 text-slate-950 font-semibold border-sky-400'
                     : 'bg-sky-500/10 text-sky-400 border-sky-500/30 hover:bg-sky-500/20'
                 }`}
               >
-                QUEUED ({pendingSyncCount})
+                Queued ({pendingSyncCount})
               </button>
             )}
           </div>
@@ -494,96 +491,74 @@ export const History: React.FC = () => {
                 <div
                   key={report.id}
                   onClick={() => navigate(`/history/${report.id}`)}
-                  className="bg-slate-900/80 hover:bg-slate-900 border border-white/10 hover:border-white/20 rounded-3xl p-5 shadow-xl backdrop-blur-xl transition cursor-pointer group"
+                  className="bg-[#090d16] hover:bg-[#0c1220] border border-white/[0.08] hover:border-white/20 rounded-2xl p-5 shadow-lg transition cursor-pointer group font-sans"
                 >
                   <div className="flex items-start justify-between gap-4">
                     {/* Left: Product & Verdict Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap font-mono">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap text-xs">
                         {/* 1. Screening Verdict Badge */}
                         <span
-                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
+                          className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
                             isPass
-                              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                              : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                              : 'bg-amber-500/10 text-amber-300 border-amber-500/20'
                           }`}
                         >
-                          {isPass ? (
-                            <>
-                              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                              PASS
-                            </>
-                          ) : (
-                            <>
-                              <ShieldAlert className="w-3 h-3 text-amber-400" />
-                              REVIEW
-                            </>
-                          )}
+                          {isPass ? 'Passed' : 'Review'}
                         </span>
 
-                        {/* 2. Storage Origin & Lifecycle Badge */}
+                        {/* 2. Storage Origin Badge */}
                         {report.origin === 'local_pending' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                            <Clock className="w-3 h-3 text-amber-400" />
-                            Waiting to Sync
-                          </span>
-                        )}
-                        {report.origin === 'local_failed' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-red-500/15 text-red-300 border border-red-500/30">
-                            <AlertTriangle className="w-3 h-3 text-red-400" />
-                            Sync Failed
+                          <span className="text-[11px] text-amber-400">
+                            · Queued
                           </span>
                         )}
                         {report.origin === 'local_synced' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-sky-500/10 text-sky-300 border border-sky-500/20">
-                            <CheckCheck className="w-3 h-3 text-sky-400" />
-                            Synced
-                          </span>
-                        )}
-                        {report.origin === 'server' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-white/5 text-slate-300 border border-white/10">
-                            <CloudUpload className="w-3 h-3 text-slate-400" />
-                            JAMH X4 Registry
+                          <span className="text-[11px] text-slate-500">
+                            · Synced
                           </span>
                         )}
 
-                        <span className="text-[11px] text-slate-500 flex items-center gap-1 ml-auto">
-                          <Clock className="w-3 h-3 text-slate-500" />
+                        <span className="text-[11px] text-slate-500 ml-auto">
                           {formatDate(report.createdAt)}
                         </span>
                       </div>
 
-                      <h3 className="text-base font-bold text-white truncate">
-                        {report.productName || 'General Packaged Commodity'}
+                      <h3 className="text-sm font-semibold text-white truncate">
+                        {report.productName || 'Packaged Commodity'}
                       </h3>
 
                       {/* Product Declarations Snippet */}
-                      <div className="mt-1.5 flex items-center gap-3 text-xs text-slate-400 flex-wrap font-mono">
+                      <div className="mt-1.5 flex items-center gap-3 text-xs text-slate-400 flex-wrap">
                         {report.mrp && (
                           <span>
-                            <strong className="text-slate-300">MRP:</strong> {report.mrp}
+                            <span className="text-slate-500">MRP: </span>
+                            <span className="text-slate-300">{report.mrp}</span>
                           </span>
                         )}
                         {report.netQuantity && (
                           <span>
-                            <strong className="text-slate-300">Net:</strong> {report.netQuantity}
+                            <span className="text-slate-500">Net: </span>
+                            <span className="text-slate-300">{report.netQuantity}</span>
                           </span>
                         )}
                         {report.dateDeclaration && (
                           <span>
-                            <strong className="text-slate-300">Date:</strong> {report.dateDeclaration}
+                            <span className="text-slate-500">Date: </span>
+                            <span className="text-slate-300">{report.dateDeclaration}</span>
                           </span>
                         )}
                       </div>
 
                       {/* Issue summary */}
-                      <div className="mt-2 text-xs font-mono">
+                      <div className="mt-2 text-xs">
                         {hasIssues ? (
                           <span className="text-amber-400">
-                            {report.issueCount} {report.issueCount === 1 ? 'item requires' : 'items require'} review
+                            {report.issueCount} {report.issueCount === 1 ? 'item requires' : 'items require'} manual review
                           </span>
                         ) : (
-                          <span className="text-emerald-400">
+                          <span className="text-emerald-400/90">
                             All mandatory declarations detected
                           </span>
                         )}
@@ -591,32 +566,21 @@ export const History: React.FC = () => {
                     </div>
 
                     {/* Right: Chevron */}
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition flex-shrink-0 mt-2" />
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition flex-shrink-0 mt-2" />
                   </div>
 
                   {/* Card Footer: Copyable Report ID */}
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                  <div className="mt-3.5 pt-3 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-slate-500 font-mono">
                     <span className="truncate mr-2">
-                      {report.origin === 'local_pending' ? 'Local ID' : 'Report ID'}: {report.id}
+                      ID: {report.id}
                     </span>
                     <button
                       type="button"
                       onClick={(e) => handleCopyId(e, report.id)}
-                      className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-slate-300 rounded-md font-semibold flex items-center gap-1 flex-shrink-0 transition border border-white/10 cursor-pointer"
-                      aria-label="Copy Report ID"
+                      className="px-2 py-0.5 bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-slate-200 rounded text-[10px] transition border border-white/[0.06] cursor-pointer"
                       title="Copy full Report ID"
                     >
-                      {copiedId === report.id ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          <span className="text-[10px] text-emerald-300">Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span className="text-[10px]">Copy ID</span>
-                        </>
-                      )}
+                      {copiedId === report.id ? 'Copied' : 'Copy ID'}
                     </button>
                   </div>
                 </div>

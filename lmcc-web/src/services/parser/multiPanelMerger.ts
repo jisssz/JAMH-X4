@@ -24,6 +24,7 @@ export interface MultiPanelMergeResult {
   averageConfidence: number;
   overallQuality: 'GOOD' | 'FAIR' | 'POOR';
   hasConflict: boolean;
+  hasProductClash?: boolean;
   conflictDetails: string[];
   fieldOrigins: Partial<Record<'mrp' | 'netQuantity' | 'date' | 'manufacturer' | 'address' | 'consumerCare' | 'importer', FieldOrigin>>;
   panelContributions: {
@@ -88,6 +89,40 @@ function cleanText(str?: string): string {
 }
 
 /**
+ * Known distinct commodity categories to detect mixed product scans.
+ */
+const COMMODITY_CATEGORIES: { category: string; tokens: RegExp }[] = [
+  { category: 'tea', tokens: /\b(?:tea|chai|instant\s*tea|tea\s*leaves)\b/i },
+  { category: 'salt', tokens: /\b(?:salt|namak|iodized\s*salt|rock\s*salt)\b/i },
+  { category: 'buttermilk', tokens: /\b(?:buttermilk|chhaas|chaas|mattha)\b/i },
+  { category: 'milk', tokens: /\b(?:toned\s*milk|pasteurized\s*milk|cow\s*milk|taaza|full\s*cream\s*milk)\b/i },
+  { category: 'masala_spice', tokens: /\b(?:garam\s*masala|biryani\s*masala|chhole\s*masala|sambhar\s*masala|turmeric\s*powder|chilli\s*powder)\b/i },
+  { category: 'oats', tokens: /\b(?:oats|rolled\s*oats|masala\s*oats)\b/i },
+  { category: 'biscuits', tokens: /\b(?:cookies|biscuits|butter\s*cookies|marie|digestive)\b/i },
+  { category: 'chips', tokens: /\b(?:potato\s*chips|chips|wafers|namkeen|bhujia)\b/i },
+  { category: 'beverage', tokens: /\b(?:carbonated\s*beverage|energy\s*drink|soft\s*drink|soda|fruit\s*juice)\b/i },
+  { category: 'detergent', tokens: /\b(?:detergent|washing\s*powder|laundry)\b/i },
+  { category: 'antiseptic', tokens: /\b(?:antiseptic|disinfectant|handwash)\b/i },
+];
+
+/**
+ * Distinct manufacturer / brand families for product clash detection.
+ */
+const BRAND_FAMILIES = [
+  { brand: 'britannia', regex: /\bbritannia\b/i },
+  { brand: 'pepsico', regex: /\b(?:pepsico|pepsi|lays|sting)\b/i },
+  { brand: 'coca_cola', regex: /\b(?:coca[\s-]*cola|thums\s*up|sprite|fanta)\b/i },
+  { brand: 'tata', regex: /\btata\b/i },
+  { brand: 'mdh', regex: /\b(?:mdh|mahashian\s*di\s*hatti)\b/i },
+  { brand: 'amul', regex: /\b(?:amul|gcmmf)\b/i },
+  { brand: 'marico', regex: /\b(?:marico|saffola)\b/i },
+  { brand: 'hyson', regex: /\bhyson\b/i },
+  { brand: 'haldiram', regex: /\bhaldiram/i },
+  { brand: 'nestle', regex: /\b(?:nestle|maggi)\b/i },
+  { brand: 'parle', regex: /\bparle\b/i },
+];
+
+/**
  * Merges multi-panel package OCR outputs into a single statutory declaration evidence set.
  * 
  * Safety Invariants:
@@ -105,6 +140,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       averageConfidence: 0,
       overallQuality: 'POOR',
       hasConflict: false,
+      hasProductClash: false,
       conflictDetails: [],
       fieldOrigins: {},
       panelContributions: [],
@@ -121,6 +157,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
   const conflictDetails: string[] = [];
   const fieldOrigins: MultiPanelMergeResult['fieldOrigins'] = {};
   let hasConflict = false;
+  let hasProductClash = false;
 
   let mrp: string | undefined;
   let mrpEvidence: string | undefined;
@@ -161,6 +198,9 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
 
   let email: string | undefined;
   let emailEvidence: string | undefined;
+
+  let productName: string | undefined;
+  let productNameEvidence: string | undefined;
 
   let ingredients: string | undefined;
   let ingredientsEvidence: string | undefined;
@@ -353,12 +393,75 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
       nutritionInfo = p.nutritionInfo;
       nutritionEvidence = `[${label}]: ${p.nutritionEvidence || p.nutritionInfo}`;
     }
+    if (p.productName && !productName) {
+      productName = p.productName;
+      productNameEvidence = `[${label}]: ${p.productNameEvidence || p.productName}`;
+    }
 
     panelContributions.push({
       panelId: item.input.panelId,
       panelLabel: label,
       fieldsFound,
     });
+  }
+
+  // 9. Different-Product Conflict Detection across panels
+  for (let i = 0; i < parsedPanels.length; i++) {
+    for (let j = i + 1; j < parsedPanels.length; j++) {
+      const panelA = parsedPanels[i];
+      const panelB = parsedPanels[j];
+      const textA = panelA.input.rawText;
+      const textB = panelB.input.rawText;
+      const prodA = panelA.parsed.productName;
+      const prodB = panelB.parsed.productName;
+
+      // A. Check explicit parsed product names
+      if (prodA && prodB) {
+        const cleanA = cleanText(prodA);
+        const cleanB = cleanText(prodB);
+        if (cleanA && cleanB && cleanA !== cleanB && !cleanA.includes(cleanB) && !cleanB.includes(cleanA)) {
+          hasProductClash = true;
+          hasConflict = true;
+          conflictDetails.push(
+            `These images appear to belong to different products. Please verify before analyzing. (Detected "${prodA}" on [${panelA.input.panelLabel}] vs "${prodB}" on [${panelB.input.panelLabel}])`
+          );
+          break;
+        }
+      }
+
+      // B. Check mutually contradictory commodity categories
+      let catA: string | undefined;
+      let catB: string | undefined;
+      for (const cat of COMMODITY_CATEGORIES) {
+        if (!catA && cat.tokens.test(textA) && !cat.tokens.test(textB)) catA = cat.category;
+        if (!catB && cat.tokens.test(textB) && !cat.tokens.test(textA)) catB = cat.category;
+      }
+      if (catA && catB && catA !== catB) {
+        hasProductClash = true;
+        hasConflict = true;
+        conflictDetails.push(
+          `These images appear to belong to different products. Please verify before analyzing. (Contradictory product types detected: ${catA} vs ${catB})`
+        );
+        break;
+      }
+
+      // C. Check mutually contradictory brand families
+      let brandA: string | undefined;
+      let brandB: string | undefined;
+      for (const b of BRAND_FAMILIES) {
+        if (!brandA && b.regex.test(textA) && !b.regex.test(textB)) brandA = b.brand;
+        if (!brandB && b.regex.test(textB) && !b.regex.test(textA)) brandB = b.brand;
+      }
+      if (brandA && brandB && brandA !== brandB) {
+        hasProductClash = true;
+        hasConflict = true;
+        conflictDetails.push(
+          `These images appear to belong to different products. Please verify before analyzing. (Contradictory brands detected: ${brandA} vs ${brandB})`
+        );
+        break;
+      }
+    }
+    if (hasProductClash) break;
   }
 
   const unifiedRawText = inputs
@@ -418,6 +521,8 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     bestBefore,
     batchNumber,
     email,
+    productName,
+    productNameEvidence,
     ingredients,
     nutritionInfo,
     dateEvidence,
@@ -438,6 +543,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     isDateAmbiguous: isDateAmbiguous || hasConflict,
     isFutureDate,
     hasConflict,
+    hasProductClash,
     conflictDetails,
     fieldEvidenceRecords: unifiedFieldEvidenceRecords,
     declarationCoverage,
@@ -449,6 +555,7 @@ export function mergeMultiPanelDeclarations(inputs: PanelOcrInput[]): MultiPanel
     averageConfidence,
     overallQuality,
     hasConflict,
+    hasProductClash,
     conflictDetails,
     fieldOrigins,
     panelContributions,

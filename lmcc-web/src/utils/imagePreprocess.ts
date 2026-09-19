@@ -13,12 +13,42 @@ export interface PreprocessOptions {
   enhanceContrast?: boolean;
 }
 
+function applySharpen(ctx: CanvasRenderingContext2D, width: number, height: number, amount: number = 0.35): void {
+  try {
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const d = imgData.data;
+    const copy = new Uint8ClampedArray(d);
+    const rowStride = width * 4;
+
+    for (let y = 1; y < height - 1; y++) {
+      let idx = y * rowStride + 4;
+      for (let x = 1; x < width - 1; x++) {
+        for (let c = 0; c < 3; c++) {
+          const center = copy[idx + c];
+          const top = copy[idx - rowStride + c];
+          const bottom = copy[idx + rowStride + c];
+          const left = copy[idx - 4 + c];
+          const right = copy[idx + 4 + c];
+          // Laplacian sharpening kernel [0, -1, 0; -1, 5, -1; 0, -1, 0]
+          const laplacian = 5 * center - top - bottom - left - right;
+          d[idx + c] = Math.min(255, Math.max(0, Math.round((1 - amount) * center + amount * laplacian)));
+        }
+        idx += 4;
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  } catch {
+    // Graceful fallback
+  }
+}
+
 function applyPreprocessingFilters(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   mode: PreprocessMode,
-  enhanceContrast: boolean
+  enhanceContrast: boolean,
+  sharpen: boolean = false
 ): void {
   try {
     const imgData = ctx.getImageData(0, 0, width, height);
@@ -85,7 +115,7 @@ function applyPreprocessingFilters(
         }
       } else {
         // Standard balanced contrast adjustment centered at mid-gray (128)
-        const contrast = 1.15;
+        const contrast = 1.2;
         const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
 
         for (let i = 0; i < d.length; i += 4) {
@@ -95,6 +125,10 @@ function applyPreprocessingFilters(
         }
       }
       ctx.putImageData(imgData, 0, 0);
+    }
+
+    if (sharpen) {
+      applySharpen(ctx, width, height, 0.35);
     }
   } catch {
     // If cross-origin or ImageData fails, proceed with raw canvas render
@@ -106,8 +140,8 @@ export async function preprocessImageForOcr(
   options: PreprocessOptions = {}
 ): Promise<Blob> {
   const {
-    maxWidth = 2048,
-    maxHeight = 2048,
+    maxWidth = 3200,
+    maxHeight = 3200,
     mode = 'standard',
     enhanceContrast = true,
   } = options;
@@ -124,11 +158,25 @@ export async function preprocessImageForOcr(
       let width = bitmap.width;
       let height = bitmap.height;
 
-      // Scale down if image is gigantic (e.g., 48MP phone sensor) to avoid browser WASM memory limits
+      // Smart Resolution Scaling:
+      // A) Downscale only if gigantic (>3200px) to prevent WASM OOM
       if (width > maxWidth || height > maxHeight) {
         const ratio = Math.min(maxWidth / width, maxHeight / height);
         width = Math.round(width * ratio);
         height = Math.round(height * ratio);
+      }
+      // B) Micro-print Upscaling: If longest dimension is small (<1200px) or shortest < 450px,
+      // scale up to bring font x-height into Tesseract's optimal 25-35px recognition zone
+      let didUpscale = false;
+      const maxDim = Math.max(width, height);
+      const minDim = Math.min(width, height);
+      if (maxDim < 1600 || minDim < 450) {
+        const upScaleFactor = Math.min(3.0, Math.max(1600 / maxDim, 500 / Math.max(minDim, 1)));
+        if (upScaleFactor > 1.15) {
+          width = Math.round(width * upScaleFactor);
+          height = Math.round(height * upScaleFactor);
+          didUpscale = true;
+        }
       }
 
       const canvas = document.createElement('canvas');
@@ -142,7 +190,7 @@ export async function preprocessImageForOcr(
         ctx.drawImage(bitmap, 0, 0, width, height);
         bitmap.close();
 
-        applyPreprocessingFilters(ctx, width, height, mode, enhanceContrast);
+        applyPreprocessingFilters(ctx, width, height, mode, enhanceContrast, didUpscale);
 
         return await new Promise<Blob>((resolve) => {
           canvas.toBlob(
@@ -179,11 +227,22 @@ export async function preprocessImageForOcr(
       let width = img.naturalWidth || img.width;
       let height = img.naturalHeight || img.height;
 
-      // Scale down if image is gigantic (e.g., 48MP phone sensor) to avoid browser WASM memory limits
+      // Smart Resolution Scaling:
       if (width > maxWidth || height > maxHeight) {
         const ratio = Math.min(maxWidth / width, maxHeight / height);
         width = Math.round(width * ratio);
         height = Math.round(height * ratio);
+      }
+      let didUpscale = false;
+      const maxDim = Math.max(width, height);
+      const minDim = Math.min(width, height);
+      if (maxDim < 1600 || minDim < 450) {
+        const upScaleFactor = Math.min(3.0, Math.max(1600 / maxDim, 500 / Math.max(minDim, 1)));
+        if (upScaleFactor > 1.15) {
+          width = Math.round(width * upScaleFactor);
+          height = Math.round(height * upScaleFactor);
+          didUpscale = true;
+        }
       }
 
       const canvas = document.createElement('canvas');
@@ -200,7 +259,7 @@ export async function preprocessImageForOcr(
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, width, height);
-      applyPreprocessingFilters(ctx, width, height, mode, enhanceContrast);
+      applyPreprocessingFilters(ctx, width, height, mode, enhanceContrast, didUpscale);
 
       canvas.toBlob(
         (blob) => {
@@ -247,8 +306,14 @@ export async function createUpscaledImage(
       const origW = img.naturalWidth || img.width;
       const origH = img.naturalHeight || img.height;
 
-      // Cap max dimension to 3200px to keep browser WebAssembly memory usage safe
-      const targetScale = Math.min(scale, 3200 / Math.max(origW, origH));
+      // Smart Upscaling: For small packaging crops (<1000px), scale up to 2000-2400px
+      const maxDim = Math.max(origW, origH);
+      const minDim = Math.min(origW, origH);
+      let targetScale = Math.min(scale, 3200 / maxDim);
+      if (maxDim < 1200 || minDim < 450) {
+        targetScale = Math.min(3.5, Math.max(targetScale, 2000 / maxDim, 500 / Math.max(minDim, 1)));
+      }
+
       const width = Math.round(origW * Math.max(1.0, targetScale));
       const height = Math.round(origH * Math.max(1.0, targetScale));
 
@@ -265,8 +330,8 @@ export async function createUpscaledImage(
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Apply light contrast enhancement to accentuate glyph edges
-      applyPreprocessingFilters(ctx, width, height, 'standard', true);
+      // Apply contrast enhancement and sharpening to accentuate glyph edges
+      applyPreprocessingFilters(ctx, width, height, 'standard', true, true);
 
       canvas.toBlob(
         (blob) => resolve(blob || imageFileOrBlob),
@@ -317,8 +382,8 @@ export async function createOverlappingTiles(
       const W = img.naturalWidth || img.width;
       const H = img.naturalHeight || img.height;
 
-      // If image is already tiny, tiles won't help
-      if (W < 400 || H < 400) {
+      // Only skip if image is truly minuscule (<100px)
+      if (W < 100 && H < 100) {
         resolve([]);
         return;
       }

@@ -50,6 +50,11 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [panels, setPanels] = useState<ScanPanel[]>([]);
   const [currentPanelType, setCurrentPanelType] = useState<PanelType>('front');
 
+  /**
+   * BUGFIX: addPanel creates a fresh ObjectURL per panel and does NOT revoke
+   * it immediately. The primary capturedImage/preview anchor is set only for
+   * the very first panel — subsequent panels must NOT overwrite it.
+   */
   const addPanel = (fileOrBlob: Blob | File, type: PanelType = 'front', customLabel?: string): boolean => {
     if (panels.length >= MAX_PANELS) {
       return false;
@@ -69,15 +74,21 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     setPanels((prev) => [...prev, newPanel]);
 
-    // Also update primary capturedImage for single-panel views
-    setCapturedImageState(fileOrBlob);
-    setImagePreviewUrl(objectUrl);
+    // Only anchor primary image/preview if this is the first panel in the session
+    setCapturedImageState((prev) => prev ?? fileOrBlob);
+    setImagePreviewUrl((prev) => prev ?? objectUrl);
+
     return true;
   };
 
+  /**
+   * Add multiple panels at once. Uses functional state update (prev) to read
+   * the real current length — avoids stale closure issues when panels state
+   * hasn't propagated yet.
+   */
   const addPanels = (filesOrBlobs: (Blob | File)[]): number => {
     const defaultSequence: PanelType[] = ['front', 'back', 'crimp', 'other', 'other'];
-    let addedCount = 0;
+    let createdPanels: ScanPanel[] = [];
 
     setPanels((prev) => {
       const remainingSlots = MAX_PANELS - prev.length;
@@ -85,7 +96,7 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
       const toAdd = filesOrBlobs.slice(0, remainingSlots);
       const newPanels: ScanPanel[] = toAdd.map((fileOrBlob, idx) => {
-        const slotIdx = prev.length + idx;
+        const slotIdx = prev.length + idx;  // uses ACTUAL current length from prev
         const type = defaultSequence[slotIdx] || 'other';
         const objectUrl = URL.createObjectURL(fileOrBlob);
         const id = `panel_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 7)}`;
@@ -98,15 +109,19 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         };
       });
 
-      addedCount = newPanels.length;
-      if (newPanels.length > 0) {
-        setCapturedImageState(newPanels[0].blob);
-        setImagePreviewUrl(newPanels[0].previewUrl);
-      }
+      createdPanels = newPanels;
       return [...prev, ...newPanels];
     });
 
-    return addedCount;
+    // Anchor primary preview only if this is the first batch
+    // (createdPanels populated synchronously inside setState callback)
+    if (createdPanels.length > 0) {
+      const firstNew = createdPanels[0];
+      setCapturedImageState((prev) => prev ?? firstNew.blob);
+      setImagePreviewUrl((prev) => prev ?? firstNew.previewUrl);
+    }
+
+    return createdPanels.length;
   };
 
   const updatePanelType = (id: string, type: PanelType, customLabel?: string) => {
@@ -123,7 +138,10 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     );
   };
 
-
+  /**
+   * Remove a single panel and immediately revoke ONLY its own ObjectURL.
+   * Other panels are NOT affected.
+   */
   const removePanel = (id: string) => {
     setPanels((prev) => {
       const target = prev.find((p) => p.id === id);
@@ -143,17 +161,19 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     });
   };
 
+  /**
+   * Clear all panels and revoke all their ObjectURLs at once.
+   */
   const clearPanels = () => {
-    panels.forEach((p) => URL.revokeObjectURL(p.previewUrl));
-    setPanels([]);
+    setPanels((prev) => {
+      prev.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      return [];
+    });
+    setCapturedImageState(null);
+    setImagePreviewUrl(null);
   };
 
   const setCapturedImage = (fileOrBlob: Blob | File | null, customName?: string) => {
-    // Revoke previous URL to prevent memory leaks
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
-    }
-
     if (!fileOrBlob) {
       setCapturedImageState(null);
       setImagePreviewUrl(null);
@@ -170,16 +190,24 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCapturedImageState(fileOrBlob);
     setImagePreviewUrl(objectUrl);
 
-    // Automatically initialize panels session with this primary image if empty
-    setPanels([
-      {
-        id: `panel_primary_${Date.now()}`,
-        type: currentPanelType,
-        label: currentPanelType === 'crimp' ? 'Crimp / Seal / Base' : currentPanelType === 'back' ? 'Back Declaration Panel' : 'Front / Main Label',
-        blob: fileOrBlob,
-        previewUrl: objectUrl,
-      },
-    ]);
+    // Initialize panels session — revoke old panel URLs before replacing
+    setPanels((prev) => {
+      prev.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      return [
+        {
+          id: `panel_primary_${Date.now()}`,
+          type: currentPanelType,
+          label:
+            currentPanelType === 'crimp'
+              ? 'Crimp / Seal / Base'
+              : currentPanelType === 'back'
+              ? 'Back Declaration Panel'
+              : 'Front / Main Label',
+          blob: fileOrBlob,
+          previewUrl: objectUrl,
+        },
+      ];
+    });
 
     // Read image dimensions safely in background
     const img = new Image();
@@ -203,24 +231,27 @@ export const ImageProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const clearImage = () => {
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
-    }
     setCapturedImageState(null);
     setImagePreviewUrl(null);
     setImageMetadata(null);
     clearPanels();
   };
 
-  // Clean up object URLs on unmount
+  /**
+   * BUGFIX: Cleanup runs ONLY on context unmount (empty deps array), NOT on
+   * every state change. The old implementation revoked URLs every time the
+   * panels array reference changed, which killed ObjectURLs while they were
+   * still needed by Processing.tsx and Results.tsx.
+   */
   useEffect(() => {
     return () => {
-      if (imagePreviewUrl) {
-        URL.revokeObjectURL(imagePreviewUrl);
-      }
-      panels.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      const urlsToRevoke = new Set<string>();
+      panels.forEach((p) => urlsToRevoke.add(p.previewUrl));
+      if (imagePreviewUrl) urlsToRevoke.add(imagePreviewUrl);
+      urlsToRevoke.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [imagePreviewUrl, panels]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — run only on unmount
 
   return (
     <ImageContext.Provider

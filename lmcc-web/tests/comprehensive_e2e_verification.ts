@@ -262,8 +262,8 @@ async function runComprehensiveE2E() {
     // Navigate back to /scan
     await page.goto(`${BASE_URL}/scan?mode=upload`, { waitUntil: 'networkidle0' });
 
-    // Upload Parle-G EAN-13 Barcode Image (8901719134845)
-    const barcodeFixturePath = path.resolve(__dirname, 'fixtures/test_ean13_parle.png');
+    // Upload Genuine Tata Salt Physical Package Photo with Printed EAN-13 (8904043901015)
+    const barcodeFixturePath = path.resolve(__dirname, 'fixtures/genuine_real_photos/real_13_tata_salt_care_address.jpg');
     fileInput = await page.$('input[type="file"]');
     if (!fileInput) throw new Error('File input not found for barcode test');
     await fileInput.uploadFile(barcodeFixturePath);
@@ -299,15 +299,15 @@ async function runComprehensiveE2E() {
       const body = document.body.innerText;
       return {
         body,
-        hasBarcodeNumber: body.includes('8901719134845'),
+        hasBarcodeNumber: body.includes('8904043901015'),
         hasGs1Prefix: body.includes('GS1 India prefix') || body.includes('GS1 member assignment'),
         hasAdvisoryDisclaimer: body.includes('not proof of physical country of manufacture') || body.includes('does not prove country of manufacture'),
         hasBarcodeCard: body.includes('Product Identification & Reference Cross-Check') || body.includes('BARCODE & DATABASE CROSS-CHECK'),
-        hasReferenceBrand: body.includes('Parle') || body.includes('Biscuit'),
+        hasReferenceBrand: body.includes('Tata') || body.includes('Salt'),
       };
     });
 
-    console.log(`  - Barcode Detected (8901719134845): ${barcodeCardData.hasBarcodeNumber}`);
+    console.log(`  - Barcode Detected (8904043901015): ${barcodeCardData.hasBarcodeNumber}`);
     console.log(`  - GS1 India Prefix wording: ${barcodeCardData.hasGs1Prefix}`);
     console.log(`  - Non-proof advisory disclaimer: ${barcodeCardData.hasAdvisoryDisclaimer}`);
     console.log(`  - Barcode Card UI rendered: ${barcodeCardData.hasBarcodeCard}`);
@@ -318,7 +318,7 @@ async function runComprehensiveE2E() {
       suite: 'Barcode & GS1 Cross-Check',
       name: 'Physical Barcode Detection & Database Cross-Check',
       passed: barcodePassed,
-      details: `Code: 8901719134845, GS1 India: ${barcodeCardData.hasGs1Prefix}, Disclaimer: ${barcodeCardData.hasAdvisoryDisclaimer}, Ref: ${barcodeCardData.hasReferenceBrand}`,
+      details: `Code: 8904043901015 (Tata Salt Real Photo), GS1 India: ${barcodeCardData.hasGs1Prefix}, Disclaimer: ${barcodeCardData.hasAdvisoryDisclaimer}, Ref: ${barcodeCardData.hasReferenceBrand}`,
       durationMs: Date.now() - tStartBarcode,
     });
 

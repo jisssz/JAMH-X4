@@ -3,42 +3,66 @@
 @tailwind utilities;
 
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
   color-scheme: dark;
 }
 
 html {
   scroll-behavior: smooth;
-  background-color: #05070b;
+  background-color: #06080e;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #05070b;
-  color: #f1f5f9;
+  background-color: #06080e;
+  color: #f8fafc;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(10, 15, 26, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Hairline borders & refined editorial surfaces */
+.border-hairline {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-.glass-panel-hover:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(15, 23, 42, 0.85);
+.surface-card {
+  background: rgba(14, 19, 32, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* Subtle typography clamp */
-.hero-title {
-  font-size: clamp(2.75rem, 7vw, 6.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
+.surface-subtle {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Editorial typography scale */
+.font-display-serif {
+  font-family: 'Newsreader', Georgia, serif;
+}
+
+.font-display-italic {
+  font-family: 'Newsreader', Georgia, serif;
+  font-style: italic;
+}
+
+.hero-display {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: clamp(3.25rem, 7.5vw, 6.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+
+.section-display {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  font-weight: 400;
 }
 
 @media (prefers-reduced-motion: reduce) {

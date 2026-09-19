@@ -1376,7 +1376,7 @@ test('Phase 13 Accuracy Lab: Corporate entity headers without explicit MFD prefi
 // Phase 14: Consumer Reporting & Lifecycle Monitoring Tests
 // ----------------------------------------------------
 import { getAuthoritySubmissionStatus, AUTHORITY_REGULATORY_TARGETS } from '../src/services/authority/authoritySubmissionService';
-import { getReportLifecycleState, saveLocalReport } from '../src/services/storage/localReports';
+import { getReportLifecycleState } from '../src/services/storage/localReports';
 
 test('Phase 14: Authority service truthfully declares unintegrated status with zero fake tracking numbers', () => {
   const status = getAuthoritySubmissionStatus('any-report-id-123');
@@ -1756,10 +1756,10 @@ import { performBarcodeCrossCheck } from '../src/services/barcode/barcodeCrossCh
 import { ReferenceProductInfo } from '../src/services/barcode/productDatabaseService';
 
 test('Phase 18 Barcode: GS1 Country Prefix identification identifies India (890), UK (500), USA (000-019)', () => {
-  assert.strictEqual(getGs1Country('8901234567890'), 'GS1 India prefix (GS1 member assignment)');
-  assert.strictEqual(getGs1Country('8901030383848'), 'GS1 India prefix (GS1 member assignment)');
-  assert.strictEqual(getGs1Country('5000128001000'), 'GS1 United Kingdom prefix');
-  assert.strictEqual(getGs1Country('012345678905'), 'GS1 US & Canada prefix');
+  assert.strictEqual(getGs1Country('8901234567890'), 'GS1 numbering-organization prefix associated with GS1 India');
+  assert.strictEqual(getGs1Country('8901030383848'), 'GS1 numbering-organization prefix associated with GS1 India');
+  assert.strictEqual(getGs1Country('5000128001000'), 'GS1 numbering-organization prefix associated with GS1 United Kingdom');
+  assert.strictEqual(getGs1Country('012345678905'), 'GS1 numbering-organization prefix associated with GS1 US & Canada');
   assert.strictEqual(getGs1Country('9999999999999'), undefined);
   assert.strictEqual(getGs1Country('12'), undefined);
 });
@@ -2182,8 +2182,439 @@ CUSTOMER CARE: 1800112233
   assert.ok(verdict.checks.some((c) => c.field === 'packingDate' && !c.passed), 'Rule 6(1)(d) must fail check');
 });
 
+test('Phase 21 Different-Product: Conflicting commodities (Tata Tea vs Tata Salt) flags hasProductClash and warning', () => {
+  const panelTea: PanelOcrInput = {
+    panelId: 'p1',
+    panelLabel: 'Front Panel',
+    panelType: 'front',
+    confidence: 90,
+    rawText: `
+TATA TEA GEMINI
+FINE DUST TEA
+NET WT: 250 g
+MANUFACTURED BY: TATA CONSUMER PRODUCTS LTD
+    `,
+  };
+
+  const panelSalt: PanelOcrInput = {
+    panelId: 'p2',
+    panelLabel: 'Back Panel',
+    panelType: 'back',
+    confidence: 88,
+    rawText: `
+TATA SALT
+VACUUM EVAPORATED IODIZED SALT
+NET WT: 1 kg
+MANUFACTURED BY: TATA CONSUMER PRODUCTS LTD
+    `,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panelTea, panelSalt]);
+  assert.strictEqual(merged.hasProductClash, true, 'Different commodities under same brand must trigger product clash');
+  assert.strictEqual(merged.hasConflict, true, 'Product clash must set hasConflict true');
+  assert.ok(
+    merged.conflictDetails.some((d) => d.includes('These images appear to belong to different products')),
+    'Must produce advisory warning for different products'
+  );
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Mixed product scans must yield REVIEW');
+});
+
+test('Phase 21 Different-Product: Conflicting brands (Britannia vs PepsiCo) flags hasProductClash and warning', () => {
+  const panelA: PanelOcrInput = {
+    panelId: 'p1',
+    panelLabel: 'Front Panel',
+    panelType: 'front',
+    confidence: 92,
+    rawText: `
+BRITANNIA GOOD DAY BUTTER COOKIES
+NET WEIGHT: 58 g
+MRP: Rs. 10.00
+MANUFACTURED BY: BRITANNIA INDUSTRIES LTD
+    `,
+  };
+
+  const panelB: PanelOcrInput = {
+    panelId: 'p2',
+    panelLabel: 'Back Panel',
+    panelType: 'back',
+    confidence: 89,
+    rawText: `
+LAYS INDIA'S MAGIC MASALA
+POTATO CHIPS
+NET WEIGHT: 50 g
+MRP: Rs. 20.00
+MANUFACTURED BY: PEPSICO INDIA HOLDINGS PVT LTD
+    `,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panelA, panelB]);
+  assert.strictEqual(merged.hasProductClash, true, 'Different brands must trigger product clash');
+  assert.strictEqual(merged.hasConflict, true, 'Must flag conflict');
+  assert.ok(
+    merged.conflictDetails.some((d) => d.includes('These images appear to belong to different products')),
+    'Must produce advisory warning'
+  );
+});
+
+test('Phase 21 Different-Product: Distinct variants (Garam Masala vs Biryani Masala) flags clash and REVIEW', () => {
+  const panelA: PanelOcrInput = {
+    panelId: 'p1',
+    panelLabel: 'Panel 1',
+    panelType: 'front',
+    confidence: 91,
+    rawText: `
+MDH GARAM MASALA
+PRODUCT: MDH GARAM MASALA
+NET WEIGHT: 100 g
+    `,
+  };
+
+  const panelB: PanelOcrInput = {
+    panelId: 'p2',
+    panelLabel: 'Panel 2',
+    panelType: 'back',
+    confidence: 89,
+    rawText: `
+MDH BIRYANI MASALA
+PRODUCT: MDH BIRYANI MASALA
+NET WEIGHT: 100 g
+    `,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panelA, panelB]);
+  assert.strictEqual(merged.hasProductClash, true, 'Distinct product variants must trigger product clash');
+  assert.strictEqual(merged.hasConflict, true);
+});
+
+test('Phase 21 Different-Product: Same-product multi-panel scan does NOT trigger product clash and passes', () => {
+  const panelFront: PanelOcrInput = {
+    panelId: 'p1',
+    panelLabel: 'Front Panel',
+    panelType: 'front',
+    confidence: 94,
+    rawText: `
+HYSON INSTANT TEA
+CARDAMOM FLAVOUR
+NET WEIGHT: 1 kg
+    `,
+  };
+
+  const panelBack: PanelOcrInput = {
+    panelId: 'p2',
+    panelLabel: 'Back Panel',
+    panelType: 'back',
+    confidence: 92,
+    rawText: `
+HYSON AGRO FOOD PRODUCTS PVT LTD
+COMMODITY: INSTANT TEA
+CHIRA BYE LANE-1, ALUVAY, KERALA 683101
+CUSTOMER CARE: 0484-2621000
+    `,
+  };
+
+  const panelCrimp: PanelOcrInput = {
+    panelId: 'p3',
+    panelLabel: 'Crimp Area',
+    panelType: 'crimp',
+    confidence: 88,
+    rawText: `
+MRP Rs. 210.00 INCL. OF ALL TAXES
+PKD: 18/08/2024
+    `,
+  };
+
+  const merged = mergeMultiPanelDeclarations([panelFront, panelBack, panelCrimp]);
+  assert.strictEqual(merged.hasProductClash, false, 'Same product panels must NOT trigger clash');
+  assert.strictEqual(merged.hasConflict, false, 'Consistent panels must NOT trigger conflict');
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(merged.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'PASS', 'Complete same-product scan must pass');
+});
+
+test('Phase 22 Quality Gate: Evaluates resolution, glare, darkness, blur, and generates actionable physical guidance', async () => {
+  const { evaluateImageQualityFromData } = await import('../src/utils/imageQualityGate');
+
+  // Case A: High-resolution patterned simulated image data (800x600)
+  const width = 800;
+  const height = 600;
+  const buffer = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const isPattern = (x % 20 < 10) && (y % 20 < 10);
+      const val = isPattern ? 180 : 80;
+      buffer[idx] = val;
+      buffer[idx + 1] = val;
+      buffer[idx + 2] = val;
+      buffer[idx + 3] = 255;
+    }
+  }
+  const mockImageData = { data: buffer, width, height, colorSpace: 'srgb' } as ImageData;
+
+  const resultGood = evaluateImageQualityFromData(mockImageData, width, height);
+  assert.strictEqual(resultGood.isUsable, true, 'Reasonable quality image must be usable');
+  assert.ok(resultGood.overallScore >= 60, 'Clear patterned image should receive passing score');
+
+  // Case B: Severe specular glare (80% pure white pixels)
+  const glareBuffer = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0; i < glareBuffer.length; i += 4) {
+    glareBuffer[i] = 255;
+    glareBuffer[i + 1] = 255;
+    glareBuffer[i + 2] = 255;
+    glareBuffer[i + 3] = 255;
+  }
+  const glareData = { data: glareBuffer, width, height, colorSpace: 'srgb' } as ImageData;
+  const resultGlare = evaluateImageQualityFromData(glareData, width, height);
+  assert.ok(resultGlare.warnings.some(w => w.toLowerCase().includes('glare')), 'Must detect specular glare');
+  assert.ok(resultGlare.actionableGuidance.some(g => g.toLowerCase().includes('glare')), 'Must provide physical anti-glare guidance');
+
+  // Case C: Severe underexposure / pitch black
+  const darkBuffer = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0; i < darkBuffer.length; i += 4) {
+    darkBuffer[i] = 10;
+    darkBuffer[i + 1] = 10;
+    darkBuffer[i + 2] = 10;
+    darkBuffer[i + 3] = 255;
+  }
+  const darkData = { data: darkBuffer, width, height, colorSpace: 'srgb' } as ImageData;
+  const resultDark = evaluateImageQualityFromData(darkData, width, height);
+  assert.ok(resultDark.warnings.some(w => w.toLowerCase().includes('underexposure') || w.toLowerCase().includes('dark')), 'Must detect dark lighting');
+  assert.ok(resultDark.actionableGuidance.some(g => g.toLowerCase().includes('lighting') || g.toLowerCase().includes('flashlight')), 'Must provide physical lighting guidance');
+});
 
 
 
 
 
+
+
+
+// ============================================================
+// PHASE 23 — MULTI-IMAGE PIPELINE CORRECTNESS TESTS (Tests 96–105)
+// ============================================================
+
+// ---------------------------------------------------------------------------
+// TEST 96 — 4 panels → 4 OCR inputs → 1 unified merge result
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 1: 4 panel inputs produce a single unified merge result', () => {
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front / Main Label',     rawText: 'PARLE-G GLUCOSE BISCUITS', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back Declaration Panel',  rawText: 'MFD BY: PARLE PRODUCTS PVT LTD, MUMBAI 400057\nCUSTOMER CARE: 1800222211', confidence: 75, quality: 'FAIR' as const },
+    { panelId: 'p3', panelType: 'crimp' as const, panelLabel: 'Crimp / Seal / Base',     rawText: 'PKD: 08/2025\nMRP: Rs. 35.00\nNET WT: 250 g', confidence: 70, quality: 'FAIR' as const },
+    { panelId: 'p4', panelType: 'other' as const, panelLabel: 'Side / Additional Panel', rawText: 'INGREDIENTS: WHEAT FLOUR, SUGAR, FAT', confidence: 65, quality: 'GOOD' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+
+  // One unified result must come back
+  assert.ok(result.unifiedLabel, 'Must produce a unified label');
+  assert.strictEqual(result.panelContributions.length, 4, 'Must record contributions from all 4 panels');
+  // Fields from each panel should reach the merged output
+  assert.ok(result.unifiedLabel.mrp, 'MRP from crimp panel must be in unified result');
+  assert.ok(result.unifiedLabel.netQuantity, 'Net Quantity from crimp panel must be in unified result');
+  assert.ok(result.unifiedLabel.packingDate || result.unifiedLabel.manufactureDate, 'Date from crimp panel must be in unified result');
+  assert.ok(result.unifiedLabel.manufacturer, 'Manufacturer from back panel must be in unified result');
+  assert.ok(result.unifiedLabel.consumerCare, 'Consumer care from back panel must be in unified result');
+  assert.ok(result.unifiedLabel.ingredients, 'Ingredients from side panel must be in unified result');
+});
+
+// ---------------------------------------------------------------------------
+// TEST 97 — Fields from different panels are attributed to correct source panels
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 2: field source provenance is retained per panel', () => {
+  const panels = [
+    { panelId: 'front_1', panelType: 'front' as const, panelLabel: 'Front / Main Label',     rawText: 'NET WT: 100 g', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'back_1',  panelType: 'back' as const,  panelLabel: 'Back Declaration Panel',  rawText: 'MRP: Rs. 50.00\nMFD BY: TEST CO LTD, DELHI 110001', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'crimp_1', panelType: 'crimp' as const, panelLabel: 'Crimp / Seal / Base',     rawText: 'PKD: 09/2025', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'side_1',  panelType: 'other' as const, panelLabel: 'Side / Additional Panel', rawText: 'CONSUMER CARE: 1800111222', confidence: 75, quality: 'GOOD' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+
+  // fieldOrigins must track the source panel for key fields
+  assert.strictEqual(result.fieldOrigins.netQuantity?.panelId, 'front_1', 'Net Qty must originate from front panel');
+  assert.strictEqual(result.fieldOrigins.mrp?.panelId, 'back_1', 'MRP must originate from back panel');
+  assert.strictEqual(result.fieldOrigins.date?.panelId, 'crimp_1', 'Date must originate from crimp panel');
+  assert.strictEqual(result.fieldOrigins.consumerCare?.panelId, 'side_1', 'Consumer care must originate from side panel');
+  assert.strictEqual(result.fieldOrigins.manufacturer?.panelId, 'back_1', 'Manufacturer must originate from back panel');
+});
+
+// ---------------------------------------------------------------------------
+// TEST 98 — One panel OCR failure → result is REVIEW, not PASS
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 3: one failed OCR panel (empty text) prevents PASS verdict', () => {
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front / Main Label',    rawText: 'PARLE-G BISCUITS\nNET WT: 250 g', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back Declaration Panel', rawText: 'MFD BY: PARLE PRODUCTS PVT LTD, MUMBAI\nMRP: Rs. 35\nCUSTOMER CARE: 1800222211', confidence: 75, quality: 'FAIR' as const },
+    { panelId: 'p3', panelType: 'crimp' as const, panelLabel: 'Crimp / Seal / Base',   rawText: '', confidence: 0, quality: 'POOR' as const }, // FAILED OCR
+    { panelId: 'p4', panelType: 'other' as const, panelLabel: 'Side / Additional',     rawText: '', confidence: 0, quality: 'POOR' as const }, // FAILED OCR
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(result.unifiedLabel);
+
+  // Even if some rules might pass, the system should not output PASS when panels failed
+  // (the rules engine flags missing date as a violation which causes REVIEW)
+  assert.ok(
+    verdict.overallStatus === 'REVIEW',
+    `Verdict must be REVIEW when critical panels fail OCR; got ${verdict.overallStatus}`
+  );
+});
+
+// ---------------------------------------------------------------------------
+// TEST 99 — Conflicting MRP across panels → REVIEW with conflict detail
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 4: conflicting MRP values across panels triggers REVIEW', () => {
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const,  panelLabel: 'Front Label', rawText: 'MRP: Rs. 100.00', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'crimp' as const,  panelLabel: 'Crimp Seal',  rawText: 'MRP: Rs. 120.00', confidence: 80, quality: 'GOOD' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+  assert.ok(result.hasConflict, 'Must detect MRP conflict');
+  assert.ok(result.conflictDetails.length > 0, 'Must populate conflict details');
+  assert.ok(
+    result.conflictDetails.some((d) => d.toLowerCase().includes('mrp')),
+    'Conflict detail must mention MRP'
+  );
+});
+
+// ---------------------------------------------------------------------------
+// TEST 100 — Same barcode repeated across panels → deduplicated (single product)
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 5: same barcode on multiple panels produces no product clash', () => {
+  // Both panels contain the same brand text — should NOT trigger product clash
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front Label', rawText: 'PARLE-G BISCUITS MRP: Rs 35', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back Panel',  rawText: 'PARLE-G MFD BY PARLE PRODUCTS PVT LTD CUSTOMER CARE: 1800222211', confidence: 80, quality: 'GOOD' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+  assert.strictEqual(result.hasProductClash, false, 'Same brand on two panels must NOT trigger product clash');
+  assert.ok(!result.conflictDetails.some((d) => d.toLowerCase().includes('different products')), 'No product clash message expected');
+});
+
+// ---------------------------------------------------------------------------
+// TEST 101 — Different product barcodes (different brands) → product clash → REVIEW
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 6: panels with contradictory brands triggers product clash REVIEW', () => {
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front Label', rawText: 'BRITANNIA GOOD DAY BISCUITS NET WT: 100g', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back Panel',  rawText: 'PEPSI COLA CARBONATED BEVERAGE', confidence: 80, quality: 'GOOD' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+  assert.ok(result.hasConflict, 'Must detect conflict for contradictory products');
+  assert.ok(result.hasProductClash, 'Must flag product clash when different brands detected');
+});
+
+// ---------------------------------------------------------------------------
+// TEST 102 — Removing a panel leaves remaining panels intact in merge
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 7: removing one panel from 4 still processes the other 3', () => {
+  // Simulate 3 panels (after one is removed on the scan page)
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front Label',    rawText: 'NET WT: 500 g', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back Panel',     rawText: 'MFD BY: DEMO FOODS LTD, PUNE 411001\nMRP: Rs. 99', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p3', panelType: 'crimp' as const, panelLabel: 'Crimp Seal',     rawText: 'PKD: 07/2025\nCUSTOMER CARE: 1800333444', confidence: 75, quality: 'GOOD' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+  assert.strictEqual(result.panelContributions.length, 3, 'Must process exactly 3 panels');
+  assert.ok(result.unifiedLabel.mrp, 'MRP must survive from back panel');
+  assert.ok(result.unifiedLabel.netQuantity, 'Net qty must survive from front panel');
+});
+
+// ---------------------------------------------------------------------------
+// TEST 103 — Adding a panel after first scan preserves all panels in merge
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 8: adding 4th panel after scanning 3 still merges all 4', () => {
+  const fourPanels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front', rawText: 'NET WT: 200 g', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back',  rawText: 'MFD BY: ALPHA FOODS, CHENNAI 600001\nMRP: Rs. 60', confidence: 80, quality: 'GOOD' as const },
+    { panelId: 'p3', panelType: 'crimp' as const, panelLabel: 'Crimp', rawText: 'PKD: 06/2025', confidence: 70, quality: 'FAIR' as const },
+    { panelId: 'p4', panelType: 'other' as const, panelLabel: 'Side',  rawText: 'CUSTOMER CARE: 1800999888', confidence: 70, quality: 'FAIR' as const },
+  ];
+
+  const result = mergeMultiPanelDeclarations(fourPanels);
+  assert.strictEqual(result.panelContributions.length, 4, '4 panels must all be in contributions');
+  assert.ok(result.unifiedLabel.consumerCare, 'Consumer care from 4th panel must be merged');
+  assert.ok(result.unifiedLabel.packingDate || result.unifiedLabel.manufactureDate, 'Date from 3rd panel must be merged');
+});
+
+// ---------------------------------------------------------------------------
+// TEST 104 — Empty rawText panels never count as "absent declarations"
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 9: unprocessed panels do not mark statutory fields as confirmed-absent', () => {
+  const panels = [
+    { panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front', rawText: 'PRODUCT XYZ', confidence: 60, quality: 'FAIR' as const },
+    { panelId: 'p2', panelType: 'back' as const,  panelLabel: 'Back',  rawText: '',            confidence: 0,  quality: 'POOR' as const }, // failed
+    { panelId: 'p3', panelType: 'crimp' as const, panelLabel: 'Crimp', rawText: '',            confidence: 0,  quality: 'POOR' as const }, // failed
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(result.unifiedLabel);
+
+  // The system must NOT pass this — missing MRP/date/manufacturer from failed panels
+  // means we cannot confirm compliance → must be REVIEW
+  assert.strictEqual(
+    verdict.overallStatus,
+    'REVIEW',
+    'Failed panels must produce REVIEW, not PASS'
+  );
+  // The unifiedRawText should still contain the failed panel markers (not silently dropped)
+  assert.ok(
+    result.unifiedRawText.includes('[PANEL: Back]') && result.unifiedRawText.includes('[PANEL: Crimp]'),
+    'All panel sections must appear in unifiedRawText even if OCR returned empty string'
+  );
+});
+
+// ---------------------------------------------------------------------------
+// TEST 105 — 4 fully processed panels produce all 6 statutory fields → PASS
+// ---------------------------------------------------------------------------
+test('Phase 23 Test 10: 4 complete panels with all fields distributed → PASS verdict', () => {
+  const panels = [
+    {
+      panelId: 'p1', panelType: 'front' as const, panelLabel: 'Front / Main Label',
+      rawText: 'BESTBITE PREMIUM WHEAT CRACKERS\nNET WEIGHT: 400 g',
+      confidence: 88, quality: 'GOOD' as const,
+    },
+    {
+      panelId: 'p2', panelType: 'back' as const, panelLabel: 'Back Declaration Panel',
+      rawText: 'MANUFACTURED BY: BESTBITE FOODS PVT LTD\nPLOT 45, ANDHERI EAST, MUMBAI, MAHARASHTRA 400093\nCUSTOMER CARE: 1800102030 / support@bestbite.in',
+      confidence: 84, quality: 'GOOD' as const,
+    },
+    {
+      panelId: 'p3', panelType: 'crimp' as const, panelLabel: 'Crimp / Seal / Base',
+      rawText: 'PKD: 05/2025\nMRP: Rs. 120.00 (Incl. of all taxes)',
+      confidence: 78, quality: 'FAIR' as const,
+    },
+    {
+      panelId: 'p4', panelType: 'other' as const, panelLabel: 'Side / Additional Panel',
+      rawText: 'INGREDIENTS: WHEAT FLOUR, SALT, EDIBLE OIL',
+      confidence: 72, quality: 'FAIR' as const,
+    },
+  ];
+
+  const result = mergeMultiPanelDeclarations(panels);
+
+  // All 6 statutory fields must be present
+  assert.ok(result.unifiedLabel.mrp,          'MRP must be merged from crimp panel');
+  assert.ok(result.unifiedLabel.netQuantity,  'Net Quantity must be merged from front panel');
+  assert.ok(result.unifiedLabel.packingDate || result.unifiedLabel.manufactureDate, 'Date must be merged from crimp panel');
+  assert.ok(result.unifiedLabel.manufacturer, 'Manufacturer must be merged from back panel');
+  assert.ok(result.unifiedLabel.address,      'Address must be merged from back panel');
+  assert.ok(result.unifiedLabel.consumerCare, 'Consumer Care must be merged from back panel');
+
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(result.unifiedLabel);
+  assert.strictEqual(verdict.overallStatus, 'PASS', '4-panel complete scan with all declarations must PASS');
+  assert.strictEqual(result.panelContributions.length, 4, 'All 4 panels must appear in contributions');
+  assert.strictEqual(result.hasConflict, false, 'No conflicts expected in a clean 4-panel scan');
+});

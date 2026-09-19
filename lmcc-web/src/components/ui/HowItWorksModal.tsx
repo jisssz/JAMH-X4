@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { X, Play, Sparkles } from 'lucide-react';
+import { X, Play } from 'lucide-react';
 
 interface HowItWorksModalProps {
   isOpen: boolean;
@@ -20,7 +20,6 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Lock body scroll while modal is open
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -33,7 +32,6 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // Auto-focus the close button for accessibility
     setTimeout(() => {
       closeBtnRef.current?.focus();
     }, 50);
@@ -47,17 +45,14 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
   // Video playback lifecycle management
   useEffect(() => {
     if (isOpen && videoRef.current) {
-      // Attempt autoplay muted (standard browser compliance)
       videoRef.current.currentTime = 0;
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch((err) => {
-          // Autoplay policy prevented playback, controls remain available for user interaction
           console.debug('Autoplay prevented by browser policy:', err);
         });
       }
     } else if (!isOpen && videoRef.current) {
-      // Immediately pause and silence video when closed
       videoRef.current.pause();
     }
   }, [isOpen]);
@@ -70,29 +65,26 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
       aria-modal="true"
       aria-label="How LMCC Works Video Tutorial"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-2xl transition-opacity animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
     >
-      {/* Modal Container: Stop propagation so clicking video does not close modal */}
       <div
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-4xl bg-gradient-to-b from-slate-900/95 via-slate-950 to-slate-950 rounded-3xl sm:rounded-[2rem] border border-white/10 shadow-[0_0_60px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col"
+        className="relative w-full max-w-3xl bg-[#090d16] rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Modal Header Bar */}
-        <div className="flex items-center justify-between px-5 sm:px-7 py-4 border-b border-white/10 bg-slate-950/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <Play className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400" />
+            <div className="w-6 h-6 rounded-lg bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-slate-300">
+              <Play className="w-3 h-3 fill-white text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider font-mono">
-                  How LMCC Works
-                </span>
-                <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase">
-                  10s Overview
-                </span>
-              </div>
+              <span className="text-sm font-medium text-white tracking-wide">
+                How LMCC Works
+              </span>
+              <span className="text-[11px] text-slate-500 ml-2 font-sans">
+                Overview Tutorial
+              </span>
             </div>
           </div>
 
@@ -101,7 +93,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close tutorial video"
-            className="p-2 rounded-full text-slate-400 hover:text-white bg-white/5 hover:bg-white/15 border border-white/10 transition cursor-pointer active:scale-95"
+            className="p-1.5 rounded-full text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -117,24 +109,21 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({
             playsInline
             controls
             preload="metadata"
-            className="w-full h-auto aspect-video max-h-[72vh] object-contain bg-black"
+            className="w-full h-auto aspect-video max-h-[70vh] object-contain bg-black"
           >
             Your browser does not support embedded MP4 video playback.
           </video>
         </div>
 
         {/* Modal Footer Bar */}
-        <div className="px-5 sm:px-7 py-3.5 bg-slate-950/80 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-mono text-slate-400">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-            <span>Workflow: Scan package → Local OCR extraction → Legal Metrology Rule 6 validation.</span>
-          </div>
+        <div className="px-6 py-3.5 bg-[#06080e] border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-sans text-slate-400">
+          <span>Workflow: Capture packaging photos &rarr; On-device OCR &rarr; Rule 6 verification.</span>
           <button
             type="button"
             onClick={onClose}
-            className="self-end sm:self-auto text-[11px] font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10 transition cursor-pointer"
+            className="text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.1] px-3 py-1 rounded-full border border-white/[0.08] transition cursor-pointer"
           >
-            Close Tutorial
+            Close
           </button>
         </div>
       </div>

@@ -39,6 +39,7 @@ export interface ExtractedLabel {
   isDateAmbiguous?: boolean;
   isFutureDate?: boolean;
   hasConflict?: boolean;
+  hasProductClash?: boolean;
   conflictDetails?: string[];
 
   // Exact declaration source location lines (for evidence tracing)

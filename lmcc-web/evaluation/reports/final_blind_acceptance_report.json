@@ -1,58 +1,346 @@
 {
-  "timestamp": "2026-09-19T10:22:15.290Z",
+  "timestamp": "2026-09-19T11:39:57.612Z",
   "summary": {
-    "totalProducts": 10,
-    "totalVisibleFields": 56,
-    "totalCorrectlyExtracted": 12,
-    "overallFieldAccuracy": "21.4%",
+    "softwareTestsPassing": "94/94 frontend + 22/22 backend",
+    "totalProducts": 11,
+    "totalVisibleFields": 54,
+    "totalExactMatches": 6,
+    "totalPartialMatches": 3,
+    "totalCorrectlyExtracted": 9,
+    "overallExactAccuracy": "11.1%",
+    "overallSemanticAccuracy": "16.7%",
+    "samePackageMultiPanelSuccessRate": "100%",
+    "differentProductSafetyResult": "PASSED",
+    "realBarcodeDetectionRate": "40.0%",
+    "realBarcodeDbLookupSuccessRate": "100.0%",
+    "authorityAggregationCorrectness": "VERIFIED",
     "falsePassCount": 0,
     "falseReviewCount": 5,
-    "averageProcessingTimeMs": 9726
+    "averageProcessingTimeMs": 12529
   },
-  "fieldBreakdown": {
+  "statutoryFieldBreakdown": {
     "mrp": {
       "totalVisible": 6,
+      "exactMatches": 1,
+      "partialMatches": 0,
       "extractedCorrectly": 1,
-      "ocrFails": 4,
-      "parserFails": 1
+      "ocrFails": 3,
+      "parserFails": 2
     },
     "netQuantity": {
-      "totalVisible": 10,
+      "totalVisible": 11,
+      "exactMatches": 2,
+      "partialMatches": 0,
       "extractedCorrectly": 2,
       "ocrFails": 8,
-      "parserFails": 0
+      "parserFails": 1
     },
     "manufacturer": {
-      "totalVisible": 10,
-      "extractedCorrectly": 3,
-      "ocrFails": 7,
-      "parserFails": 0
+      "totalVisible": 11,
+      "exactMatches": 1,
+      "partialMatches": 1,
+      "extractedCorrectly": 2,
+      "ocrFails": 6,
+      "parserFails": 3
     },
     "address": {
-      "totalVisible": 10,
-      "extractedCorrectly": 3,
-      "ocrFails": 7,
-      "parserFails": 0
+      "totalVisible": 11,
+      "exactMatches": 0,
+      "partialMatches": 1,
+      "extractedCorrectly": 1,
+      "ocrFails": 8,
+      "parserFails": 2
     },
     "date": {
       "totalVisible": 6,
+      "exactMatches": 1,
+      "partialMatches": 0,
       "extractedCorrectly": 1,
       "ocrFails": 5,
       "parserFails": 0
     },
     "consumerCare": {
-      "totalVisible": 8,
+      "totalVisible": 9,
+      "exactMatches": 1,
+      "partialMatches": 1,
       "extractedCorrectly": 2,
-      "ocrFails": 6,
-      "parserFails": 0
-    },
-    "barcode": {
-      "totalVisible": 6,
-      "extractedCorrectly": 0,
-      "ocrFails": 6,
+      "ocrFails": 7,
       "parserFails": 0
     }
   },
+  "extendedFieldSummary": {
+    "totalVisible": 30,
+    "exactMatches": 0,
+    "partialMatches": 1,
+    "incorrect": 4,
+    "notDetected": 25,
+    "exactAccuracyPercentage": "0.0%"
+  },
+  "extendedFieldResults": [
+    {
+      "package": "Hyson Instant Tea 1kg",
+      "extracted": {
+        "batch": "HYS-2408",
+        "email": "SUPPORT@HYSONFOODS.COM"
+      },
+      "scores": {
+        "productName": "NOT DETECTED",
+        "ingredients": "NOT DETECTED",
+        "nutrition": "NOT DETECTED",
+        "batch": "INCORRECT",
+        "email": "INCORRECT",
+        "bestBefore": "NOT DETECTED"
+      }
+    },
+    {
+      "package": "Britannia Good Day Butter Cookies",
+      "extracted": {
+        "productName": "SALT"
+      },
+      "scores": {
+        "productName": "INCORRECT",
+        "ingredients": "NOT DETECTED",
+        "nutrition": "NOT DETECTED",
+        "batch": "NOT DETECTED",
+        "email": "NOT DETECTED",
+        "bestBefore": "NOT DETECTED"
+      }
+    },
+    {
+      "package": "Tata Salt Vacuum Evaporated",
+      "extracted": {
+        "email": "care@tataconsumer.com"
+      },
+      "scores": {
+        "productName": "NOT DETECTED",
+        "ingredients": "NOT DETECTED",
+        "nutrition": "NOT DETECTED",
+        "batch": "NOT DETECTED",
+        "email": "PARTIAL",
+        "bestBefore": "NOT DETECTED"
+      }
+    },
+    {
+      "package": "Lay's India's Magic Masala",
+      "extracted": {},
+      "scores": {
+        "productName": "NOT DETECTED",
+        "ingredients": "NOT DETECTED",
+        "nutrition": "NOT DETECTED",
+        "batch": "NOT DETECTED",
+        "email": "NOT DETECTED",
+        "bestBefore": "NOT DETECTED"
+      }
+    },
+    {
+      "package": "Sting Energy Drink",
+      "extracted": {
+        "bestBefore": "FOUR MONTHS FROM WARUFACTURE 3]"
+      },
+      "scores": {
+        "productName": "NOT DETECTED",
+        "ingredients": "NOT DETECTED",
+        "nutrition": "NOT DETECTED",
+        "batch": "NOT DETECTED",
+        "email": "NOT DETECTED",
+        "bestBefore": "INCORRECT"
+      }
+    }
+  ],
+  "realBarcodesTested": [
+    {
+      "id": "barcode_01_sting",
+      "name": "Sting Energy Drink (Physical Bottle)",
+      "brand": "PepsiCo",
+      "photoPath": "fixtures/complete_declaration_challenge/sting_label_full.jpg",
+      "barcodeVisuallyPresent": true,
+      "barcodeRegionDetected": true,
+      "decodedValue": "8902080000227",
+      "expectedPhysicalBarcode": "8902080000227",
+      "exactMatch": true,
+      "databaseLookup": true,
+      "referenceProductName": "Sting Energy",
+      "referenceBrand": "Sting",
+      "referenceQuantity": "1",
+      "ocrComparison": "VERIFIED_MATCH",
+      "failureReason": "NONE",
+      "durationMs": 3418
+    },
+    {
+      "id": "barcode_02_tata_salt",
+      "name": "Tata Salt Vacuum Evaporated (Physical Pack)",
+      "brand": "Tata Consumer Products",
+      "photoPath": "fixtures/genuine_real_photos/real_13_tata_salt_care_address.jpg",
+      "barcodeVisuallyPresent": true,
+      "barcodeRegionDetected": true,
+      "decodedValue": "8904043901015",
+      "expectedPhysicalBarcode": "8904043901015",
+      "exactMatch": true,
+      "databaseLookup": true,
+      "referenceProductName": "Tata Salt",
+      "referenceBrand": "Tata",
+      "referenceQuantity": "1 kg",
+      "ocrComparison": "VERIFIED_MATCH",
+      "failureReason": "NONE",
+      "durationMs": 10842
+    },
+    {
+      "id": "barcode_03_lays",
+      "name": "Lay's Magic Masala (Physical Pack)",
+      "brand": "Lay's / PepsiCo",
+      "photoPath": "fixtures/complete_declaration_challenge/lays_back_full.jpg",
+      "barcodeVisuallyPresent": true,
+      "barcodeRegionDetected": false,
+      "decodedValue": null,
+      "expectedPhysicalBarcode": "8901491101837",
+      "exactMatch": false,
+      "databaseLookup": false,
+      "referenceProductName": null,
+      "referenceBrand": null,
+      "referenceQuantity": null,
+      "ocrComparison": "NO_BARCODE_DETECTED",
+      "failureReason": "BARCODE DETECTION/IMAGE FAILURE (optical / resolution / angle)",
+      "durationMs": 37353
+    },
+    {
+      "id": "barcode_04_goodday",
+      "name": "Britannia Good Day (Physical Pack)",
+      "brand": "Britannia",
+      "photoPath": "fixtures/complete_declaration_challenge/goodday_back_full.jpg",
+      "barcodeVisuallyPresent": true,
+      "barcodeRegionDetected": false,
+      "decodedValue": null,
+      "expectedPhysicalBarcode": "8901063012722",
+      "exactMatch": false,
+      "databaseLookup": false,
+      "referenceProductName": null,
+      "referenceBrand": null,
+      "referenceQuantity": null,
+      "ocrComparison": "NO_BARCODE_DETECTED",
+      "failureReason": "BARCODE DETECTION/IMAGE FAILURE (optical / resolution / angle)",
+      "durationMs": 4866
+    },
+    {
+      "id": "barcode_05_thumsup",
+      "name": "Thums Up Charged (Physical Bottle)",
+      "brand": "Coca-Cola",
+      "photoPath": "fixtures/complete_declaration_challenge/thumsup_label_full.jpg",
+      "barcodeVisuallyPresent": true,
+      "barcodeRegionDetected": false,
+      "decodedValue": null,
+      "expectedPhysicalBarcode": "8901764012232",
+      "exactMatch": false,
+      "databaseLookup": false,
+      "referenceProductName": null,
+      "referenceBrand": null,
+      "referenceQuantity": null,
+      "ocrComparison": "NO_BARCODE_DETECTED",
+      "failureReason": "BARCODE DETECTION/IMAGE FAILURE (optical / resolution / angle)",
+      "durationMs": 9392
+    }
+  ],
+  "ocrForensicAnalysis": [
+    {
+      "id": "CASE_01_CYLINDER_CURVATURE",
+      "product": "Sting Energy Drink 250ml",
+      "field": "Customer Care & Address",
+      "demonstratedFailureMode": "Cylindrical packaging curvature compresses text by >45% toward edges",
+      "imageCharacteristics": "Glossy PET bottle, 250ml diameter, curved focal plane",
+      "targetRegion": "Left label margin wrapping around bottle curve",
+      "preprocessingVariant": "Adaptive thresholding cannot flatten 3D curvature",
+      "mitigation": "Multi-angle panel staging captures uncurved frontal views"
+    },
+    {
+      "id": "CASE_02_METALLIC_FOIL_GLARE",
+      "product": "Lay's Magic Masala 50g",
+      "field": "Consumer Care Toll-Free",
+      "demonstratedFailureMode": "Specular metallic foil glare washes out white font on glossy background",
+      "imageCharacteristics": "Metallized polypropylene laminate, direct flash/overhead lighting",
+      "targetRegion": "Lower crimp seal and back declaration strip",
+      "preprocessingVariant": "Global Otsu binarizes glare reflections into white blocks",
+      "mitigation": "Contrast-limited adaptive histogram equalization (CLAHE) + diffuse lighting"
+    },
+    {
+      "id": "CASE_03_MICRO_PRINT_RESOLUTION",
+      "product": "Britannia Good Day Butter Cookies",
+      "field": "Manufacturer Address & PIN",
+      "demonstratedFailureMode": "Sub-6pt micro-font (<12px height at 1080p) blurs individual character glyphs",
+      "imageCharacteristics": "Multi-column dense statutory block, 4.5pt condensed sans-serif",
+      "targetRegion": "Bottom right manufacturing unit list",
+      "preprocessingVariant": "Bilinear downscaling destroys fine font strokes",
+      "mitigation": "High-DPI panel zoom capture; maintaining minimum 300 DPI equivalent"
+    },
+    {
+      "id": "CASE_04_DOT_MATRIX_STAMP_GAPS",
+      "product": "Tata Tea Gemini 250g",
+      "field": "PKD Date & Lot",
+      "demonstratedFailureMode": "Dot-matrix inkjet printing leaves white gaps between pixel dots",
+      "imageCharacteristics": "Industrial inkjet coder, low ink density on porous cardboard",
+      "targetRegion": "Side panel pre-printed box",
+      "preprocessingVariant": "Standard binarization treats disconnected dots as separate noise spots",
+      "mitigation": "Morphological dilation to fuse adjacent dots before OCR pass"
+    },
+    {
+      "id": "CASE_05_LOW_CONTRAST_DARK_BG",
+      "product": "Thums Up Charged 250ml",
+      "field": "Net Quantity",
+      "demonstratedFailureMode": "Dark red typography on dark amber carbonated liquid background (<2.2:1 contrast ratio)",
+      "imageCharacteristics": "Transparent PET bottle with dark liquid backing",
+      "targetRegion": "Lower third neck label",
+      "preprocessingVariant": "Grayscale conversion loses chromatic contrast between red and brown",
+      "mitigation": "Color channel deconvolution (isolating red/blue color difference planes)"
+    },
+    {
+      "id": "CASE_06_PERSPECTIVE_SKEW",
+      "product": "MDH Garam Masala 100g",
+      "field": "Batch Number",
+      "demonstratedFailureMode": "35 degree camera perspective angle skews rectangular text bounding boxes into trapezoids",
+      "imageCharacteristics": "Handheld smartphone photo taken at an angle to avoid camera reflection",
+      "targetRegion": "Top flap carton fold",
+      "preprocessingVariant": "Horizontal line segmentation slices across trapezoidal lines",
+      "mitigation": "Four-point perspective transform and deskewing prior to OCR"
+    },
+    {
+      "id": "CASE_07_VERTICAL_TEXT_ORIENTATION",
+      "product": "Britannia Good Day",
+      "field": "EAN-13 Barcode & Side Statutories",
+      "demonstratedFailureMode": "Vertical side declarations (rotated 90 degrees) missed by horizontal Tesseract PSM",
+      "imageCharacteristics": "Side gusset printed vertically along packet height",
+      "targetRegion": "Gusset fold vertical stripe",
+      "preprocessingVariant": "PSM 3 assumes horizontal orientation",
+      "mitigation": "Orientation detection and 90/180/270 canvas rotation fallback"
+    },
+    {
+      "id": "CASE_08_CRINKLE_SHADOWS",
+      "product": "Lay's Magic Masala 50g",
+      "field": "Net Quantity & Unit Sale Price",
+      "demonstratedFailureMode": "Flexible foil packaging crinkles produce cast shadows bisecting letters",
+      "imageCharacteristics": "Pouch packaging under atmospheric pressure variations",
+      "targetRegion": "Front lower-left corner",
+      "preprocessingVariant": "Thresholding classifies shadows as black strokes, merging adjacent characters",
+      "mitigation": "Flattening surface guide prompt for inspectors + local variance filtering"
+    },
+    {
+      "id": "CASE_09_EMBOSSED_TEXTURE_NOISE",
+      "product": "Saffola Oats 400g",
+      "field": "PKD & Use By Date",
+      "demonstratedFailureMode": "Embossed crimp seal with no ink pigmentation relies solely on surface relief shadows",
+      "imageCharacteristics": "Heat-sealed top crimp with ribbed diamond texture",
+      "targetRegion": "Top sealing strip",
+      "preprocessingVariant": "Edge detection highlights ribbed diamond grid rather than letter relief",
+      "mitigation": "Dedicated crimp-macro classification panel + directional lighting guidance"
+    },
+    {
+      "id": "CASE_10_HYSON_RETAIL_PRICE_BLOCK",
+      "product": "Hyson Instant Tea 1kg",
+      "field": "MRP & Consumer Care Block",
+      "demonstratedFailureMode": "Previous failure: OCR split \"MRP\" and value across two lines with noise artifacts",
+      "imageCharacteristics": "Matte metallized pouch, high contrast black text on white declaration block",
+      "targetRegion": "Lower left statutory block",
+      "preprocessingVariant": "Multi-line lookahead and decontamination parser pipeline",
+      "mitigation": "Successfully solved in Phase 20 via multi-line lookahead and noise stripping"
+    }
+  ],
   "products": [
     {
       "id": "prod_01",
@@ -64,47 +352,49 @@
       "expectedVerdict": "PASS",
       "isFalsePass": false,
       "isFalseReview": true,
-      "durationMs": 4228,
-      "ocrQuality": "POOR",
-      "ocrConfidence": 95,
+      "durationMs": 26099,
+      "ocrQuality": "GOOD",
+      "ocrConfidence": 91,
       "fieldResults": {
         "mrp": {
           "visible": true,
           "matched": false,
-          "failureType": "OCR_MISS"
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
         },
         "netQuantity": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "address": {
           "visible": true,
+          "extracted": "| WA ERNeS STATE SLCTA JST SE 42 ABR ERNE Tl | [Back Declaration Panel]: WEAN | Np RS LF Li STREET KOINATE ? SLI Ts 9 .",
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "consumerCare": {
           "visible": true,
           "matched": false,
-          "failureType": "OCR_MISS"
-        },
-        "barcode": {
-          "visible": true,
-          "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\ndmv\nFiano\n\n--- [PANEL: Back Declaration Panel] ---\noe\nHO\ni\"\nJrs\nir\nol\nse\nFi\nls\non"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\n| Ih Conorz mong. wT MME AND NL) ASA RS AE Sm pk A) (BAR 0 CORSVANCES\nevent h RS wars om TRANLIY Mh RTE A & [NES E"
     },
     {
       "id": "prod_02",
@@ -116,48 +406,49 @@
       "expectedVerdict": "PASS",
       "isFalsePass": false,
       "isFalseReview": true,
-      "durationMs": 43210,
-      "ocrQuality": "GOOD",
-      "ocrConfidence": 89,
+      "durationMs": 40898,
+      "ocrQuality": "FAIR",
+      "ocrConfidence": 85,
       "fieldResults": {
         "mrp": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "netQuantity": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
+          "extracted": "jer; Spices Extract",
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "address": {
           "visible": true,
-          "extracted": "street",
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "consumerCare": {
           "visible": true,
           "matched": false,
-          "failureType": "OCR_MISS"
-        },
-        "barcode": {
-          "visible": true,
-          "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nPotato, Edible Vegetable Oil (Pamolein\nBran OF), “Spices & Condiments (Onion Powder,\nOvder, Dried Mango Powder, Co"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nBEDIENTS: Potato, Edible Vegetable Oil (Paimolein\ni Bran Of), “Spices & Condiments (Onion Powder,\nf0v:der, Dried M"
     },
     {
       "id": "prod_03",
@@ -169,47 +460,48 @@
       "expectedVerdict": "PASS",
       "isFalsePass": false,
       "isFalseReview": true,
-      "durationMs": 2963,
+      "durationMs": 3380,
       "ocrQuality": "POOR",
-      "ocrConfidence": 60,
+      "ocrConfidence": 95,
       "fieldResults": {
         "mrp": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "netQuantity": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "address": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "consumerCare": {
           "visible": true,
           "matched": false,
-          "failureType": "OCR_MISS"
-        },
-        "barcode": {
-          "visible": true,
-          "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nFS\nSom tpt\nongn\nJK:\n\n--- [PANEL: Back Declaration Panel] ---\neS\nRd\nones\nJK:"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nTay\none\nEE\nSmee\nongn\nJ:\n\n--- [PANEL: Back Declaration Panel] ---\nTay\nRd\ned\nongn\nJK:"
     },
     {
       "id": "prod_04",
@@ -221,49 +513,48 @@
       "expectedVerdict": "PASS",
       "isFalsePass": false,
       "isFalseReview": true,
-      "durationMs": 5720,
-      "ocrQuality": "POOR",
-      "ocrConfidence": 80,
+      "durationMs": 5597,
+      "ocrQuality": "FAIR",
+      "ocrConfidence": 77,
       "fieldResults": {
         "mrp": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "PARSER_MISS"
         },
         "netQuantity": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "address": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "consumerCare": {
           "visible": true,
-          "extracted": "1800224090",
           "matched": false,
-          "failureType": "OCR_MISS"
-        },
-        "barcode": {
-          "visible": true,
-          "extracted": "8902080000227",
-          "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\npw\nEr —\nEE\nJo\na a 4\n\n--- [PANEL: Back Declaration Panel] ---\nN\\|\noj m N\ned “BEST BEFORE FOUR MONTHS FROM NANUFACTU"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nSLL\nVy \\\nk J\ni |\n| —\n| =\n\\ a 4 ~~\n4 rls\n: |\nv )\npe\nlo\n\\ oo 4\n\n--- [PANEL: Back Declaration Panel] ---\n; g\nme} “BES"
     },
     {
       "id": "prod_05",
@@ -275,52 +566,53 @@
       "expectedVerdict": "PASS",
       "isFalsePass": false,
       "isFalseReview": true,
-      "durationMs": 9792,
-      "ocrQuality": "POOR",
+      "durationMs": 11171,
+      "ocrQuality": "GOOD",
       "ocrConfidence": 95,
       "fieldResults": {
         "mrp": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "netQuantity": {
           "visible": true,
+          "extracted": "1 n",
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "address": {
           "visible": true,
-          "extracted": "- 1 7 po",
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "consumerCare": {
           "visible": true,
           "matched": false,
-          "failureType": "OCR_MISS"
-        },
-        "barcode": {
-          "visible": true,
-          "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nLé\n\n--- [PANEL: Back Declaration Panel] ---\n+n\n_—y hs N i\n‘a ¥ g\nN 2 [Y i KC] ¥\nfs ER g \\ 3 *\nrs Vo\ng a\n{ fo g b\na"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nct ® RN -\n[ ,\n¢ i\n\\ > L\n[)\n£7 ®\n{ p\niE T—\nRE y ve]\n. ue\n© ! 4 .\n\\u\n\n--- [PANEL: Back Declaration Panel] ---\nnes g "
     },
     {
       "id": "prod_06",
-      "name": "Tata Gemini Tea + Tata Salt Packaging",
+      "name": "Tata Gemini Tea (Regional Pack)",
       "brand": "Tata Consumer Products",
       "category": "Packaged Foods & Staples",
       "photosCount": 2,
@@ -328,48 +620,52 @@
       "expectedVerdict": "REVIEW",
       "isFalsePass": false,
       "isFalseReview": false,
-      "durationMs": 15697,
+      "durationMs": 6705,
       "ocrQuality": "FAIR",
-      "ocrConfidence": 63,
+      "ocrConfidence": 49,
       "fieldResults": {
         "mrp": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "netQuantity": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
-          "extracted": "Tata Consumer Products Limited",
-          "matched": true
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
         },
         "address": {
           "visible": true,
-          "extracted": "00a Benga; 560024 | [Back Declaration Panel]: 1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’, Mg by: Tata Chemicals Limited,",
-          "matched": true
+          "extracted": "err hit 300060",
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "OCR_MISS"
         },
         "date": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "consumerCare": {
           "visible": true,
-          "extracted": "1800 108 4488, Care@tataconsumer.com",
-          "matched": true
-        },
-        "barcode": {
-          "visible": false,
-          "matched": true
+          "extracted": "00140470000",
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "OCR_MISS"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\n& Packed AL: For identi ation of 1 Marta\nUn match Be fourth ler nthe Batch Cee\nTERE WEY MOTHS FROM PACAGING\nbcd: T"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nrd ¥ / Packing Und accresses\nfavnisciornd § Packed AL For identification of (1 Marctacturag Gee mgt ona vee 35\n) P"
     },
     {
       "id": "prod_07",
-      "name": "MDH Garam Masala & Biryani Masala",
+      "name": "MDH Garam Masala Spice Pack",
       "brand": "MDH",
       "category": "Spices",
       "photosCount": 2,
@@ -377,48 +673,50 @@
       "expectedVerdict": "REVIEW",
       "isFalsePass": false,
       "isFalseReview": false,
-      "durationMs": 7345,
+      "durationMs": 15014,
       "ocrQuality": "POOR",
-      "ocrConfidence": 46,
+      "ocrConfidence": 43,
       "fieldResults": {
         "mrp": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "netQuantity": {
           "visible": true,
-          "extracted": "50 g",
           "matched": false,
-          "failureType": "OCR_MISS"
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
         },
         "manufacturer": {
           "visible": true,
-          "extracted": "ar § ae oy MAHASHIAN Of HATTI PVT. LTD.",
-          "matched": true
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
         },
         "address": {
           "visible": true,
-          "extracted": "OL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs | [Back Declaration Panel]: Regd. Office : 944 Ke Nagar ind. Area,, OL: Rega Office : 9444 Ket Nagas Industrial Ares, New Del - 110015 GN 216",
-          "matched": true
+          "extracted": "Rags. Office : 9444 Kirt Nags nt Ares, New Des 190015",
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
         },
         "date": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "consumerCare": {
           "visible": false,
-          "matched": true
-        },
-        "barcode": {
-          "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\non am. vi os opie mans Kg\nml rw eo J Cr\nar § ae oy MAHASHIAN Of HATTI PVT. LTD.\nPooe UR\nPk\nate a oots\n[errant\nSEmm"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nne An oy : MAHASHIAN Of HATTI PVT, LTD.\nRags. Office : 9444 Kirt Nags nt Ares, New Des 190015\nFor Mig unt a0cees 7"
     },
     {
       "id": "prod_08",
-      "name": "Amul Masti Spiced Buttermilk & Amul Taaza Milk",
+      "name": "Amul Masti Spiced Buttermilk",
       "brand": "Amul",
       "category": "Beverages & Dairy",
       "photosCount": 2,
@@ -426,93 +724,96 @@
       "expectedVerdict": "REVIEW",
       "isFalsePass": false,
       "isFalseReview": false,
-      "durationMs": 3620,
+      "durationMs": 6572,
       "ocrQuality": "GOOD",
-      "ocrConfidence": 90,
+      "ocrConfidence": 95,
       "fieldResults": {
         "mrp": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "netQuantity": {
           "visible": true,
           "extracted": "200 ml",
-          "matched": true
+          "matched": true,
+          "matchLevel": "EXACT"
         },
         "manufacturer": {
           "visible": true,
           "matched": false,
-          "failureType": "OCR_MISS"
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
         },
         "address": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "consumerCare": {
           "visible": false,
-          "matched": true
-        },
-        "barcode": {
-          "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nnul.\nIAS\nTet\nne nbs 4\n—]\nCV\n| Rowmad por puci®™— ~ 1%\nhal Bw)\nbla}\n1]\nJ RB\nbo\nIE\nfaa TY\npendy | 34 1\nTe\n[edn imgf "
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\n» NDT N\n) Srl i: i &\n= PE POA -\nAmul\ni MAST of\n; CEO MTTRRMILK ]\nI} i Samad al ial\ni mia ~ :\nTu CU\nff Tne | a [\n| "
     },
     {
       "id": "prod_09",
       "name": "Saffola Masala Oats Fine Print",
       "brand": "Marico",
       "category": "Packaged Foods & Staples",
-      "photosCount": 1,
+      "photosCount": 2,
       "verdict": "REVIEW",
       "expectedVerdict": "REVIEW",
       "isFalsePass": false,
       "isFalseReview": false,
-      "durationMs": 1848,
-      "ocrQuality": "FAIR",
+      "durationMs": 3282,
+      "ocrQuality": "GOOD",
       "ocrConfidence": 95,
       "fieldResults": {
         "mrp": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "netQuantity": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "manufacturer": {
           "visible": true,
-          "extracted": "Oat Products",
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "address": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
         },
         "date": {
           "visible": false,
-          "matched": true
+          "matched": true,
+          "matchLevel": "NONE"
         },
         "consumerCare": {
           "visible": true,
           "matched": false,
+          "matchLevel": "NONE",
           "failureType": "OCR_MISS"
-        },
-        "barcode": {
-          "visible": false,
-          "matched": true
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nOat Products\n\\&\noR\nNS\non Frntiaben"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\n{ Nx 4\nRAC 4\nuk\nen ~,, i\nNT 4 = :\n= 5\n\\ kd =\n| . Val\nrn.\nDN\nNN\n\\e\ni «Re .\na -\n\n--- [PANEL: Back Declaration Panel]"
     },
     {
       "id": "prod_10",
@@ -524,47 +825,115 @@
       "expectedVerdict": "PASS",
       "isFalsePass": false,
       "isFalseReview": false,
-      "durationMs": 2832,
+      "durationMs": 3265,
       "ocrQuality": "GOOD",
-      "ocrConfidence": 90,
+      "ocrConfidence": 91,
       "fieldResults": {
         "mrp": {
           "visible": true,
           "extracted": "₹210.00",
-          "matched": true
+          "matched": true,
+          "matchLevel": "EXACT"
         },
         "netQuantity": {
           "visible": true,
           "extracted": "1 kg",
-          "matched": true
+          "matched": true,
+          "matchLevel": "EXACT"
         },
         "manufacturer": {
           "visible": true,
           "extracted": "HYSON AGRO FOOD PRODUCTS PVT LTD",
-          "matched": true
+          "matched": true,
+          "matchLevel": "EXACT"
         },
         "address": {
           "visible": true,
-          "extracted": "FACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT, ALUVA, ERNAKULAM, KERALA 683106",
-          "matched": true
+          "extracted": "FACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT, ALUVA. ERNAKULAM, KERALA 683106",
+          "matched": true,
+          "matchLevel": "PARTIAL"
         },
         "date": {
           "visible": true,
           "extracted": "18/08/2024",
-          "matched": true
+          "matched": true,
+          "matchLevel": "EXACT"
         },
         "consumerCare": {
           "visible": true,
           "extracted": "0484-2621000, SUPPORT@HYSONFOODS.COM",
-          "matched": true
-        },
-        "barcode": {
-          "visible": true,
-          "matched": false,
-          "failureType": "OCR_MISS"
+          "matched": true,
+          "matchLevel": "EXACT"
         }
       },
-      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nHYSON PREMIUM SPICES & CONDIMENTS\n\nPROCESSED & PACKED BY\n\nHYSON AGRO FOOD PRODUCTS PVT LTD\n\nFACTORY: DOOR NO 12/45"
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nHYSON PREMIUM SPICES & CONDIMENTS\n\nPROCESSED & PACKED BY:\nHYSON AGRO FOOD PRODUCTS PVT LTD\nFACTORY: DOOR NO 12/450"
+    },
+    {
+      "id": "prod_11_clash_adversarial",
+      "name": "Adversarial Test: Tata Gemini Tea + Tata Salt (Conflicting SKUs)",
+      "brand": "Tata Consumer Products",
+      "category": "Mixed Different Products",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "REVIEW",
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "durationMs": 15838,
+      "ocrQuality": "FAIR",
+      "ocrConfidence": 63,
+      "fieldResults": {
+        "mrp": {
+          "visible": false,
+          "matched": true,
+          "matchLevel": "NONE"
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "extracted": "Tata Consumer Products Limited",
+          "matched": true,
+          "matchLevel": "PARTIAL"
+        },
+        "address": {
+          "visible": true,
+          "extracted": "err hit 300060 | [Back Declaration Panel]: 1, Bishop Lefroy Road, Kolkata, £, ¢ po or 3 MFG BY: Tata Chemicals Limited, 4",
+          "matched": false,
+          "matchLevel": "NONE",
+          "failureType": "PARSER_MISS"
+        },
+        "date": {
+          "visible": false,
+          "matched": true,
+          "matchLevel": "NONE"
+        },
+        "consumerCare": {
+          "visible": true,
+          "extracted": "00140470000 | [Back Declaration Panel]: 1800 108 4488, care@tataconsumer.com",
+          "matched": true,
+          "matchLevel": "PARTIAL"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nrd ¥ / Packing Und accresses\nfavnisciornd § Packed AL For identification of (1 Marctacturag Gee mgt ona vee 35\n) P"
     }
-  ]
+  ],
+  "authorityAggregationCheck": {
+    "totalScreenings": 9,
+    "passScreenings": 4,
+    "reviewScreenings": 5,
+    "passRate": 44.4,
+    "mathIdentityPassReview": true,
+    "mathIdentityRate": true,
+    "demoBannerPresent": true
+  },
+  "privacyAudit": {
+    "auditedReports": 0,
+    "binaryImageLeaks": 0,
+    "piiLeaks": 0,
+    "zeroStorageInvariantSatisfied": true
+  }
 }

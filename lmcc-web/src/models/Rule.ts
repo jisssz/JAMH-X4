@@ -4,7 +4,7 @@ export type RuleSeverity = 'critical' | 'high' | 'medium' | 'low';
 
 export interface Rule {
   id: string;
-  field: keyof Omit<ExtractedLabel, 'rawText' | 'isDateAmbiguous' | 'isFutureDate' | 'hasConflict' | 'conflictDetails'>;
+  field: keyof Omit<ExtractedLabel, 'rawText' | 'isDateAmbiguous' | 'isFutureDate' | 'hasConflict' | 'hasProductClash' | 'conflictDetails'>;
   title: string;
   description: string;
   severity: RuleSeverity;

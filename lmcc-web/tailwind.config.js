@@ -6,7 +6,18 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Newsreader', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
       colors: {
+        obsidian: {
+          950: '#06080e',
+          900: '#090d16',
+          800: '#0f1422',
+          700: '#161d2e',
+        },
         gov: {
           50: '#f0f5fa',
           100: '#e1ecf5',

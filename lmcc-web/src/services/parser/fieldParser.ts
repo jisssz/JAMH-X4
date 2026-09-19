@@ -599,6 +599,8 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // ----------------------------------------------------
   const batchRegex = /\b(?:BATCH\s*(?:NO\.?|NUMBER)?|LOT\s*(?:NO\.?|NUMBER)?)\s*[:\s-]*([A-Z0-9\-\/]{3,25})\b/i;
   const ingredientsRegex = /\b(?:INGREDIENTS?|घटक|सामग्री)\s*[:\s-]*(.*)/i;
+  const commodityExplicitRegex = /\b(?:NAME\s*OF\s*(?:THE\s*)?COMMODITY|COMMODITY|GENERIC\s*NAME|PRODUCT(?:\s*NAME)?|ITEM)\s*[:\s-]+([^\n\r]+)/i;
+  const commonCommoditiesRegex = /\b(INSTANT\s*TEA|TEA|IODIZED\s*SALT|SALT|SPICED\s*BUTTERMILK|BUTTERMILK|TONED\s*MILK|MILK|GARAM\s*MASALA|BIRYANI\s*MASALA|MASALA\s*OATS|OATS|POTATO\s*CHIPS|CHIPS|BUTTER\s*COOKIES|COOKIES|BISCUITS|ENERGY\s*DRINK|CARBONATED\s*(?:WATER|BEVERAGE)|ANTISEPTIC|DETERGENT)\b/i;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -622,6 +624,20 @@ export function parseLabel(rawText: string): ExtractedLabel {
     if (!nutritionInfo && /\b(?:NUTRITIONAL\s*(?:INFO|INFORMATION|FACTS)?|NUTRITION\s*(?:INFO|FACTS)?)\b/i.test(line)) {
       nutritionInfo = line.trim();
       nutritionEvidence = line.trim();
+    }
+
+    if (!productName && commodityExplicitRegex.test(line)) {
+      const match = line.match(commodityExplicitRegex);
+      if (match && match[1] && match[1].trim().length > 2) {
+        productName = match[1].trim();
+        productNameEvidence = line.trim();
+      }
+    } else if (!productName && i < 10 && commonCommoditiesRegex.test(line)) {
+      const match = line.match(commonCommoditiesRegex);
+      if (match && match[0]) {
+        productName = match[0].trim();
+        productNameEvidence = line.trim();
+      }
     }
   }
 

@@ -93,6 +93,14 @@ async function main() {
   await page.screenshot({ path: homeMobileScreenshot, fullPage: true });
   console.log('✓ Captured live mobile home screenshot at:', homeMobileScreenshot);
 
+  // 6. Verify Mobile Viewport on Live Scan (/scan)
+  console.log('Verifying Live Mobile Viewport on Scan (/scan)...');
+  await page.goto(`${PROD_BASE_URL}/scan`, { waitUntil: 'domcontentloaded', timeout: 15000 });
+  await page.waitForSelector('h1', { timeout: 10000 });
+  const scanMobileScreenshot = `${ARTIFACT_DIR}/live_production_scan_mobile.png`;
+  await page.screenshot({ path: scanMobileScreenshot, fullPage: true });
+  console.log('✓ Captured live mobile scan screenshot at:', scanMobileScreenshot);
+
   await browser.close();
 
   const report = {

@@ -1,0 +1,570 @@
+{
+  "timestamp": "2026-09-19T10:22:15.290Z",
+  "summary": {
+    "totalProducts": 10,
+    "totalVisibleFields": 56,
+    "totalCorrectlyExtracted": 12,
+    "overallFieldAccuracy": "21.4%",
+    "falsePassCount": 0,
+    "falseReviewCount": 5,
+    "averageProcessingTimeMs": 9726
+  },
+  "fieldBreakdown": {
+    "mrp": {
+      "totalVisible": 6,
+      "extractedCorrectly": 1,
+      "ocrFails": 4,
+      "parserFails": 1
+    },
+    "netQuantity": {
+      "totalVisible": 10,
+      "extractedCorrectly": 2,
+      "ocrFails": 8,
+      "parserFails": 0
+    },
+    "manufacturer": {
+      "totalVisible": 10,
+      "extractedCorrectly": 3,
+      "ocrFails": 7,
+      "parserFails": 0
+    },
+    "address": {
+      "totalVisible": 10,
+      "extractedCorrectly": 3,
+      "ocrFails": 7,
+      "parserFails": 0
+    },
+    "date": {
+      "totalVisible": 6,
+      "extractedCorrectly": 1,
+      "ocrFails": 5,
+      "parserFails": 0
+    },
+    "consumerCare": {
+      "totalVisible": 8,
+      "extractedCorrectly": 2,
+      "ocrFails": 6,
+      "parserFails": 0
+    },
+    "barcode": {
+      "totalVisible": 6,
+      "extractedCorrectly": 0,
+      "ocrFails": 6,
+      "parserFails": 0
+    }
+  },
+  "products": [
+    {
+      "id": "prod_01",
+      "name": "Britannia Good Day Butter Cookies",
+      "brand": "Britannia",
+      "category": "Biscuits",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "PASS",
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "durationMs": 4228,
+      "ocrQuality": "POOR",
+      "ocrConfidence": 95,
+      "fieldResults": {
+        "mrp": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "consumerCare": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "barcode": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\ndmv\nFiano\n\n--- [PANEL: Back Declaration Panel] ---\noe\nHO\ni\"\nJrs\nir\nol\nse\nFi\nls\non"
+    },
+    {
+      "id": "prod_02",
+      "name": "Lay's India's Magic Masala Potato Chips",
+      "brand": "Lay's / PepsiCo",
+      "category": "Snacks & Confectionery",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "PASS",
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "durationMs": 43210,
+      "ocrQuality": "GOOD",
+      "ocrConfidence": 89,
+      "fieldResults": {
+        "mrp": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "extracted": "street",
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "consumerCare": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "barcode": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nPotato, Edible Vegetable Oil (Pamolein\nBran OF), “Spices & Condiments (Onion Powder,\nOvder, Dried Mango Powder, Co"
+    },
+    {
+      "id": "prod_03",
+      "name": "Britannia Marie Gold Biscuits",
+      "brand": "Britannia",
+      "category": "Biscuits",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "PASS",
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "durationMs": 2963,
+      "ocrQuality": "POOR",
+      "ocrConfidence": 60,
+      "fieldResults": {
+        "mrp": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "consumerCare": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "barcode": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nFS\nSom tpt\nongn\nJK:\n\n--- [PANEL: Back Declaration Panel] ---\neS\nRd\nones\nJK:"
+    },
+    {
+      "id": "prod_04",
+      "name": "Sting Energy Beverage Drink",
+      "brand": "PepsiCo",
+      "category": "Beverages",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "PASS",
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "durationMs": 5720,
+      "ocrQuality": "POOR",
+      "ocrConfidence": 80,
+      "fieldResults": {
+        "mrp": {
+          "visible": true,
+          "matched": false,
+          "failureType": "PARSER_MISS"
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "consumerCare": {
+          "visible": true,
+          "extracted": "1800224090",
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "barcode": {
+          "visible": true,
+          "extracted": "8902080000227",
+          "matched": false,
+          "failureType": "OCR_MISS"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\npw\nEr —\nEE\nJo\na a 4\n\n--- [PANEL: Back Declaration Panel] ---\nN\\|\noj m N\ned “BEST BEFORE FOUR MONTHS FROM NANUFACTU"
+    },
+    {
+      "id": "prod_05",
+      "name": "Thums Up Charged Carbonated Drink",
+      "brand": "Coca-Cola",
+      "category": "Beverages",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "PASS",
+      "isFalsePass": false,
+      "isFalseReview": true,
+      "durationMs": 9792,
+      "ocrQuality": "POOR",
+      "ocrConfidence": 95,
+      "fieldResults": {
+        "mrp": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "extracted": "- 1 7 po",
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "consumerCare": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "barcode": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nLé\n\n--- [PANEL: Back Declaration Panel] ---\n+n\n_—y hs N i\n‘a ¥ g\nN 2 [Y i KC] ¥\nfs ER g \\ 3 *\nrs Vo\ng a\n{ fo g b\na"
+    },
+    {
+      "id": "prod_06",
+      "name": "Tata Gemini Tea + Tata Salt Packaging",
+      "brand": "Tata Consumer Products",
+      "category": "Packaged Foods & Staples",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "REVIEW",
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "durationMs": 15697,
+      "ocrQuality": "FAIR",
+      "ocrConfidence": 63,
+      "fieldResults": {
+        "mrp": {
+          "visible": false,
+          "matched": true
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "extracted": "Tata Consumer Products Limited",
+          "matched": true
+        },
+        "address": {
+          "visible": true,
+          "extracted": "00a Benga; 560024 | [Back Declaration Panel]: 1, Bishop Lefroy Road, Kolkata, ~~ _fssaaf’, Mg by: Tata Chemicals Limited,",
+          "matched": true
+        },
+        "date": {
+          "visible": false,
+          "matched": true
+        },
+        "consumerCare": {
+          "visible": true,
+          "extracted": "1800 108 4488, Care@tataconsumer.com",
+          "matched": true
+        },
+        "barcode": {
+          "visible": false,
+          "matched": true
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\n& Packed AL: For identi ation of 1 Marta\nUn match Be fourth ler nthe Batch Cee\nTERE WEY MOTHS FROM PACAGING\nbcd: T"
+    },
+    {
+      "id": "prod_07",
+      "name": "MDH Garam Masala & Biryani Masala",
+      "brand": "MDH",
+      "category": "Spices",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "REVIEW",
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "durationMs": 7345,
+      "ocrQuality": "POOR",
+      "ocrConfidence": 46,
+      "fieldResults": {
+        "mrp": {
+          "visible": false,
+          "matched": true
+        },
+        "netQuantity": {
+          "visible": true,
+          "extracted": "50 g",
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "extracted": "ar § ae oy MAHASHIAN Of HATTI PVT. LTD.",
+          "matched": true
+        },
+        "address": {
+          "visible": true,
+          "extracted": "OL RagdOfice 944418 Nagas nd Ares, Now Duly - 110015 OR 218 vs | [Back Declaration Panel]: Regd. Office : 944 Ke Nagar ind. Area,, OL: Rega Office : 9444 Ket Nagas Industrial Ares, New Del - 110015 GN 216",
+          "matched": true
+        },
+        "date": {
+          "visible": false,
+          "matched": true
+        },
+        "consumerCare": {
+          "visible": false,
+          "matched": true
+        },
+        "barcode": {
+          "visible": false,
+          "matched": true
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\non am. vi os opie mans Kg\nml rw eo J Cr\nar § ae oy MAHASHIAN Of HATTI PVT. LTD.\nPooe UR\nPk\nate a oots\n[errant\nSEmm"
+    },
+    {
+      "id": "prod_08",
+      "name": "Amul Masti Spiced Buttermilk & Amul Taaza Milk",
+      "brand": "Amul",
+      "category": "Beverages & Dairy",
+      "photosCount": 2,
+      "verdict": "REVIEW",
+      "expectedVerdict": "REVIEW",
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "durationMs": 3620,
+      "ocrQuality": "GOOD",
+      "ocrConfidence": 90,
+      "fieldResults": {
+        "mrp": {
+          "visible": false,
+          "matched": true
+        },
+        "netQuantity": {
+          "visible": true,
+          "extracted": "200 ml",
+          "matched": true
+        },
+        "manufacturer": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": false,
+          "matched": true
+        },
+        "consumerCare": {
+          "visible": false,
+          "matched": true
+        },
+        "barcode": {
+          "visible": false,
+          "matched": true
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nnul.\nIAS\nTet\nne nbs 4\n—]\nCV\n| Rowmad por puci®™— ~ 1%\nhal Bw)\nbla}\n1]\nJ RB\nbo\nIE\nfaa TY\npendy | 34 1\nTe\n[edn imgf "
+    },
+    {
+      "id": "prod_09",
+      "name": "Saffola Masala Oats Fine Print",
+      "brand": "Marico",
+      "category": "Packaged Foods & Staples",
+      "photosCount": 1,
+      "verdict": "REVIEW",
+      "expectedVerdict": "REVIEW",
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "durationMs": 1848,
+      "ocrQuality": "FAIR",
+      "ocrConfidence": 95,
+      "fieldResults": {
+        "mrp": {
+          "visible": false,
+          "matched": true
+        },
+        "netQuantity": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "manufacturer": {
+          "visible": true,
+          "extracted": "Oat Products",
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "address": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "date": {
+          "visible": false,
+          "matched": true
+        },
+        "consumerCare": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        },
+        "barcode": {
+          "visible": false,
+          "matched": true
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nOat Products\n\\&\noR\nNS\non Frntiaben"
+    },
+    {
+      "id": "prod_10",
+      "name": "Hyson Spices 1 KG (Complete Packaging Declaration)",
+      "brand": "Hyson Agro",
+      "category": "Packaged Foods & Staples",
+      "photosCount": 1,
+      "verdict": "PASS",
+      "expectedVerdict": "PASS",
+      "isFalsePass": false,
+      "isFalseReview": false,
+      "durationMs": 2832,
+      "ocrQuality": "GOOD",
+      "ocrConfidence": 90,
+      "fieldResults": {
+        "mrp": {
+          "visible": true,
+          "extracted": "₹210.00",
+          "matched": true
+        },
+        "netQuantity": {
+          "visible": true,
+          "extracted": "1 kg",
+          "matched": true
+        },
+        "manufacturer": {
+          "visible": true,
+          "extracted": "HYSON AGRO FOOD PRODUCTS PVT LTD",
+          "matched": true
+        },
+        "address": {
+          "visible": true,
+          "extracted": "FACTORY: DOOR NO 12/450, INDUSTRIAL DEVELOPMENT PLOT, ALUVA, ERNAKULAM, KERALA 683106",
+          "matched": true
+        },
+        "date": {
+          "visible": true,
+          "extracted": "18/08/2024",
+          "matched": true
+        },
+        "consumerCare": {
+          "visible": true,
+          "extracted": "0484-2621000, SUPPORT@HYSONFOODS.COM",
+          "matched": true
+        },
+        "barcode": {
+          "visible": true,
+          "matched": false,
+          "failureType": "OCR_MISS"
+        }
+      },
+      "rawTextSnippet": "--- [PANEL: Front / Main Label] ---\nHYSON PREMIUM SPICES & CONDIMENTS\n\nPROCESSED & PACKED BY\n\nHYSON AGRO FOOD PRODUCTS PVT LTD\n\nFACTORY: DOOR NO 12/45"
+    }
+  ]
+}

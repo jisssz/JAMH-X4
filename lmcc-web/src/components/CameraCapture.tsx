@@ -175,7 +175,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   };
 
   return (
-    <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] max-h-[580px] bg-[#05070a] rounded-[28px] sm:rounded-3xl overflow-hidden border border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.65)] flex flex-col items-center justify-center select-none">
+    <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] max-h-[600px] bg-[#05070a] rounded-[32px] overflow-hidden border border-white/[0.08] shadow-[0_30px_70px_rgba(0,0,0,0.7)] flex flex-col items-center justify-center select-none">
       {/* 1. Captured Image Review State */}
       {capturedPreview ? (
         <div className="relative w-full h-full flex flex-col justify-between bg-black">
@@ -185,9 +185,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             className="w-full h-full object-contain"
           />
 
-          <div className="absolute top-4 inset-x-4 flex items-center justify-center">
+          <div className="absolute top-5 inset-x-4 flex items-center justify-center pointer-events-none">
             <span className="bg-black/80 backdrop-blur-md text-white text-xs font-sans font-medium px-4 py-1.5 rounded-full border border-white/15 shadow-lg">
-              Review captured label
+              Review captured photo
             </span>
           </div>
 
@@ -209,7 +209,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
               className="flex-1 max-w-[160px] flex items-center justify-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold py-3 px-5 rounded-full backdrop-blur-md transition active:scale-95 cursor-pointer shadow-xl"
             >
               <Check className="w-3.5 h-3.5" />
-              <span>Use Photo</span>
+              <span>Use photo</span>
             </button>
           </div>
         </div>
@@ -232,8 +232,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
           {/* Loading Overlay */}
           {isLoading && !error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#06080e] text-white gap-3 z-20">
-              <div className="w-9 h-9 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
-              <p className="text-xs font-sans text-slate-400">Accessing device camera...</p>
+              <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-sans text-slate-400">Opening camera...</p>
             </div>
           )}
 
@@ -286,7 +286,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                   onFallbackToUpload();
                 }}
                 className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-white transition group cursor-pointer"
-                title="Choose from Gallery / Files"
+                title="Choose from gallery or files"
               >
                 <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center justify-center group-hover:border-white/30 group-hover:bg-black/80 transition active:scale-95 shadow-lg">
                   <ImageIcon className="w-5 h-5 text-slate-300 group-hover:text-white" />
@@ -296,15 +296,15 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 </span>
               </button>
 
-              {/* Shutter Capture Button */}
+              {/* Editorial Shutter Capture Button */}
               <button
                 type="button"
                 onClick={captureFrame}
-                className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1.5 border-2 border-white/80 hover:border-white flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer shadow-2xl group"
-                title="Capture Product Label"
+                className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1.5 border-2 border-white/90 hover:border-white hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer shadow-[0_0_30px_rgba(0,0,0,0.5)] group"
+                title="Capture Package Face"
               >
-                <div className="w-full h-full rounded-full bg-white group-hover:scale-95 transition-transform duration-150 flex items-center justify-center shadow-inner">
-                  <div className="w-14 h-14 rounded-full border border-slate-300/40" />
+                <div className="w-full h-full rounded-full bg-white group-hover:bg-slate-100 transition duration-150 flex items-center justify-center shadow-inner">
+                  <div className="w-14 h-14 rounded-full border-2 border-slate-950/20 bg-white" />
                 </div>
               </button>
 
@@ -313,7 +313,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 type="button"
                 onClick={toggleFacingMode}
                 className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-white transition group cursor-pointer"
-                title="Switch Camera (Front/Rear)"
+                title="Switch Camera"
               >
                 <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center justify-center group-hover:border-white/30 group-hover:bg-black/80 transition active:scale-95 shadow-lg">
                   <RefreshCw className="w-5 h-5 text-slate-300 group-hover:text-white" />

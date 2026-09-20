@@ -10,7 +10,13 @@ async function main() {
   const browser = await puppeteer.launch({
     executablePath: CHROME_PATH,
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      '--autoplay-policy=no-user-gesture-required',
+    ],
   });
 
   const page = await browser.newPage();
@@ -77,6 +83,7 @@ async function main() {
   console.log('Navigating to Live Production Scan (/scan)...');
   await page.goto(`${PROD_BASE_URL}/scan`, { waitUntil: 'domcontentloaded', timeout: 15000 });
   await page.waitForSelector('h1', { timeout: 10000 });
+  await new Promise((r) => setTimeout(r, 1500));
   const scanTitle = await page.$eval('h1', (el) => el.textContent?.trim());
   console.log('Live Scan Title:', scanTitle);
 
@@ -97,6 +104,7 @@ async function main() {
   console.log('Verifying Live Mobile Viewport on Scan (/scan)...');
   await page.goto(`${PROD_BASE_URL}/scan`, { waitUntil: 'domcontentloaded', timeout: 15000 });
   await page.waitForSelector('h1', { timeout: 10000 });
+  await new Promise((r) => setTimeout(r, 1500));
   const scanMobileScreenshot = `${ARTIFACT_DIR}/live_production_scan_mobile.png`;
   await page.screenshot({ path: scanMobileScreenshot, fullPage: true });
   console.log('✓ Captured live mobile scan screenshot at:', scanMobileScreenshot);

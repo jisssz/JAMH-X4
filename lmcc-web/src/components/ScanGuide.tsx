@@ -31,11 +31,17 @@ export const ScanGuide: React.FC<ScanGuideProps> = ({
         {/* Subtle Vignette Mask Outside Reticle */}
         <div className="absolute -inset-10 bg-radial-gradient from-transparent via-transparent to-black/30 pointer-events-none" />
 
-        {/* Reticle Box with subtle cyan/emerald glow matching reference */}
-        <div className="w-full h-full rounded-2xl border-2 border-[#2ee6a6]/90 shadow-[0_0_25px_rgba(46,230,166,0.35)] relative overflow-hidden">
-          {/* Subtle Animated Scanning Beam sweeping vertically */}
-          <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-[#2ee6a6] to-transparent shadow-[0_0_12px_rgba(46,230,166,0.8)] animate-scan-beam pointer-events-none" />
-        </div>
+        {/* 4 Corner Brackets in vibrant #2ee6a6 */}
+        <div className="absolute top-0 left-0 w-8 sm:w-10 h-8 sm:h-10 border-t-2 border-l-2 border-[#2ee6a6] rounded-tl-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
+        <div className="absolute top-0 right-0 w-8 sm:w-10 h-8 sm:h-10 border-t-2 border-r-2 border-[#2ee6a6] rounded-tr-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
+        <div className="absolute bottom-0 left-0 w-8 sm:w-10 h-8 sm:h-10 border-b-2 border-l-2 border-[#2ee6a6] rounded-bl-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
+        <div className="absolute bottom-0 right-0 w-8 sm:w-10 h-8 sm:h-10 border-b-2 border-r-2 border-[#2ee6a6] rounded-br-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
+
+        {/* Delicate Connecting Perimeter Border with subtle cyan/emerald glow */}
+        <div className="absolute inset-0 rounded-xl border border-[#2ee6a6]/30 shadow-[0_0_20px_rgba(46,230,166,0.15)] pointer-events-none" />
+
+        {/* Subtle Animated Scanning Beam sweeping vertically */}
+        <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-[#2ee6a6] to-transparent shadow-[0_0_12px_rgba(46,230,166,0.8)] animate-scan-beam pointer-events-none" />
       </div>
 
       {/* Invisible spacer for bottom controls */}

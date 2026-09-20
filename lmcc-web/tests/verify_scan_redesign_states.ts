@@ -20,25 +20,41 @@ async function main() {
     ],
   });
 
-  // 1. Desktop Camera Active
-  console.log("Testing 1: Desktop Camera Active...");
+  // 1. Desktop 1440x900 Camera Active
+  console.log("Testing 1: Desktop 1440x900 Camera Active...");
   const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 900 });
+  await page.setViewport({ width: 1440, height: 900 });
   await page.goto(`${BASE_URL}/scan`, { waitUntil: "networkidle0", timeout: 15000 });
   await new Promise((r) => setTimeout(r, 1200));
 
-  const desktopCameraPath = `${ARTIFACT_DIR}/scan_desktop_camera_active.png`;
-  await page.screenshot({ path: desktopCameraPath, fullPage: true });
-  console.log("✓ Captured desktop camera active at:", desktopCameraPath);
+  const desktop1440Path = `${ARTIFACT_DIR}/scan_1440x900_desktop.png`;
+  await page.screenshot({ path: desktop1440Path, fullPage: true });
+  console.log("✓ Captured desktop 1440x900 at:", desktop1440Path);
 
-  // 2. Mobile Camera Active
-  console.log("Testing 2: Mobile Camera Active (iPhone 14)...");
+  // 1b. Desktop 1280x800
+  console.log("Testing 1b: Desktop 1280x800...");
+  await page.setViewport({ width: 1280, height: 800 });
+  await new Promise((r) => setTimeout(r, 400));
+  const desktop1280Path = `${ARTIFACT_DIR}/scan_1280x800_desktop.png`;
+  await page.screenshot({ path: desktop1280Path, fullPage: true });
+  console.log("✓ Captured desktop 1280x800 at:", desktop1280Path);
+
+  // 1c. Tablet 1024x768
+  console.log("Testing 1c: Tablet 1024x768...");
+  await page.setViewport({ width: 1024, height: 768 });
+  await new Promise((r) => setTimeout(r, 400));
+  const tablet1024Path = `${ARTIFACT_DIR}/scan_1024x768_tablet.png`;
+  await page.screenshot({ path: tablet1024Path, fullPage: true });
+  console.log("✓ Captured tablet 1024x768 at:", tablet1024Path);
+
+  // 2. Mobile 390x844 Camera Active
+  console.log("Testing 2: Mobile 390x844 Camera Active (iPhone 14)...");
   await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   await new Promise((r) => setTimeout(r, 600));
 
-  const mobileCameraPath = `${ARTIFACT_DIR}/scan_mobile_camera_active.png`;
+  const mobileCameraPath = `${ARTIFACT_DIR}/scan_390x844_mobile.png`;
   await page.screenshot({ path: mobileCameraPath, fullPage: true });
-  console.log("✓ Captured mobile camera active at:", mobileCameraPath);
+  console.log("✓ Captured mobile 390x844 at:", mobileCameraPath);
 
   // 3. 2 Panels Captured
   console.log("Testing 3: 2 Panels Captured...");

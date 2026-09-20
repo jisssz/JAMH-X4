@@ -175,7 +175,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   };
 
   return (
-    <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] max-h-[600px] bg-[#05070a] rounded-[32px] overflow-hidden border border-white/[0.08] shadow-[0_30px_70px_rgba(0,0,0,0.7)] flex flex-col items-center justify-center select-none">
+    <div className="relative w-full aspect-[4/5] max-w-[620px] mx-auto bg-[#05070b] rounded-[28px] overflow-hidden border border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.65)] flex flex-col items-center justify-center select-none">
       {/* 1. Captured Image Review State */}
       {capturedPreview ? (
         <div className="relative w-full h-full flex flex-col justify-between bg-black">
@@ -231,32 +231,36 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
           {/* Loading Overlay */}
           {isLoading && !error && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#06080e] text-white gap-3 z-20">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#05070b] text-white gap-3 z-20">
               <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
               <p className="text-xs font-sans text-slate-400">Opening camera...</p>
             </div>
           )}
 
-          {/* Error / Fallback State */}
+          {/* Error / Fallback State matching Section 20 */}
           {error && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#06080e]/95 text-white p-6 text-center z-30">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mb-3">
-                {!isSecure ? <ShieldAlert className="w-6 h-6" /> : <CameraOff className="w-6 h-6" />}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#05070b]/95 text-white p-6 text-center z-30 space-y-4">
+              <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] text-slate-400 flex items-center justify-center">
+                {!isSecure ? <ShieldAlert className="w-5 h-5 text-rose-400" /> : <CameraOff className="w-5 h-5 text-slate-300" />}
               </div>
-              <h3 className="text-sm font-sans font-semibold text-slate-100 mb-1">
-                {!isSecure ? 'Insecure Context' : 'Camera Unavailable'}
-              </h3>
-              <p className="text-xs font-sans text-slate-400 max-w-xs mb-6 leading-relaxed">{error}</p>
+              <div className="space-y-1 max-w-xs">
+                <h3 className="text-sm font-sans font-medium text-slate-100">
+                  {!isSecure ? 'Insecure Context' : 'Camera unavailable'}
+                </h3>
+                <p className="text-xs font-sans text-slate-400 leading-relaxed">
+                  Check camera permissions or upload an image instead.
+                </p>
+              </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+              <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-xs pt-2">
                 {isSecure && (
                   <button
                     type="button"
                     onClick={() => startCamera()}
-                    className="w-full flex items-center justify-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 text-xs font-sans font-medium py-2.5 px-4 rounded-full border border-white/[0.08] transition cursor-pointer"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 text-xs font-sans font-medium py-2.5 px-4 rounded-full border border-white/[0.1] transition cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
-                    Retry Camera
+                    <span>Retry camera</span>
                   </button>
                 )}
 
@@ -266,10 +270,10 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     stopStream();
                     onFallbackToUpload();
                   }}
-                  className="w-full flex items-center justify-center gap-2 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold py-2.5 px-4 rounded-full transition cursor-pointer shadow-lg"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold py-2.5 px-4 rounded-full transition cursor-pointer shadow-lg"
                 >
                   <ImageIcon className="w-3.5 h-3.5" />
-                  Upload Image Instead
+                  <span>Upload image</span>
                 </button>
               </div>
             </div>

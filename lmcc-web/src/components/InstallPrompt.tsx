@@ -48,28 +48,33 @@ export const InstallPrompt: React.FC = () => {
     setDeferredPrompt(null);
   };
 
-  if (isInstalled || isDismissed || !deferredPrompt) {
+  if (
+    isInstalled ||
+    isDismissed ||
+    !deferredPrompt ||
+    (typeof window !== 'undefined' && window.location.pathname.startsWith('/scan'))
+  ) {
     return null;
   }
 
   return (
-    <div className="bg-gov-900/95 text-white px-4 py-2.5 shadow-lg border-b border-gov-700/50 flex items-center justify-between text-xs">
-      <div className="flex items-center gap-2.5 max-w-lg mx-auto w-full justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-amber-400 text-gov-900 flex items-center justify-center font-bold text-[11px]">
+    <div className="fixed bottom-5 right-5 z-50 max-w-sm w-[calc(100%-2.5rem)] sm:w-auto bg-[#080c16]/90 border border-white/[0.1] backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-2xl p-3 text-xs text-white animate-fade-in select-none">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[#2ee6a6] font-bold text-xs">
             L
           </div>
           <div>
-            <span className="font-bold block text-slate-100">Install LMCC App</span>
-            <span className="text-[10px] text-slate-300">Fast offline scanning directly from your home screen</span>
+            <span className="font-semibold block text-slate-100 text-xs">Install LMCC App</span>
+            <span className="text-[10px] text-slate-400 block">Fast offline scanning from home screen</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <button
             type="button"
             onClick={handleInstall}
-            className="flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-gov-950 font-bold px-3 py-1 rounded-lg text-xs transition shadow-sm"
+            className="flex items-center gap-1 bg-[#2ee6a6] hover:bg-[#28cf95] text-slate-950 font-semibold px-3 py-1.5 rounded-full text-xs transition cursor-pointer shadow-sm"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Install</span>
@@ -77,7 +82,7 @@ export const InstallPrompt: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsDismissed(true)}
-            className="p-1 text-slate-400 hover:text-white rounded-md transition"
+            className="p-1.5 text-slate-400 hover:text-white rounded-full hover:bg-white/[0.06] transition cursor-pointer"
             aria-label="Dismiss installation prompt"
           >
             <X className="w-4 h-4" />

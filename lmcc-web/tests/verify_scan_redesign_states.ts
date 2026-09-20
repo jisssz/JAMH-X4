@@ -92,6 +92,22 @@ async function main() {
   await page.screenshot({ path: panels4Path, fullPage: true });
   console.log("✓ Captured 4 panels captured state at:", panels4Path);
 
+  // 5. Camera Unavailable Fallback State Verification
+  console.log("Testing 5: Camera Unavailable Fallback State...");
+  const fallbackPage = await browser.newPage();
+  const client = await fallbackPage.target().createCDPSession();
+  // Override permission to denied for camera
+  await client.send("Browser.grantPermissions", {
+    permissions: [],
+    origin: BASE_URL,
+  });
+  await fallbackPage.setViewport({ width: 1440, height: 900 });
+  await fallbackPage.goto(`${BASE_URL}/scan`, { waitUntil: "networkidle0" });
+  await new Promise((r) => setTimeout(r, 1000));
+  const fallbackPath = `${ARTIFACT_DIR}/scan_camera_unavailable_desktop.png`;
+  await fallbackPage.screenshot({ path: fallbackPath, fullPage: true });
+  console.log("✓ Captured camera unavailable state at:", fallbackPath);
+
   await browser.close();
   console.log("All visual acceptance criteria verified successfully!");
 }

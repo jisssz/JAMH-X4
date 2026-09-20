@@ -27,21 +27,21 @@ export const ScanGuide: React.FC<ScanGuideProps> = ({
       </div>
 
       {/* Target Reticle Frame matching reference */}
-      <div className="relative w-[78%] sm:w-[72%] aspect-[4/5] max-h-[350px] my-auto">
-        {/* Subtle Vignette Mask Outside Reticle */}
-        <div className="absolute -inset-10 bg-radial-gradient from-transparent via-transparent to-black/30 pointer-events-none" />
+      <div className="relative w-[76%] sm:w-[70%] aspect-[4/5] max-h-[350px] my-auto">
+        {/* Subtle Vignette Mask */}
+        <div className="absolute -inset-10 bg-radial-gradient from-transparent via-transparent to-black/25 pointer-events-none" />
 
-        {/* 4 Corner Brackets in vibrant #2ee6a6 */}
-        <div className="absolute top-0 left-0 w-8 sm:w-10 h-8 sm:h-10 border-t-2 border-l-2 border-[#2ee6a6] rounded-tl-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
-        <div className="absolute top-0 right-0 w-8 sm:w-10 h-8 sm:h-10 border-t-2 border-r-2 border-[#2ee6a6] rounded-tr-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
-        <div className="absolute bottom-0 left-0 w-8 sm:w-10 h-8 sm:h-10 border-b-2 border-l-2 border-[#2ee6a6] rounded-bl-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
-        <div className="absolute bottom-0 right-0 w-8 sm:w-10 h-8 sm:h-10 border-b-2 border-r-2 border-[#2ee6a6] rounded-br-xl shadow-[0_0_15px_rgba(46,230,166,0.5)] z-10" />
+        {/* 4 Corner Brackets: thin, precise, minimal emerald */}
+        <div className="absolute top-0 left-0 w-8 sm:w-10 h-8 sm:h-10 border-t-[2px] border-l-[2px] border-[#2ee6a6] rounded-tl-xl shadow-[0_0_10px_rgba(46,230,166,0.4)] z-10" />
+        <div className="absolute top-0 right-0 w-8 sm:w-10 h-8 sm:h-10 border-t-[2px] border-r-[2px] border-[#2ee6a6] rounded-tr-xl shadow-[0_0_10px_rgba(46,230,166,0.4)] z-10" />
+        <div className="absolute bottom-0 left-0 w-8 sm:w-10 h-8 sm:h-10 border-b-[2px] border-l-[2px] border-[#2ee6a6] rounded-bl-xl shadow-[0_0_10px_rgba(46,230,166,0.4)] z-10" />
+        <div className="absolute bottom-0 right-0 w-8 sm:w-10 h-8 sm:h-10 border-b-[2px] border-r-[2px] border-[#2ee6a6] rounded-br-xl shadow-[0_0_10px_rgba(46,230,166,0.4)] z-10" />
 
-        {/* Delicate Connecting Perimeter Border with subtle cyan/emerald glow */}
-        <div className="absolute inset-0 rounded-xl border border-[#2ee6a6]/30 shadow-[0_0_20px_rgba(46,230,166,0.15)] pointer-events-none" />
+        {/* Delicate faint connecting line */}
+        <div className="absolute inset-0 rounded-xl border border-[#2ee6a6]/15 pointer-events-none" />
 
-        {/* Subtle Animated Scanning Beam sweeping vertically */}
-        <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-[#2ee6a6] to-transparent shadow-[0_0_12px_rgba(46,230,166,0.8)] animate-scan-beam pointer-events-none" />
+        {/* Subtle Animated Scanning Beam */}
+        <div className="absolute inset-x-2 h-[1.5px] bg-gradient-to-r from-transparent via-[#2ee6a6]/80 to-transparent shadow-[0_0_8px_rgba(46,230,166,0.6)] animate-scan-beam pointer-events-none" />
       </div>
 
       {/* Invisible spacer for bottom controls */}

@@ -48,8 +48,6 @@ export const Scan: React.FC = () => {
     { type: "other", code: "04", short: "SIDE", label: "Side / Additional", desc: "Nutritional, Ingredients or Extra Panels" },
   ];
 
-  const currentPanelMeta = panelOptions.find((p) => p.type === currentPanelType) || panelOptions[0];
-
   const handleSingleImageReady = (image: Blob | File) => {
     addPanel(image, currentPanelType);
 
@@ -142,6 +140,7 @@ export const Scan: React.FC = () => {
 
           {/* Right Action */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSelector />
             <button
               type="button"
               onClick={() => navigate("/scan")}
@@ -170,37 +169,35 @@ export const Scan: React.FC = () => {
           {/* Center: Package scanner indicator */}
           <div className="flex items-center gap-1.5 text-slate-300 font-medium flex-shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#2ee6a6]" />
-            <span className="text-[11px] sm:text-xs">Package scanner</span>
+            <span className="text-[11px] sm:text-xs tracking-wide">Package scanner</span>
           </div>
 
-          {/* Right: Language Selector + Mode Pill */}
+          {/* Right: Mode Switch [ Camera | Upload ] matching reference */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-            <LanguageSelector />
-
             <div className="flex bg-white/[0.04] rounded-full p-0.5 border border-white/[0.08] text-xs font-sans">
               <button
                 type="button"
                 onClick={() => setMode("camera")}
-                className={"flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full font-medium transition cursor-pointer " + (
+                className={"flex items-center gap-1.5 px-3 sm:px-3.5 py-1 rounded-full font-medium transition cursor-pointer text-xs " + (
                   mode === "camera"
                     ? "bg-white text-slate-950 shadow-sm"
                     : "text-slate-400 hover:text-white"
                 )}
               >
                 <Camera className="w-3 h-3" />
-                <span className="hidden sm:inline">Camera</span>
+                <span>Camera</span>
               </button>
               <button
                 type="button"
                 onClick={() => setMode("upload")}
-                className={"flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full font-medium transition cursor-pointer " + (
+                className={"flex items-center gap-1.5 px-3 sm:px-3.5 py-1 rounded-full font-medium transition cursor-pointer text-xs " + (
                   mode === "upload"
                     ? "bg-white text-slate-950 shadow-sm"
                     : "text-slate-400 hover:text-white"
                 )}
               >
                 <UploadCloud className="w-3 h-3" />
-                <span className="hidden sm:inline">Upload</span>
+                <span>Upload</span>
               </button>
             </div>
           </div>
@@ -208,7 +205,7 @@ export const Scan: React.FC = () => {
       </div>
 
       {/* 3. MAIN HERO 3-COLUMN EDITORIAL COMPOSITION (Matching Reference) */}
-      <main className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 flex-1 flex flex-col justify-center">
+      <main className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 flex-1 flex flex-col justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-center">
 
           {/* ========================================================= */}
@@ -222,10 +219,10 @@ export const Scan: React.FC = () => {
             </div>
 
             {/* Editorial Serif Heading */}
-            <h1 className="hero-display text-white tracking-tight font-normal leading-[0.88] text-[56px] sm:text-[68px] lg:text-[76px] xl:text-[86px]">
+            <h1 className="hero-display text-[#F5F3EE] tracking-tight font-normal leading-[0.88] text-[52px] sm:text-[68px] lg:text-[76px] xl:text-[84px]">
               Scan <br />
               your <br />
-              <span className="font-display-italic text-slate-300">package.</span>
+              <span className="font-display-italic text-white">package.</span>
             </h1>
 
             {/* Description */}
@@ -233,8 +230,8 @@ export const Scan: React.FC = () => {
               Capture clear images of your product label and let LMCC check the mandatory Legal Metrology Rule 6 declarations.
             </p>
 
-            {/* 3 Compact Information Rows - No cards, clean separators */}
-            <div className="space-y-4 pt-4 border-t border-white/[0.08] w-full max-w-[340px] text-xs font-sans">
+            {/* 3 Compact Information Rows (Desktop) - No cards, clean separators */}
+            <div className="hidden lg:block space-y-4 pt-4 border-t border-white/[0.08] w-full max-w-[340px] text-xs font-sans">
               <div className="flex items-start gap-3.5">
                 <div className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-300 flex-shrink-0 mt-0.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#2ee6a6]" />
@@ -267,7 +264,7 @@ export const Scan: React.FC = () => {
             </div>
 
             {/* Tagline */}
-            <div className="text-[11px] text-slate-500 font-sans tracking-wide">
+            <div className="hidden lg:block text-[11px] text-slate-500 font-sans tracking-wide">
               Safe. Private. Compliant.
             </div>
           </div>
@@ -276,8 +273,8 @@ export const Scan: React.FC = () => {
           {/* COLUMN 2: CENTER CAMERA STAGE (50% -> 5.5 cols)           */}
           {/* ========================================================= */}
           <div className="lg:col-span-5 xl:col-span-6 flex flex-col items-center space-y-4 w-full max-w-[620px] mx-auto">
-            {/* Step Navigation for Package Faces */}
-            <div className="w-full flex items-center justify-between border-b border-white/[0.08] pb-2.5 px-1">
+            {/* Step Navigation for Package Faces (01 FRONT  02 BACK  03 CRIMP  04 SIDE) */}
+            <div className="w-full flex items-center justify-between border-b border-white/[0.08] pb-2 px-1">
               <div className="flex items-center gap-5 sm:gap-7 overflow-x-auto">
                 {panelOptions.map((opt) => {
                   const hasCaptured = panels.some((p) => p.type === opt.type);
@@ -299,7 +296,7 @@ export const Scan: React.FC = () => {
                       <span className="tracking-wide text-[11px]">{opt.short}</span>
                       {hasCaptured && <Check className="w-3 h-3 text-[#2ee6a6] stroke-[2.5]" />}
                       {isCurrent && (
-                        <span className="absolute -bottom-2.5 inset-x-0 h-[2px] bg-[#2ee6a6] rounded-full" />
+                        <span className="absolute -bottom-2 inset-x-0 h-[2px] bg-[#2ee6a6] rounded-full" />
                       )}
                     </button>
                   );
@@ -317,21 +314,6 @@ export const Scan: React.FC = () => {
                   <span className="text-[11px] hidden sm:inline">Reset</span>
                 </button>
               )}
-            </div>
-
-            {/* Current Target Face Context Label */}
-            <div className="w-full flex items-center justify-between text-xs font-sans px-1">
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-[11px] text-[#2ee6a6] font-medium">
-                  {currentPanelMeta.code} / {currentPanelMeta.short}
-                </span>
-                <span className="text-slate-200 font-medium">
-                  {currentPanelMeta.label}
-                </span>
-              </div>
-              <span className="text-slate-400 text-[11px] hidden sm:inline">
-                {currentPanelMeta.desc}
-              </span>
             </div>
 
             {/* The Dominant Camera Viewport */}
@@ -492,6 +474,45 @@ export const Scan: React.FC = () => {
             </div>
           </div>
 
+        </div>
+
+        {/* Mobile Editorial Rows & Tagline (Rendered underneath camera on small viewports) */}
+        <div className="lg:hidden mt-8 space-y-5 pt-6 border-t border-white/[0.08] max-w-[620px] mx-auto w-full text-xs font-sans">
+          <div className="space-y-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-300 flex-shrink-0 mt-0.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#2ee6a6]" />
+              </div>
+              <div>
+                <h4 className="font-medium text-white text-xs">On-device processing</h4>
+                <p className="text-slate-400 text-[11px] mt-0.5 leading-snug">Your images never leave your device.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-300 flex-shrink-0 mt-0.5">
+                <Zap className="w-3.5 h-3.5 text-[#2ee6a6]" />
+              </div>
+              <div>
+                <h4 className="font-medium text-white text-xs">Works offline</h4>
+                <p className="text-slate-400 text-[11px] mt-0.5 leading-snug">Scan anytime, anywhere.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-300 flex-shrink-0 mt-0.5">
+                <FileCheck className="w-3.5 h-3.5 text-[#2ee6a6]" />
+              </div>
+              <div>
+                <h4 className="font-medium text-white text-xs">Rule 6 compliant</h4>
+                <p className="text-slate-400 text-[11px] mt-0.5 leading-snug">Checks all mandatory declarations instantly.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-slate-500 tracking-wide text-center pt-2">
+            Safe. Private. Compliant.
+          </div>
         </div>
       </main>
 

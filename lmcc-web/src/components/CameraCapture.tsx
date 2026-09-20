@@ -237,7 +237,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             </div>
           )}
 
-          {/* Error / Fallback State matching Section 20 */}
+          {/* Error / Fallback State strictly occupying the same 4:5 camera stage */}
           {error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#05070b]/95 text-white p-6 text-center z-30 space-y-4">
               <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] text-slate-400 flex items-center justify-center">
@@ -245,7 +245,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
               </div>
               <div className="space-y-1 max-w-xs">
                 <h3 className="text-sm font-sans font-medium text-slate-100">
-                  {!isSecure ? 'Insecure Context' : 'Camera unavailable'}
+                  {!isSecure ? 'Insecure Context' : 'Camera Unavailable'}
                 </h3>
                 <p className="text-xs font-sans text-slate-400 leading-relaxed">
                   Check camera permissions or upload an image instead.
@@ -260,7 +260,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     className="flex-1 flex items-center justify-center gap-1.5 bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 text-xs font-sans font-medium py-2.5 px-4 rounded-full border border-white/[0.1] transition cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Retry camera</span>
+                    <span>Retry Camera</span>
                   </button>
                 )}
 
@@ -273,15 +273,15 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                   className="flex-1 flex items-center justify-center gap-1.5 bg-white text-slate-950 hover:bg-slate-100 text-xs font-sans font-semibold py-2.5 px-4 rounded-full transition cursor-pointer shadow-lg"
                 >
                   <ImageIcon className="w-3.5 h-3.5" />
-                  <span>Upload image</span>
+                  <span>Upload Image Instead</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Camera Controls Bar (Active Preview) */}
+          {/* Camera Controls Bar (Active Preview) Floating with Bottom Vignette */}
           {!isLoading && !error && (
-            <div className="absolute bottom-5 inset-x-0 flex items-center justify-around px-8 z-20">
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-10 pb-6 flex items-center justify-around px-8 z-20">
               {/* Gallery / File Picker */}
               <button
                 type="button"
@@ -300,16 +300,16 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 </span>
               </button>
 
-              {/* Editorial Shutter Capture Button */}
+              {/* Dominant Concentric Shutter Button matching reference */}
               <button
                 type="button"
                 onClick={captureFrame}
-                className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1.5 border-2 border-white/90 hover:border-white hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer shadow-[0_0_30px_rgba(0,0,0,0.5)] group"
+                className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center border-[3.5px] border-white/95 hover:border-white p-1 transition-all duration-200 cursor-pointer shadow-[0_0_35px_rgba(0,0,0,0.6)] group active:scale-95"
                 title="Capture Package Face"
+                aria-label="Capture Package Face"
               >
-                <div className="w-full h-full rounded-full bg-white group-hover:bg-slate-100 transition duration-150 flex items-center justify-center shadow-inner">
-                  <div className="w-14 h-14 rounded-full border-2 border-slate-950/20 bg-white" />
-                </div>
+                {/* Inner Concentric Shutter Core */}
+                <div className="w-full h-full rounded-full bg-white group-hover:bg-slate-100 group-active:scale-90 transition-all duration-150 shadow-md" />
               </button>
 
               {/* Switch Front/Rear Camera */}

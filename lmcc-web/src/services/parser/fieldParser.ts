@@ -63,8 +63,9 @@ const corpSuffixRegex = /\b(?:PVT\.?\s*LTD\.?|PRIVATE\s*LIMITED|PRIVATE\s*LTD\.?
  */
 function cleanEntityName(rawName: string): string {
   let s = rawName.trim();
-  // Strip trailing barcode digits / noise on same line (e.g. '| 0 "128400709085"...')
-  s = s.replace(/\s*\|\s*[\d"'].*$/, '');
+  // Strip trailing barcode digits / noise on same line (e.g. '| 0 "128400709085"...' or ' 0 "128400"09085"" 8')
+  s = s.replace(/\s+0\s*["'].*$/, '');
+  s = s.replace(/\s*\|\s*.*$/, '');
   // OCR repair for INC. (frequently misrecognized as ING. on glossy packaging)
   s = s.replace(/\bING\.?$/i, 'INC.');
   // Strip leading metadata tags (PKD, MFD, BATCH, LOT, MRP, Rs, etc.) and adjacent noise
@@ -510,6 +511,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (manufacturer && line.trim() === manufacturer) continue;
+    if (/"\d{4,}"/.test(line) && !addressRegex.test(line)) continue;
     const hasPinOrZip = pinRegex.test(line) || usZipRegex.test(line);
     if (addressRegex.test(line) || (hasPinOrZip && !line.includes('1800') && !line.includes('MRP'))) {
       let fullAddress = line.trim();

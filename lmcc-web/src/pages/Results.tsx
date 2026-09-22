@@ -527,7 +527,7 @@ export const Results: React.FC = () => {
         {verdict.potentialViolations.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-white tracking-tight">
-              Observations Flagged for Manual Review ({verdict.potentialViolations.length})
+              Manual Verification Recommended ({verdict.potentialViolations.length} field{verdict.potentialViolations.length > 1 ? 's' : ''} require review)
             </h3>
             <div className="space-y-3">
               {verdict.potentialViolations.map((violation) => (

@@ -96,15 +96,17 @@ export class TesseractOcrService implements OcrService {
       const segments: OcrStreamSegment[] = [];
 
       // =========================================================================
-      // STAGE A: Standard Full Image Recognition (PSM AUTO / PSM 3)
+      // STAGE A: Standard Full Image Recognition (PSM 6 & PSM 3)
       // =========================================================================
       if (onProgress) {
-        onProgress(0.32, 'Running Stage A: Standard full-image scan...');
+        onProgress(0.32, 'Running Stage A: Standard packaging declaration scan...');
       }
 
-      const pass1Start = Date.now();
-      await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
       const pass1Image = await preprocessImageForOcr(image, { mode: 'standard' });
+
+      // Pass 1: PSM.SINGLE_BLOCK (PSM 6) — Optimal for packaging labels, headers, and declaration blocks
+      const pass1Start = Date.now();
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
       const ret1 = await worker.recognize(pass1Image);
       const pass1Duration = Date.now() - pass1Start;
 
@@ -113,13 +115,13 @@ export class TesseractOcrService implements OcrService {
 
       segments.push({
         text: text1,
-        source: 'stage_a_standard',
+        source: 'stage_a_single_block',
         confidence: conf1,
       });
 
       diagSession.recordPass({
-        passName: 'Stage A: Standard Full Image',
-        psm: 3,
+        passName: 'Stage A: Single Block (PSM 6)',
+        psm: 6,
         inputDimensions: { width: 0, height: 0 },
         characterCount: text1.length,
         confidence: Math.round(conf1),
@@ -129,6 +131,26 @@ export class TesseractOcrService implements OcrService {
 
       let currentMerged = text1;
       let detectedCount = countMandatoryDeclarations(currentMerged);
+
+      // Pass 2: PSM.AUTO (PSM 3) — Complementary pass for multi-column or distributed layouts
+      if (detectedCount < 5 && maxAttempts >= 2) {
+        try {
+          await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
+          const retAuto = await worker.recognize(pass1Image);
+          const textAuto = retAuto.data.text || '';
+          if (textAuto.trim().length > 0) {
+            segments.push({
+              text: textAuto,
+              source: 'stage_a_auto',
+              confidence: typeof retAuto.data.confidence === 'number' ? retAuto.data.confidence : 0,
+            });
+            currentMerged = mergeOcrStreams(segments);
+            detectedCount = countMandatoryDeclarations(currentMerged);
+          }
+        } catch {
+          // Non-fatal
+        }
+      }
 
       // Early exit check: if we already have >= 5 mandatory fields or maxAttempts is 1, skip Stage B/C
       const canSkipFurtherPasses =

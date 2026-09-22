@@ -2671,3 +2671,25 @@ test('Phase 24: SIH 2026 Screening Live Demo - Lay\'s Potato Chips Package Contr
   assert.strictEqual(qtyCheck?.passed, false, 'Rule 2 (Net Quantity) must be REVIEW / unverified');
   assert.strictEqual(dateCheck?.passed, false, 'Rule 5 (Date) must be REVIEW / unverified');
 });
+
+test('Phase 24: Consumer Care 4-State Diagnostic and OCR Fragmentation Resilience', () => {
+  // Case 1: Readable phone
+  const readable = parseLabel('Questions or Comments? 1-800-352-4477\nWeekdays 9:00am to 4:30pm CT');
+  assert.strictEqual(readable.consumerCare, '1-800-352-4477');
+  assert.strictEqual(readable.declarationCoverage.fieldStatuses.consumerCare, 'present_readable');
+
+  // Case 2: Direct web query / chat portal
+  const webOnly = parseLabel('For product queries email or chat at fritolay.com');
+  assert.strictEqual(webOnly.consumerCare, 'fritolay.com');
+  assert.strictEqual(webOnly.declarationCoverage.fieldStatuses.consumerCare, 'present_readable');
+
+  // Case 3: Cues present on package but corrupted by OCR / no readable digits
+  const ocrUnclear = parseLabel('Questions o Com\nNutrition Facts\nServing Size 1 package');
+  assert.strictEqual(ocrUnclear.consumerCare, undefined);
+  assert.strictEqual(ocrUnclear.declarationCoverage.fieldStatuses.consumerCare, 'present_ocr_failed');
+
+  // Case 4: Totally absent
+  const absent = parseLabel('POTATOES, VEGETABLE OIL, SALT');
+  assert.strictEqual(absent.consumerCare, undefined);
+  assert.strictEqual(absent.declarationCoverage.fieldStatuses.consumerCare, 'not_present');
+});

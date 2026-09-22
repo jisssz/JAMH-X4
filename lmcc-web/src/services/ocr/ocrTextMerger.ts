@@ -17,7 +17,7 @@ const STATUTORY_LINE_HINTS = [
   /\b(?:MFD|MFG|PKD|PACKED|MANUFACTURED|PACKING|DATE|BATCH|LOT|BEST\s*BEFORE|EXP|निर्माण|पैकिंग)\b/i,
   /\b(?:MFD\s*BY|MFG\s*BY|PACKED\s*BY|PRODUCED\s*BY|PROCESSED\s*BY|MKTD\s*BY|MARKETED\s*BY|LTD|LIMITED|PVT|LLP|FOOD|AGRO|PRODUCTS|INDUSTRIES|निर्माता)\b/i,
   /\b(?:REGD|OFFICE|PLOT|WORKS|ROAD|STREET|INDUSTRIAL|AREA|DIST|STATE|PIN|CITY)\b/i,
-  /\b(?:CONSUMER|CUSTOMER|CARE|CELL|HELPLINE|FEEDBACK|TOLL\s*FREE|EMAIL|TEL|PHONE|CALL)\b/i,
+  /\b(?:CONSUMER|CUSTOMER|CARE|CELL|HELPLINE|FEEDBACK|TOLL\s*FREE|EMAIL|TEL|PHONE|CALL|QUESTIONS|COMMENTS?|QUERIES|1-?800|1800|CHAT|SUPPORT)\b/i,
 ];
 
 function isStatutoryRelevantLine(line: string): boolean {
@@ -62,10 +62,10 @@ export function mergeOcrStreams(segments: OcrStreamSegment[]): string {
       for (let i = 0; i < collectedLines.length; i++) {
         const existing = collectedLines[i];
         const sim = computeLineSimilarity(line, existing.text);
-        if (sim >= 0.85) {
+        if (sim >= 0.85 || (line.includes(existing.text) && existing.text.length >= 8)) {
           isDuplicate = true;
           // If the new line has more statutory keywords or better length, upgrade existing line
-          if (line.length > existing.text.length && isStatutory) {
+          if (line.length > existing.text.length && (isStatutory || existing.isStatutory)) {
             collectedLines[i] = { text: line, confidence: Math.max(segConf, existing.confidence), isStatutory: true };
           }
           break;

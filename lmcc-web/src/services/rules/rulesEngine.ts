@@ -279,7 +279,7 @@ export class RulesEngine {
     const summary =
       overallStatus === 'PASS'
         ? 'No potential declaration issue detected from the scanned label under Rule 6 of the Legal Metrology (Packaged Commodities) Rules, 2011.'
-        : `${flaggedChecks} item(s) flagged for manual verification or potential non-compliance under Legal Metrology Rules.`;
+        : `${flaggedChecks} field(s) require review · manual verification recommended under Legal Metrology Rules.`;
 
     return {
       overallStatus,

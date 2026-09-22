@@ -532,7 +532,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // ----------------------------------------------------
   const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
   const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL(?:\s*US)?|QUERIES|QUESTIONS|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1[-.]?800[-+.\s]?\d{3}[-+.\s]?[\d\s+]{2,7}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
-  const consumerCareHeaderRegex = /(?:CUSTOMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CONSUMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CARE\s*(?:NO\.?|NUMBER|CELL|DESK|LINE)|CUSTOMER\s*SERVICE|HELPLINE|TOLL\s*FREE|FEEDBACK\s*(?:\/|&|AND)?\s*(?:CONSUMER\s*)?COMPLAINTS?(?:\s*CONTACT)?|FOR\s*(?:FEEDBACK|COMPLAINTS?|QUERIES)|QUERIES|QUESTIONS\s*(?:OR|\/|&)?\s*COMMENTS?|COMMENTS?|CALL\s*US|GRIEVANCE|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)/iu;
+  const consumerCareHeaderRegex = /(?:CUSTOMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CONSUMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CARE\s*(?:NO\.?|NUMBER|CELL|DESK|LINE)|CUSTOMER\s*SERVICE|HELPLINE|TOLL\s*FREE|FEEDBACK\s*(?:\/|&|AND)?\s*(?:CONSUMER\s*)?COMPLAINTS?(?:\s*CONTACT)?|FOR\s*(?:FEEDBACK|COMPLAINTS?|QUERIES)|QUERIES|QUESTIONS\s*(?:OR|\/|&|O)?\s*(?:COMMENTS?|COM\b)?|COMMENTS?|CALL\s*US|GRIEVANCE|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)/iu;
 
   const isFssaiOrBarcodeOrPin = (line: string, candidateMatch: string) => {
     if (/\b(?:LIC|FSSAI|LICENCE|LICENSE|BARCODE|EAN|BATCH)\b/i.test(line)) return true;
@@ -626,7 +626,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
           break;
         }
       }
-      const directPhone = line.match(/(?:\b1[-.]?800[-+.\s]?\d{3}[-+.\s]?[\d\s+]{2,7}\b|\+91[\s-]?[6-9]\d{4}[\s-]?\d{5}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/);
+      const directPhone = line.match(/(?:\b1[-.]?800[-+.\s]?\d{3}[-+.\s]?[\d\s+]{2,7}\b|\+91[\s-]?[6-9]\d{4}[\s-]?\d{5}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/);
       if (directPhone && !isFssaiOrBarcodeOrPin(line, directPhone[0])) {
         let pStr = directPhone[0].trim();
         if (/^1[-.]?800/i.test(pStr) && pStr.includes('352')) {
@@ -636,6 +636,16 @@ export function parseLabel(rawText: string): ExtractedLabel {
         consumerCareEvidence = line.trim();
         consumerCareMethod = 'context_fallback';
         break;
+      }
+      // Direct customer service web portal / chat URL fallback
+      if (!consumerCare && /(?:email|chat|visit|queries|feedback|support|contact)\s*(?:at|on|via)?\s*[:\s]*([a-z0-9-]+\.(?:com|org|in|net|co\.in))/i.test(line)) {
+        const wm = line.match(/(?:email|chat|visit|queries|feedback|support|contact)\s*(?:at|on|via)?\s*[:\s]*([a-z0-9-]+\.(?:com|org|in|net|co\.in))/i);
+        if (wm && wm[1] && !/^(?:facebook\.com|instagram\.com|twitter\.com)/i.test(wm[1])) {
+          consumerCare = wm[1].toLowerCase();
+          consumerCareEvidence = line.trim();
+          consumerCareMethod = 'context_fallback';
+          break;
+        }
       }
     }
   }
@@ -797,7 +807,7 @@ export function parseLabel(rawText: string): ExtractedLabel {
       extractionMethod: consumerCareMethod,
       status: 'present_readable',
     };
-  } else if (/\b(?:CUSTOMER\s*CARE|CONSUMER\s*CARE|FEEDBACK|HELPLINE|COMPLAINTS?)\b/i.test(rawText)) {
+  } else if (/\b(?:CUSTOMER\s*CARE|CONSUMER\s*CARE|CARE\s*CELL|FEEDBACK|HELPLINE|COMPLAINTS?|QUESTIONS|COMMENTS?|TOLL\s*FREE|1[-.]?800|CHAT)\b/i.test(rawText)) {
     fieldStatuses.consumerCare = 'present_ocr_failed';
   } else {
     fieldStatuses.consumerCare = 'not_present';

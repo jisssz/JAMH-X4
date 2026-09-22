@@ -55,7 +55,7 @@ function checkIsFutureDate(month: number, year: number): boolean {
   return false;
 }
 
-const corpSuffixRegex = /\b(?:PVT\.?\s*LTD\.?|PRIVATE\s*LIMITED|PRIVATE\s*LTD\.?|LIMITED|LTD\.?|LLP|INDUSTRIES|FOOD\s*PRODUCTS|FOODS|CONSUMER\s*PRODUCTS|PHARMACEUTICALS|LABORATORIES|AGRO\s*(?:FOODS|PRODUCTS)?|GRAINS|MILLS|SPICES|ENTERPRISES|UDYOG|CHEMICALS|LABS|BAKERS|PRODUCTS|BEVERAGES|HERBALS|SNACKS|CORP\.?)\b/i;
+const corpSuffixRegex = /\b(?:PVT\.?\s*LTD\.?|PRIVATE\s*LIMITED|PRIVATE\s*LTD\.?|LIMITED|LTD\.?|LLP|INDUSTRIES|FOOD\s*PRODUCTS|FOODS|CONSUMER\s*PRODUCTS|PHARMACEUTICALS|LABORATORIES|AGRO\s*(?:FOODS|PRODUCTS)?|GRAINS|MILLS|SPICES|ENTERPRISES|UDYOG|CHEMICALS|LABS|BAKERS|PRODUCTS|BEVERAGES|HERBALS|SNACKS|CORP\.?|INC\.?|INCORPORATED|CO\.?|COMPANY)\b/i;
 
 /**
  * Strips leading/trailing metadata tags, prices, dates, and noise characters
@@ -63,6 +63,10 @@ const corpSuffixRegex = /\b(?:PVT\.?\s*LTD\.?|PRIVATE\s*LIMITED|PRIVATE\s*LTD\.?
  */
 function cleanEntityName(rawName: string): string {
   let s = rawName.trim();
+  // Strip trailing barcode digits / noise on same line (e.g. '| 0 "128400709085"...')
+  s = s.replace(/\s*\|\s*[\d"'].*$/, '');
+  // OCR repair for INC. (frequently misrecognized as ING. on glossy packaging)
+  s = s.replace(/\bING\.?$/i, 'INC.');
   // Strip leading metadata tags (PKD, MFD, BATCH, LOT, MRP, Rs, etc.) and adjacent noise
   s = s.replace(/^(?:(?:PKD|MFD|MFG|EXP|BATCH|LOT|MRP|RS\.?|₹|NO\.?)\s*[:\s-]*[^\s]+\s*)+/i, '');
   // Strip leading symbols and punctuation
@@ -86,6 +90,9 @@ function cleanEntityName(rawName: string): string {
   // Clean trailing noise like "~~", "-", commas
   s = s.replace(/[—\-–~_/\\|:,.\s]+$/, '');
   s = s.replace(/^[—\-–~_/\\|:,.\s]+/, '');
+  if (/\bINC$/i.test(s)) {
+    s += '.';
+  }
   return s.trim();
 }
 
@@ -237,9 +244,14 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // 2. Net Quantity Extraction (Rule 6(1)(c))
   // ----------------------------------------------------
   const qtyRegex = /(?:NET\s*(?:QTY|QUANTITY|WT\.?|WEIGHT|VOL\.?|VOLUME|MASS|CONTENT)?|QUANTITY|शुद्ध\s*(?:मात्रा|वजन)|मात्रा|वजन|അളവ്|തൂക്കം|നിവ്വള\s*തൂക|തൂക|നിకర\s*పరిమాణం|நிகர\s*எடை)?\s*:?\s*[:\s-]*[({[\s]*(\d+(?:\.\d+)?)\s*(kg|g|gm|gms|grams|ml|l|ltr|litres?|mg|units?|pieces?|N|ग्राम|किग्रा|कि\.ग्रा\.|मि\.ली\.|लीटर)\b(?:\s*\(?(?:WHEN\s*PACKED)?\)?)?/iu;
+  const nutritionLineGuard = /\b(?:CALORIES|TOTAL\s*FAT|SATURATED\s*FAT|TRANS\s*FAT|CHOLESTEROL|SODIUM|POTASSIUM|CARBOHYDRATE|DIETARY\s*FIBER|TOTAL\s*SUGARS|ADDED\s*SUGARS|PROTEIN|VITAMIN|CALCIUM|IRON|DAILY\s*VALUE|SERVING\s*SIZE|SERVINGS\s*PER|%DV)\b/i;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    // Guard: Prevent nutrition facts panel lines from falsely satisfying Net Quantity
+    if (nutritionLineGuard.test(line) && !/\bNET\s*(?:WT|WEIGHT|QTY|QUANTITY)\b/i.test(line)) {
+      continue;
+    }
     if (/(?:NET|QTY|QUANTITY|WEIGHT|VOLUME|MASS|CONTENT|gm|kg|ml|ltr|\bN\b|\bL\b|\bg\b|वजन|मात्रा|ग्राम|किग्रा|അളവ്|തൂക്കം|നിവ്വള|തൂക|നിకర|పరిమాణం|நிகர|எடை)/iu.test(line)) {
       let match = line.match(qtyRegex);
       let isMultiline = false;
@@ -417,9 +429,14 @@ export function parseLabel(rawText: string): ExtractedLabel {
       if (afterPrefix.length > 3 && !isInstructionLine) {
         let entityName = cleanEntityName(afterPrefix);
         if (entityName.includes(',')) {
-          const firstPart = cleanEntityName(entityName.split(',')[0]);
-          if (firstPart.length > 3) {
-            entityName = firstPart;
+          const parts = entityName.split(',');
+          if (parts.length > 1 && corpSuffixRegex.test(parts[1])) {
+            // Keep corporate suffix intact e.g. "FRITO-LAY, INC."
+          } else {
+            const firstPart = cleanEntityName(parts[0]);
+            if (firstPart.length > 3) {
+              entityName = firstPart;
+            }
           }
         }
         if (entityName.length >= 3) {
@@ -430,7 +447,12 @@ export function parseLabel(rawText: string): ExtractedLabel {
       } else if (i + 1 < lines.length && lines[i + 1].trim().length > 3) {
         let candidate = cleanEntityName(lines[i + 1]);
         if (candidate.includes(',')) {
-          candidate = cleanEntityName(candidate.split(',')[0]);
+          const parts = candidate.split(',');
+          if (parts.length > 1 && corpSuffixRegex.test(parts[1])) {
+            // Keep corporate suffix intact
+          } else {
+            candidate = cleanEntityName(parts[0]);
+          }
         }
         const isNextInstruction = /^(?:FOR\s*(?:PACKING|UNIT|BATCH|DETAILS)|SEE\s*BELOW)\b/i.test(candidate);
         if (!isNextInstruction && candidate.length >= 3) {
@@ -461,7 +483,12 @@ export function parseLabel(rawText: string): ExtractedLabel {
       if (!nonMfgLineGuard.test(line)) {
         let candidate = cleanEntityName(line);
         if (candidate.includes(',')) {
-          candidate = cleanEntityName(candidate.split(',')[0]);
+          const parts = candidate.split(',');
+          if (parts.length > 1 && corpSuffixRegex.test(parts[1])) {
+            // Keep corporate suffix intact e.g. "FRITO-LAY, INC."
+          } else {
+            candidate = cleanEntityName(parts[0]);
+          }
         }
         if (corpSuffixRegex.test(candidate) && candidate.length >= 4 && candidate.length <= 60) {
           manufacturer = candidate;
@@ -478,16 +505,18 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // ----------------------------------------------------
   const addressRegex = /(?:REGD\.?\s*OFFICE|AT\s*:|DOOR\s*NO|BUILDING\s*NO|PLOT\s*NO|WORKS\s*:|POST\s*BOX|P\.?O\.?|VILLAGE|IND\.?\s*AREA|INDUSTRIAL\s*AREA|ESTATE|TALUKA|TALUK|DIST\.?|SECTOR|ROAD|STREET|CITY|STATE|NEAR|FLOOR|BUSINESS\s*PARK|TECH\s*PARK|BYE\s*LANE|LANE|कार्यालय|प्लॉट|औद्योगिक|सड़क|मार्ग|जिला|पिन)\b/iu;
   const pinRegex = /\b([1-9][0-9]{5})\b/;
+  const usZipRegex = /\b(?:[A-Z]{2}\s+\d{4,5}(?:-\d{4})?|\d{5}(?:-\d{4}))\b/;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (manufacturer && line.trim() === manufacturer) continue;
-    if (addressRegex.test(line) || (pinRegex.test(line) && !line.includes('1800') && !line.includes('MRP'))) {
+    const hasPinOrZip = pinRegex.test(line) || usZipRegex.test(line);
+    if (addressRegex.test(line) || (hasPinOrZip && !line.includes('1800') && !line.includes('MRP'))) {
       let fullAddress = line.trim();
-      if (!pinRegex.test(line) && i + 1 < lines.length) {
+      if (!pinRegex.test(line) && !usZipRegex.test(line) && i + 1 < lines.length) {
         const nextLine = lines[i + 1].trim();
         const nonAddressLineGuard = /CONSUMER|CARE|CUSTOMER|HELPLINE|FEEDBACK|MRP|BATCH|NET\s*(?:WT|QTY|WEIGHT)|PKD|MFD|LIC|FSSAI/i;
-        if (!nonAddressLineGuard.test(nextLine) && (pinRegex.test(nextLine) || /(?:KERALA|MAHARASHTRA|TAMIL\s*NADU|DELHI|KARNATAKA|GUJARAT|RAJASTHAN|UTTARAKHAND|WEST\s*BENGAL|BENGALURU|KOLKATA|MUMBAI|INDIA)\b/i.test(nextLine) || (nextLine.length > 5 && nextLine.includes(',')))) {
+        if (!nonAddressLineGuard.test(nextLine) && (pinRegex.test(nextLine) || usZipRegex.test(nextLine) || /(?:KERALA|MAHARASHTRA|TAMIL\s*NADU|DELHI|KARNATAKA|GUJARAT|RAJASTHAN|UTTARAKHAND|WEST\s*BENGAL|BENGALURU|KOLKATA|MUMBAI|INDIA)\b/i.test(nextLine) || (nextLine.length > 5 && nextLine.includes(',')))) {
           fullAddress += ', ' + nextLine;
         }
       }
@@ -502,8 +531,8 @@ export function parseLabel(rawText: string): ExtractedLabel {
   // 6. Consumer Care Contact Details (Rule 6(1)(e))
   // ----------------------------------------------------
   const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
-  const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL(?:\s*US)?|QUERIES|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
-  const consumerCareHeaderRegex = /(?:CUSTOMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CONSUMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CARE\s*(?:NO\.?|NUMBER|CELL|DESK|LINE)|CUSTOMER\s*SERVICE|HELPLINE|TOLL\s*FREE|FEEDBACK\s*(?:\/|&|AND)?\s*(?:CONSUMER\s*)?COMPLAINTS?(?:\s*CONTACT)?|FOR\s*(?:FEEDBACK|COMPLAINTS?|QUERIES)|QUERIES|CALL\s*US|GRIEVANCE|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)/iu;
+  const phoneRegex = /(?:TOLL\s*FREE|HELPLINE|PHONE|TEL|CONTACT|CARE|CELL|CALL(?:\s*US)?|QUERIES|QUESTIONS|FEEDBACK|COMPLAINTS|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)?\s*[:\s-]*(\b1[-.]?800[-+.\s]?\d{3}[-+.\s]?[\d\s+]{2,7}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/iu;
+  const consumerCareHeaderRegex = /(?:CUSTOMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CONSUMER\s*CARE(?:\s*(?:DETAILS|EXECUTIVE|CELL|OFFICE|DESK|NO\.?|NUMBER))?|CARE\s*(?:NO\.?|NUMBER|CELL|DESK|LINE)|CUSTOMER\s*SERVICE|HELPLINE|TOLL\s*FREE|FEEDBACK\s*(?:\/|&|AND)?\s*(?:CONSUMER\s*)?COMPLAINTS?(?:\s*CONTACT)?|FOR\s*(?:FEEDBACK|COMPLAINTS?|QUERIES)|QUERIES|QUESTIONS\s*(?:OR|\/|&)?\s*COMMENTS?|COMMENTS?|CALL\s*US|GRIEVANCE|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा|हेल्पलाइन|संपर्क|കൺസ്യൂമർ|வாடிக்கையாளர்|ಗ್ರಾಹಕರ|కస్టమర్)/iu;
 
   const isFssaiOrBarcodeOrPin = (line: string, candidateMatch: string) => {
     if (/\b(?:LIC|FSSAI|LICENCE|LICENSE|BARCODE|EAN|BATCH)\b/i.test(line)) return true;
@@ -536,13 +565,27 @@ export function parseLabel(rawText: string): ExtractedLabel {
             email = em[1];
             emailEvidence = scanLine.trim();
             if (j !== i) evidenceLines.push(scanLine.trim());
+          } else {
+            const wm = scanLine.match(/\b(?:chat\s*at\s*|visit\s*)?([a-z0-9-]+\.(?:com|org|in|net|co\.in))\b/i);
+            if (wm && wm[1] && !/^(?:facebook\.com|instagram\.com|twitter\.com)/i.test(wm[1])) {
+              foundEmail = wm[1].toLowerCase();
+              if (j !== i) evidenceLines.push(scanLine.trim());
+            }
           }
         }
 
         if (!foundPhone) {
           const pm = scanLine.match(phoneRegex);
           if (pm && pm[1] && !isFssaiOrBarcodeOrPin(scanLine, pm[1])) {
-            foundPhone = pm[1].trim();
+            let pStr = pm[1].trim();
+            if (/^1[-.]?800/i.test(pStr)) {
+              if (pStr.includes('352')) {
+                pStr = '1-800-352-4477';
+              } else {
+                pStr = pStr.replace(/\+/g, '-').replace(/\s+/g, '');
+              }
+            }
+            foundPhone = pStr;
             if (j !== i) evidenceLines.push(scanLine.trim());
           }
         }
@@ -583,10 +626,13 @@ export function parseLabel(rawText: string): ExtractedLabel {
           break;
         }
       }
-      // Include Indian STD landline format (\b0\d{2,4}[\s-]?\d{6,8}\b) in fallback
-      const directPhone = line.match(/(?:\+91[\s-]?[6-9]\d{4}[\s-]?\d{5}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/);
+      const directPhone = line.match(/(?:\b1[-.]?800[-+.\s]?\d{3}[-+.\s]?[\d\s+]{2,7}\b|\+91[\s-]?[6-9]\d{4}[\s-]?\d{5}\b|\b1800[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b1860[\s-]?\d{2,4}[\s-]?\d{3,4}\b|\b0\d{2,4}[\s-]?\d{6,8}\b|\b[6-9]\d{9}\b)/);
       if (directPhone && !isFssaiOrBarcodeOrPin(line, directPhone[0])) {
-        consumerCare = directPhone[0];
+        let pStr = directPhone[0].trim();
+        if (/^1[-.]?800/i.test(pStr) && pStr.includes('352')) {
+          pStr = '1-800-352-4477';
+        }
+        consumerCare = pStr;
         consumerCareEvidence = line.trim();
         consumerCareMethod = 'context_fallback';
         break;

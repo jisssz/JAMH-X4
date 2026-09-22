@@ -2618,3 +2618,56 @@ test('Phase 23 Test 10: 4 complete panels with all fields distributed → PASS v
   assert.strictEqual(result.panelContributions.length, 4, 'All 4 panels must appear in contributions');
   assert.strictEqual(result.hasConflict, false, 'No conflicts expected in a clean 4-panel scan');
 });
+
+test('Phase 24: SIH 2026 Screening Live Demo - Lay\'s Potato Chips Package Controlled Regression', () => {
+  const laysBackPanelOcr = `
+    Questions or Comments? 1-800-352+4 4
+    Nutrition Facts
+    Serving Size 1 package
+    Calories 160 Calories from Fat 90
+    Total Fat 10g 16%
+    Saturated Fat 1.5g 8%
+    Cholesterol 0mg 0%
+    Sodium 170mg 7%
+    Total Carbohydrate 15g 5%
+    Protein 2g
+    Dietary Fiber 1g
+    Ingredients: Potatoes, Vegetable Oil, and Salt
+    FRITO-LAY, ING. | 0 "128400709085" " &
+    PLANO, TX 7504-4099
+  `;
+
+  const label = parseLabel(laysBackPanelOcr);
+
+  // 1. Mandatory declarations present on package
+  assert.strictEqual(label.manufacturer, 'FRITO-LAY, INC.', 'Manufacturer must be extracted and cleaned to FRITO-LAY, INC.');
+  assert.ok(label.address?.includes('PLANO, TX'), 'Premises address must be extracted as PLANO, TX');
+  assert.strictEqual(label.consumerCare, '1-800-352-4477', 'Consumer care toll-free contact must be normalized');
+
+  // 2. Nutrition Facts guard: Calories, Fat, Sodium must NEVER be extracted as MRP or Net Quantity
+  assert.strictEqual(label.mrp, undefined, 'US packet does not have Indian MRP; must be undefined');
+  assert.strictEqual(label.netQuantity, undefined, 'Nutrition facts (10g, 170mg) must NOT be captured as net quantity');
+  assert.strictEqual(label.packingDate, undefined, 'No packing/mfg date on this back panel; must be undefined');
+
+  // 3. Legal Metrology Rule 6 Evaluation
+  const engine = new RulesEngine();
+  const verdict = engine.evaluate(label);
+
+  // Overall verdict must be REVIEW (potential issues detected — manual verification recommended)
+  assert.strictEqual(verdict.overallStatus, 'REVIEW', 'Zero-false-PASS invariant: missing MRP, Net Qty, Date must trigger REVIEW');
+
+  // Verify individual rule checks
+  const mfgCheck = verdict.checks.find((c) => c.field === 'manufacturer');
+  const addrCheck = verdict.checks.find((c) => c.field === 'address');
+  const careCheck = verdict.checks.find((c) => c.field === 'consumerCare');
+  const mrpCheck = verdict.checks.find((c) => c.field === 'mrp');
+  const qtyCheck = verdict.checks.find((c) => c.field === 'netQuantity');
+  const dateCheck = verdict.checks.find((c) => c.field === 'packingDate');
+
+  assert.strictEqual(mfgCheck?.passed, true, 'Rule 3 (Manufacturer) must PASS');
+  assert.strictEqual(addrCheck?.passed, true, 'Rule 4 (Address) must PASS');
+  assert.strictEqual(careCheck?.passed, true, 'Rule 6 (Consumer Care) must PASS');
+  assert.strictEqual(mrpCheck?.passed, false, 'Rule 1 (MRP) must be REVIEW / unverified');
+  assert.strictEqual(qtyCheck?.passed, false, 'Rule 2 (Net Quantity) must be REVIEW / unverified');
+  assert.strictEqual(dateCheck?.passed, false, 'Rule 5 (Date) must be REVIEW / unverified');
+});

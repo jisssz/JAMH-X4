@@ -80,6 +80,7 @@ export const Results: React.FC = () => {
   const [showRawOcr, setShowRawOcr] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const [expandedField, setExpandedField] = useState<string | null>(null);
 
   // Empty / Failure State Handling
   if (!extractedLabel || !verdict) {
@@ -328,7 +329,7 @@ export const Results: React.FC = () => {
                 Mandatory Declarations
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Evaluation under Rule 6, Legal Metrology (Packaged Commodities) Rules, 2011
+                Evaluation under Rule 6, Legal Metrology (Packaged Commodities) Rules, 2011 · Click any declaration for forensic evidence trail
               </p>
             </div>
             <span className="text-xs text-slate-500 font-mono">6 statutory fields</span>
@@ -340,53 +341,131 @@ export const Results: React.FC = () => {
               const isAmbiguous = Boolean(field.isAmbiguous);
               const origin = multiPanelResult?.fieldOrigins?.[field.key];
               const fieldStatus = extractedLabel.declarationCoverage?.fieldStatuses?.[field.key];
+              const evidenceRecord = extractedLabel.fieldEvidenceRecords?.[field.key];
+              const check = verdict.checks.find((c) => c.field === field.key || (field.key === 'date' && c.field === 'packingDate'));
+              const isExpanded = expandedField === field.key;
 
               return (
                 <div
                   key={field.key}
-                  className="py-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-center"
+                  className="py-3.5 transition group"
                 >
-                  {/* Field Label & Source */}
-                  <div className="md:col-span-4">
-                    <span className="text-xs text-slate-400 font-medium block">
-                      {field.label}
-                    </span>
-                    {origin && (
-                      <span className="text-[10px] text-emerald-400/90 font-mono mt-0.5 block">
-                        Source: {origin.panelLabel}
-                      </span>
-                    )}
+                  <div
+                    onClick={() => setExpandedField(isExpanded ? null : field.key)}
+                    className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center cursor-pointer p-2.5 -mx-2.5 rounded-2xl hover:bg-white/[0.02] transition"
+                  >
+                    {/* Field Label & Source */}
+                    <div className="md:col-span-4 flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-slate-400 group-hover:text-white transition">
+                        {field.icon}
+                      </div>
+                      <div>
+                        <span className="text-xs text-slate-300 font-medium block group-hover:text-white transition">
+                          {field.label}
+                        </span>
+                        {origin && (
+                          <span className="text-[10px] text-emerald-400/90 font-mono mt-0.5 block">
+                            Source: {origin.panelLabel}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Detected Value */}
+                    <div className="md:col-span-5 text-sm font-medium text-white break-words">
+                      {detected
+                        ? field.value
+                        : fieldStatus === 'present_ocr_failed'
+                        ? 'Cues visible on label but unreadable — closer focus required'
+                        : '—'}
+                    </div>
+
+                    {/* Status Indicator & Accordion Toggle */}
+                    <div className="md:col-span-3 flex items-center justify-between md:justify-end gap-2 text-left md:text-right">
+                      {detected && !isAmbiguous ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Detected
+                        </span>
+                      ) : detected && isAmbiguous ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                          <AlertTriangle className="w-3.5 h-3.5" /> Needs review
+                        </span>
+                      ) : fieldStatus === 'present_ocr_failed' ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-400">
+                          <AlertTriangle className="w-3.5 h-3.5" /> OCR unclear
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+                          <AlertCircle className="w-3.5 h-3.5" /> Not detected
+                        </span>
+                      )}
+                      <div className="text-slate-500 group-hover:text-slate-300 transition pl-1">
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Detected Value */}
-                  <div className="md:col-span-5 text-sm font-medium text-white break-words">
-                    {detected
-                      ? field.value
-                      : fieldStatus === 'present_ocr_failed'
-                      ? 'Cues visible on label but unreadable — closer focus required'
-                      : '—'}
-                  </div>
+                  {/* Traceable Evidence Drawer */}
+                  {isExpanded && (
+                    <div className="mt-2.5 p-4 rounded-2xl bg-black/50 border border-white/[0.08] space-y-3 text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                            Forensic Provenance
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                            Package ➔ OCR ➔ Field ➔ Rule ➔ Verdict
+                          </span>
+                        </div>
+                        {evidenceRecord?.confidence ? (
+                          <span className="text-[10px] font-mono text-slate-400 bg-white/[0.03] px-2 py-0.5 rounded border border-white/[0.06]">
+                            Method: {evidenceRecord.extractionMethod} · Confidence: {evidenceRecord.confidence}%
+                          </span>
+                        ) : null}
+                      </div>
 
-                  {/* Status Indicator */}
-                  <div className="md:col-span-3 text-left md:text-right">
-                    {detected && !isAmbiguous ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Detected
-                      </span>
-                    ) : detected && isAmbiguous ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400">
-                        <AlertTriangle className="w-3.5 h-3.5" /> Needs review
-                      </span>
-                    ) : fieldStatus === 'present_ocr_failed' ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-400">
-                        <AlertTriangle className="w-3.5 h-3.5" /> OCR unclear
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-                        <AlertCircle className="w-3.5 h-3.5" /> Not detected
-                      </span>
-                    )}
-                  </div>
+                      {/* Raw Text Snippet */}
+                      <div>
+                        <span className="text-[10px] uppercase font-semibold text-slate-400 block mb-1">
+                          Verbatim OCR Evidence Extracted:
+                        </span>
+                        <div className="p-3 rounded-xl bg-black/80 border border-emerald-500/20 font-mono text-[11px] text-emerald-300 break-all select-all">
+                          {evidenceRecord?.rawOcrSnippet || origin?.value || (detected ? field.value : 'No corresponding OCR text pattern identified.')}
+                        </div>
+                      </div>
+
+                      {/* Legal Rule & Mandate */}
+                      {check && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-white/[0.04]">
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                              Statutory Mandate:
+                            </span>
+                            <p className="text-slate-300 text-[11px] mt-0.5 font-medium">
+                              {check.source || 'Legal Metrology (Packaged Commodities) Rules, 2011'}
+                            </p>
+                            {check.gazetteReference && (
+                              <span className="text-[10px] text-slate-500 font-mono block mt-0.5">
+                                Gazette: {check.gazetteReference}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                              Rule 6 Finding:
+                            </span>
+                            <p className="text-slate-300 text-[11px] mt-0.5">
+                              {check.explanation}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
